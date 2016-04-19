@@ -67,6 +67,7 @@ bool savecov = false;    // Save covariance matrix plot
 
 bool scouting = true;    // Writes scouting text to plot
 bool blind = true;       // Blind 693 < mjj < 838 for scouting analysis
+bool semiunblind = false;// Reveal data in blinded region, but do not fit
 bool trigfit = true; // If false, use trigger ineff as prescale and normal fit
 bool addtrigerr = false; // Add trigger uncertainty (if also trigfit=true)
 
@@ -152,9 +153,21 @@ void dijetmass_scouting_sig() {
 
   // zzz (short cut to get here)
 
-  // Blinding steps
+  // Unblinding on April 20 at 8:30am GVA time
+  string toy = "btoy2"; // dry rehearsal on toyMC
   bool sigfit = false;
-  dijetmass_scouting_sig_pars("_blind", 565, 2037, kSimFit, sigfit);
+  // 0. Baseline blinded result
+  blind = true;
+  dijetmass_scouting_sig_pars("_blind", 565, 2037, kSimFit, sigfit, toy);
+  // 1. Semiunblind result (show, but not fitting)
+  semiunblind = true;
+  dijetmass_scouting_sig_pars("_semiblind", 565, 2037, kSimFit, sigfit, toy);
+  // 2. Unblind background (refit background over unblinded region)
+  blind = false;
+  dijetmass_scouting_sig_pars("_bfit", 565, 2037, kSimFit, sigfit, toy);
+  // 3. Unblind signal (fit S+B)
+  sigfit = true;
+  dijetmass_scouting_sig_pars("_sbfit", 565, 2037, kSimFit, sigfit, toy);
 
   // No signal fit, just background
   /*
@@ -321,6 +334,7 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
   hmjj1 = (TH1D*)f->Get(isToy ? Form("mjj_%s",ctoy) : "mjj_mjjcor_gev");
   assert(hmjj);
   assert(hmjj1);
+  TH1D *hmjj_blind = (TH1D*)hmjj->Clone("hmjj_blind"); hmjj_blind->Reset();
 
   // Load QCD background MC
   TH1D *hqcd = (TH1D*)fq->Get("mjj");
@@ -458,6 +472,7 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
 			    "luminosity normalization") << endl;
   }    
 
+  // Calculate proper normalized cross section
   for (int i = 1; i != hmjj->GetNbinsX()+1; ++i) {
 
     double n = hmjj->GetBinContent(i);
@@ -506,6 +521,9 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
 
     hmjj->SetBinContent(i, y);
     hmjj->SetBinError(i, 0.5*(eyl+eyh));
+
+    hmjj_blind->SetBinContent(i, y);
+    hmjj_blind->SetBinError(i, 0.5*(eyl+eyh));
 
     // Graph with asymmetric Poisson errors
     if (m>xmin && m<xmax) {
@@ -751,8 +769,24 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
     }
   }
 
-  // Semiblind
-  
+  if (blind && semiunblind) {
+    for (int i = 1; i != hmjj_blind->GetNbinsX()+1; ++i) {
+
+      double y = hmjj_blind->GetBinContent(i);
+      double ey = hmjj_blind->GetBinError(i);
+      double xl = hmjj_blind->GetBinLowEdge(i);
+      double xh = hmjj_blind->GetBinLowEdge(i+1);
+      double x = 0.5*(xl+xh);
+
+      if (y!=0 && ey!=0 && x>blindlow && x<blindhigh) {
+	double yfit = f1->Integral(xl,xh)/(xh-xl);
+	double dy = yfit - y;
+	chi2 += dy*dy / (ey*ey);
+	++ndf;
+      }
+    }
+  } // semiunblind
+
   if (!quiet) cout << "f1 has " << f1->GetNpar() << " parameters, "
 		   << f1->GetNumberFreeParameters() << " free parameters and "
 		   << f1->GetNDF() << " degrees of freedom (np="
@@ -835,6 +869,8 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
 
   // (Data-Fit) / ((Total) uncertainty)
   TH1D *hratio = (TH1D*)hmjj->Clone("hratio");
+  TH1D *hratio_blind = (TH1D*)hmjj->Clone("hratio_blind");
+  hratio_blind->Reset();
   TH1D *hsignalratio = (TH1D*)hmjj->Clone("hsignalratio");
   hscstat = (TH1D*)hmjj->Clone("hscstat");
   hsigoy = (TH1D*)hmjj->Clone("hsigoy");
@@ -885,10 +921,17 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
     else { // blinded region or outside fit range
 
       hratio->SetBinContent(i, 0);
+      if (blind && semiunblind && x>blindlow && x<blindhigh) {
+	double y_fit = f1->Integral(xl,xh)/(xh-xl);
+	double sigma = hmjj_blind->GetBinError(i);
+	hratio_blind->SetBinContent(i, (hmjj_blind->GetBinContent(i)
+					- y_fit) / sigma);
+      }
       if (blind && x>blindlow && x<blindhigh) {
 	double y_fit0 = fsigout->Integral(xl,xh)/(xh-xl);
 	double y_fit = f1->Integral(xl,xh)/(xh-xl);
 	double sigma0 = sqrt(y_fit0/((xh-xl)*lumi));
+
 	if (trigfit && !combofit) {
 	  sigma0 = sqrt(sigma0*sigma0+pow(y_fit0*hmjjet->GetBinContent(i),2.));
 	}
@@ -1027,6 +1070,7 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
      }
 
      tdrDraw(hratio,"H");
+     if (blind && semiunblind) tdrDraw(hratio_blind,"H",0,kRed+2,kSolid,-1,1001,kRed-9);
 
      // Draw change in fit after signal injection
      hfitratio->SetLineWidth(2);
