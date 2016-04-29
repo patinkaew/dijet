@@ -154,7 +154,7 @@ void dijetmass_scouting_sig() {
   // zzz (short cut to get here)
 
   // Unblinding on April 20 at 8:30am GVA time
-  string toy = "btoy2"; // dry rehearsal on toyMC
+  string toy = "";//btoy2"; // dry rehearsal on toyMC
   bool sigfit = false;
   // 0. Baseline blinded result
   blind = true;
@@ -312,7 +312,8 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
 
   // Input data sample
   TFile *f = new TFile(isToy ? "toymc.root" :
-		       "rawhists/rawhistV7_Run2015D_scoutingPFHT_BLINDED_649_838_JEC_HLTplusV7_Mjj_cor_smooth.root","READ");
+		       //"rawhists/rawhistV7_Run2015D_scoutingPFHT_BLINDED_649_838_JEC_HLTplusV7_Mjj_cor_smooth.root","READ");
+		       "rawhists/rawhistV7_Run2015D_scoutingPFHT_UNBLINDED_649_838_JEC_HLTplusV7_Mjj_cor_smooth.root","READ");
   assert(f && !f->IsZombie());
 
   // QCD MC for comparisons
@@ -389,7 +390,8 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
   // Background fit without signal injection for blind region placeholder
   TF1 *fsigout = new TF1("fsigout",fitBtS,fitmin,fitmax,nFitBtS);
   //fsigout->SetParameters(3.68542e-07, 5.1268, 7.38103, 0.395473, 495.253, 93.9084, 0); // values used for toyMC generation
-  fsigout->SetParameters(3.74058e-07, 5.20434, 7.38254, 0.397342, 495.772, 92.4408, 0); // blind fit on April 19
+  //fsigout->SetParameters(3.74058e-07, 5.20434, 7.38254, 0.397342, 495.772, 92.4408, 0); // blind fit on April 19
+  fsigout->SetParameters(3.68221e-07, 5.12373, 7.38122, 0.395453, 495.303, 93.8561, 0); // blind fit on April 29
 
   // Load trigger turn-on data
   TEfficiency *efftrg = (TEfficiency*)ft->Get(isToy ?
@@ -1615,6 +1617,16 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
   ftrigratio->SetParameters(f1->GetParameter(np-3),f1->GetParameter(np-2),
 			    fsigout->GetParameter(np-3),
 			    fsigout->GetParameter(np-2));
+  TF1 *fbfitratio = new TF1("fbfitratio",
+			    "100.*(([0]*pow(1-x/13000.,[1])/pow(x/13000.,[2]"
+			    "+[3]*log(x/13000.) )) /"
+			    "([4]*pow(1-x/13000.,[5])/pow(x/13000.,[6]"
+			    "+[7]*log(x/13000.) )) - 1)",
+			    trgfitmin, trgfitmax);
+  for (int i = 0; i != f1->GetNpar()-3; ++i) 
+    fbfitratio->SetParameter(i, f1->GetParameter(i));
+  for (int i = 0; i != fsigout->GetNpar()-3; ++i)
+    fbfitratio->SetParameter(f1->GetNpar()-3+i, fsigout->GetParameter(i));
   TF1 *ffitratio = new TF1("ffitratio",
 			   "100.*(([0]*pow(1-x/13000.,[1])/pow(x/13000.,[2]"
 			   "+[3]*log(x/13000.) ))*"
@@ -1639,31 +1651,41 @@ ensemble dijetmass_scouting_sig_pars(const char *pname,
 
   tdrDraw(htrgstat,"E2",kNone,kYellow+1,kSolid,-1,1001,kYellow+1);
   tdrDraw(hefferr,"E2",kNone,kOrange+3,kSolid,-1,1001,kOrange+1);
-  tdrDraw(hscstat,"E2",kNone,kGreen+1,kSolid,-1,kNone,kGreen+1);
+  tdrDraw(hscstat,"E2",kNone,kRed+3,kSolid,-1,3013,kRed+3);
   tdrDraw(he2r,"E2",kNone,kGreen+3,kSolid,-1,kNone,kGreen+3);
 
   ftrigratio->SetLineWidth(2);
   ftrigratio->SetLineColor(kCyan+1);
   ftrigratio->Draw("SAME");
 
+  fbfitratio->SetLineWidth(2);
+  fbfitratio->SetLineStyle(kDashed);
+  fbfitratio->SetLineColor(kCyan+2);
+  fbfitratio->Draw("SAME");
+
   ffitratio->SetLineWidth(2);
-  ffitratio->SetLineStyle(kDashed);
+  ffitratio->SetLineStyle(kDotted);
   ffitratio->SetLineColor(kCyan+3);
   ffitratio->Draw("SAME");
 
   hsigoy->SetLineWidth(2);
   tdrDraw(hsigoy,"H][",kNone,kBlue,kSolid,kBlue,kNone);
 
-  TLegend *legs = tdrLeg(0.55,0.55,0.85,0.90);
+  TLegend *legs = tdrLeg(0.50,0.60,0.80,0.90);
   legs->SetTextSize(0.035);
   legs->AddEntry(htrgstat,"Trg. eff. (bin-by-bin)","FL");
-  legs->AddEntry(hefferr,"#epsilon (sep. fit)","FL");
+  legs->AddEntry(hefferr,"Trg. eff. (sep. fit)","FL");
   legs->AddEntry(hscstat,"Data (bin-by-bin)","FL");
-  legs->AddEntry(he2r,Form("B (%s fit %1.0f-%1.0f GeV)",
+  legs->AddEntry(he2r,Form("Fit (%s fit %1.0f-%1.0f GeV)",
 			   combofit ? "sim." : "sep.",
 			   fitmin, fitmax), "FL");
-  legs->AddEntry(ftrigratio,"Trig. eff. (fit/ref.)","L");
-  legs->AddEntry(ffitratio,"B#times#epsilon (fit/ref.)","L");
+  legs->AddEntry(hsigoy,"750 GeV (#sigma_{gg}=15 pb)","L");
+
+  TLegend *legf = tdrLeg(0.55,0.17,0.85,0.38);
+  legf->SetHeader("Fit ratios");
+  legf->AddEntry(ffitratio,"B#times#epsilon (fit/ref.)","L");
+  legf->AddEntry(fbfitratio,"B fit (fit/ref.)","L");
+  legf->AddEntry(ftrigratio,"#epsilon fit (fit/ref.)","L");
 
   gPad->RedrawAxis();
 
@@ -1823,7 +1845,8 @@ void comboFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par,
 	// Calculate fit value at this point
 	//for (int ipar = 0; ipar != ft->GetNpar(); ++ipar) {
 	  //ft->SetParameter(ipar, par[npar-2+ipar]);
-	for (int ipar = 0; ipar != ft->GetNpar()-1; ++ipar) {
+	assert(ft->GetNpar()==2);
+	for (int ipar = 0; ipar != ft->GetNpar(); ++ipar) {
 	  ft->SetParameter(ipar, par[npar-3+ipar]);
 	}
 	double fit = ft->Eval(mass);//f->EvalPar(&mass,par);
