@@ -1,2 +1,2 @@
 # dijet
-CMS dijet bump hunt
+CMS dijet analysis
