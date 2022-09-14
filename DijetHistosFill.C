@@ -24,6 +24,7 @@ double DELTAPHI(double a, double b) {
 class basicHistos {
 public:
   string trg;
+  int trgpt;
   double ptmin;
   double ptmax;
 
@@ -101,8 +102,65 @@ public:
   TH2D *h2m2pf;
   TH2D *h2m2pfx;
 
-  TProfile2D *p2etaphia, *p2etaphit, *p2etaphip;  
+  TProfile2D *p2etaphia, *p2etaphit, *p2etaphip;
+
+  //TH1D *hmjji, *hmjji13, *hmjj1, *hmjj113;
+  TH1D *hmjj2, *hmjj213;
+  //TH1D *hmjj, *hmjj113;
+
+  TProfile *pjes, *pdjes, *pjes13, *pdjes13;
+  TProfile *pchf, *pnhf, *pnef, *pcef, *pmuf, *phef, *phhf;
+  TProfile *pchf13, *pnhf13, *pnef13, *pcef13, *pmuf13;
+
+  TProfile *phashlt, *pishlt, *pismax, *pisnear, *pisclose;
+  TProfile *pjeshlt, *pjeshltmax, *pjeshltnear, *pjeshltclose;
+  TProfile *ppthlt, *pptoff, *ppttag;
+  TH2D *h2jeshlt;
 };
+
+// Helper function to retrieve FactorizedJetCorrector 
+FactorizedJetCorrector *getFJC(string l1="", string l2="", string res="",
+			       string path="") {
+
+  // Set default jet algo                                                       
+  if (l1!="" && !(TString(l1.c_str()).Contains("_AK")))
+    l1 += "_AK4PFPuppi";
+  if (l2!="" && !(TString(l2.c_str()).Contains("_AK")))
+    l2 += "_AK4PFPuppi";
+  if (res!="" && !(TString(res.c_str()).Contains("_AK")))
+    res += "_AK4PFPuppi";
+
+  // Set default path
+  if (path=="") path = "CondFormats/JetMETObjects/data";
+  const char *cd = path.c_str();
+  const char *cl1 = l1.c_str();
+  const char *cl2 = l2.c_str();
+  const char *cres = res.c_str();
+  string s("");
+
+  vector<JetCorrectorParameters> v;
+  if (l1!=""){
+    s = Form("%s/%s.txt",cd,cl1);
+    cout << s << endl << flush;
+    JetCorrectorParameters *pl1 = new JetCorrectorParameters(s);
+    v.push_back(*pl1);
+  }
+  if (l2!="") {
+    s = Form("%s/%s.txt",cd,cl2);
+    cout << s << endl << flush;
+    JetCorrectorParameters *pl2 = new JetCorrectorParameters(s);
+    v.push_back(*pl2);
+  }
+  if (res!="") {
+    s = Form("%s/%s.txt",cd,cres);
+    cout << s << endl << flush;
+    JetCorrectorParameters *pres = new JetCorrectorParameters(s);
+    v.push_back(*pres);
+  }
+  FactorizedJetCorrector *jec = new FactorizedJetCorrector(v);
+
+  return jec;
+} // getJF
 
 void DijetHistosFill::Loop()
 {
@@ -200,12 +258,39 @@ void DijetHistosFill::Loop()
    fChain->SetBranchStatus("Jet_phi",1);
    fChain->SetBranchStatus("Jet_mass",1);
 
+   fChain->SetBranchStatus("Jet_rawFactor",1);
+
+   fChain->SetBranchStatus("Jet_chHEF",1);  // h+
+   fChain->SetBranchStatus("Jet_neHEF",1);  // h0
+   fChain->SetBranchStatus("Jet_neEmEF",1); // gamma
+   fChain->SetBranchStatus("Jet_chEmEF",1); // e
+   fChain->SetBranchStatus("Jet_muEF",1);   // mu
+   fChain->SetBranchStatus("Jet_hfEmEF",1); // HFe
+   fChain->SetBranchStatus("Jet_hfHEF",1);  // HFh
+
    fChain->SetBranchStatus("PuppiMET_pt",1);
    fChain->SetBranchStatus("PuppiMET_phi",1);
 
    fChain->SetBranchStatus("Flag_METFilters",1);
 
-   TLorentzVector p4met;
+   // Trigger studies
+   fChain->SetBranchStatus("nTrigObj",1);
+   fChain->SetBranchStatus("TrigObj_pt",1);
+   fChain->SetBranchStatus("TrigObj_eta",1);
+   fChain->SetBranchStatus("TrigObj_phi",1);
+   fChain->SetBranchStatus("TrigObj_id",1); // Jet==1, FatJet==6?
+   // https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_8/PhysicsTools/NanoAOD/python/triggerObjects_cff.py#L136-L180
+   
+   // Select appropriate L1RC for type-I MET L1L2L3-RC calculation
+   //FactorizedJetCorrector *jecl1rc(0);
+   //string& ds = dataset;
+   //if (ds=="2016B") jecl1rc = getFJC("Summer19UL16APV_RunBCD_V7_DATA_L1RC");
+   // Redo JEC
+   FactorizedJetCorrector *jec(0);
+   jec = getFJC("","Winter22Run3_V1_MC_L2Relative","","");
+
+   
+   TLorentzVector p4met, p4dj;
    TLorentzVector p4, p4s, p4mht, p4mht2, p4mhtc, p4mhtc3, p4t, p4p;
    TLorentzVector p4b, p4bx, p4c, p4cx, p4f, p4fx;
    TLorentzVector p4m0, p4m2, p4mn, p4mu, p4mo;
@@ -309,7 +394,21 @@ void DijetHistosFill::Loop()
    TH2D *h2m2pf = new TH2D("h2m2pf","PtProb Forward;#eta;MPF2",nx,vx,nz,vz);
    TH2D *h2m2pfx =new TH2D("h2m2pfx","PtProb Forward;#eta;MPF2X",nx,vx,nz,vz);
 
-
+   // HLT-offline matching using tag-and-probe (trigger-matched tag)
+   TProfile *phashlt = new TProfile("phashlt",";#eta;Has HLT match",nx,vx);
+   TProfile *pishlt = new TProfile("pishlt",";#eta;Is good HLT match",nx,vx);
+   TProfile *pismax = new TProfile("pismax",";#eta;Hardest HLT match",nx,vx);
+   TProfile *pisnear = new TProfile("pisnear",";#eta;Nearest HLT match",nx,vx);
+   TProfile *pisclose = new TProfile("pisclose",";#eta;Closest in pT HLT match",nx,vx);
+   TProfile *pjeshlt = new TProfile("pjeshlt",";#eta;HLT/Off",nx,vx);
+   TProfile *pjeshltmax = new TProfile("pjeshltmax",";#eta;HLT/Off",nx,vx);
+   TProfile *pjeshltnear = new TProfile("pjeshltnear",";#eta;HLT/Off",nx,vx);
+   TProfile *pjeshltclose = new TProfile("pjeshltclose",";#eta;HLT/Off",nx,vx);
+   TProfile *ppthlt = new TProfile("ppthlt",";#eta;PtProbe(HLT)",nx,vx);
+   TProfile *pptoff = new TProfile("pptoff",";#eta;PtProbe(off)",nx,vx);
+   TProfile *ppttag = new TProfile("ppttag",";#eta;PtTag",nx,vx);
+   TH2D *h2jeshlt = new TH2D("h2jeshlt",";#eta;HLT/Off",nx,vx,ny,vy);
+   
    // 2D eta-phi histograms and profiles for jet veto maps
    TH2D *h2etaphi = new TH2D("h2etaphi","All;#eta;#phi",nx,vx,
 			     72,-TMath::Pi(),TMath::Pi());
@@ -380,6 +479,48 @@ void DijetHistosFill::Loop()
    TH1D *hmv2 = new TH1D("hmv2","MPF2 PtAve",800,-2,6);
    //TH1D *hmv2 = new TH1D("hmv2","MPF2 PtAve",400,-2,2);
 
+   // PF composition plots
+   // Copy L2Res histograms for multiple pT bins
+   const double vpt[] = {40, 50, 60, 70, 85, 100, 125, 155, 180, 210, 250, 300,
+			 350, 400, 500, 600, 800, 1000, 1200, 1500,
+			 1800, 2100, 2400, 2700, 3000};
+   const int npt = sizeof(vpt)/sizeof(vpt[0])-1;
+   TH1D *hptbins = new TH1D("hptbins",";p_{T} (GeV);N_{events}",npt,vpt);
+
+   TProfile *pjes = new TProfile("pjes","JES",nx,vx);
+   TProfile *pdjes = new TProfile("pdjes","#DELTAJES",nx,vx);
+   TProfile *pchf = new TProfile("pchf","CHF",nx,vx);
+   TProfile *pnhf = new TProfile("pnhf","NHF",nx,vx);
+   TProfile *pnef = new TProfile("pnef","NEF",nx,vx);
+   TProfile *pcef = new TProfile("pcef","CEF",nx,vx);
+   TProfile *pmuf = new TProfile("pmuf","MUF",nx,vx);
+   TProfile *phef = new TProfile("phfhf","HEF",nx,vx);
+   TProfile *phhf = new TProfile("phfef","HHF",nx,vx);
+
+   TProfile *pjes13 = new TProfile("pjes13","JES",npt,vpt);
+   TProfile *pdjes13 = new TProfile("pdjes13","#DELTAJES",npt,vpt);
+   TProfile *pchf13 = new TProfile("pchf13","CHF",npt,vpt);
+   TProfile *pnhf13 = new TProfile("pnhf13","NHF",npt,vpt);
+   TProfile *pnef13 = new TProfile("pnef13","NEF",npt,vpt);
+   TProfile *pcef13 = new TProfile("pcef13","CEF",npt,vpt);
+   TProfile *pmuf13 = new TProfile("pmuf13","MUF",npt,vpt);
+   
+   // Extra fun
+   // Run vs BX => need BX
+   //TH1D *hmjji = new TH1D("hmjji","Dijet mass, inclusive",1000,0,1000);
+   //TH1D *hmjji13 = new TH1D("hmjji13","Dijet mass, |#DeltaEta|<1.3, incl.",
+   //			    1000,0,1000);
+   //TH1D *hmjj1 = new TH1D("hmjj1","Dijet mass, 1-lead",1000,0,1000);
+   //TH1D *hmjj113 = new TH1D("hmjj113","Dijet mass, |#DeltaEta|<1.3, 1-lead",
+   //			    1000,0,1000);
+   TH1D *hmjj2 = new TH1D("hmjj2","Dijet mass, 2-lead",1000,0,1000);
+   TH1D *hmjj213 = new TH1D("hmjj213","Dijet mass, |#DeltaEta|<1.3, 2-lead",
+   			    1000,0,1000);
+   //TH1D *hmjj = new TH1D("hmjj","Dijet mass, tag-and-probe",1000,0,1000);
+   //TH1D *hmjj13 = new TH1D("hmjj13","Dijet mass, |#DeltaEta|<1.3, TnP",
+   //	                    1000,0,1000);
+
+
    bool doJSON = (true && !isMC);
    if (doJSON) {
      if (!LoadJSON()) {
@@ -398,12 +539,6 @@ void DijetHistosFill::Loop()
    int nrun(0), nls(0), nevt(0);
    map<int, map<int, int> > mrunls;
 
-   // Copy L2Res histograms for multiple pT bins
-   const double vpt[] = {40, 50, 60, 70, 85, 100, 125, 155, 180, 210, 250, 300,
-			 350, 400, 500, 600, 800, 1000, 1200, 1500,
-			 1800, 2100, 2400, 2700, 3000};
-   const int npt = sizeof(vpt)/sizeof(vpt[0])-1;
-   TH1D *hptbins = new TH1D("hptbins",";p_{T} (GeV);N_{events}",npt,vpt);
    //vector<basicHistos*> vh(npt);
    map<string, vector<basicHistos*> > mh;
    const bool doPtBins = true;
@@ -417,7 +552,20 @@ void DijetHistosFill::Loop()
        TDirectory *dout = gDirectory;
        vector<basicHistos*> &vh = mh[vtrg[itrg]];
        vh.resize(npt);
-     
+
+       // Figure out trigger pT threshold from the name
+       int trgpt(0), nfound(0);
+       if (nfound!=1)
+	 nfound = sscanf(vtrg[itrg].c_str(),"HLT_PFJet%d",&trgpt);
+       if (nfound!=1)
+	 nfound = sscanf(vtrg[itrg].c_str(),"HLT_PFJetFwd%d",&trgpt);
+       if (nfound!=1)
+	 nfound = sscanf(vtrg[itrg].c_str(),"HLT_DiPFJetAve%d",&trgpt);
+       if (nfound!=1)
+	 nfound = sscanf(vtrg[itrg].c_str(),"HLT_DiPFJetAve%d_HFJEC",&trgpt);
+       assert(nfound==1);
+       assert(trgpt!=0);
+       
        for (int ipt = 0; ipt != npt; ++ipt) {
        
 	 dout->mkdir(Form("Pt_%d_%d",int(vpt[ipt]),int(vpt[ipt+1])));
@@ -425,6 +573,7 @@ void DijetHistosFill::Loop()
 	 basicHistos *h = new basicHistos();
 	 vh[ipt] = h;
 	 h->trg = vtrg[itrg];
+	 h->trgpt = trgpt;
 	 h->ptmin = vpt[ipt];
 	 h->ptmax = vpt[ipt+1];
 	 
@@ -510,6 +659,41 @@ void DijetHistosFill::Loop()
 	 h->h2m2pfx = (TH2D*)h2m2pfx->Clone();
 	 
 	 h->p2etaphip = (TProfile2D*)p2etaphip->Clone();
+
+	 h->hmjj2 = (TH1D*)hmjj2->Clone();
+	 h->hmjj213 = (TH1D*)hmjj213->Clone();
+
+	 h->pjes = (TProfile*)pjes->Clone();
+	 h->pdjes = (TProfile*)pdjes->Clone();
+	 h->pchf = (TProfile*)pchf->Clone();
+	 h->pnhf = (TProfile*)pnhf->Clone();
+	 h->pnef = (TProfile*)pnef->Clone();
+	 h->pcef = (TProfile*)pcef->Clone();
+	 h->pmuf = (TProfile*)pmuf->Clone();
+	 h->phef = (TProfile*)phef->Clone();
+	 h->phhf = (TProfile*)phhf->Clone();
+
+	 h->pjes13 = (TProfile*)pjes13->Clone();
+	 h->pdjes13 = (TProfile*)pdjes13->Clone();
+	 h->pchf13 = (TProfile*)pchf13->Clone();
+	 h->pnhf13 = (TProfile*)pnhf13->Clone();
+	 h->pnef13 = (TProfile*)pnef13->Clone();
+	 h->pcef13 = (TProfile*)pcef13->Clone();
+	 h->pmuf13 = (TProfile*)pmuf13->Clone();
+
+	 h->phashlt = (TProfile*)phashlt->Clone();
+	 h->pishlt = (TProfile*)pishlt->Clone();
+	 h->pismax = (TProfile*)pismax->Clone();
+	 h->pisnear = (TProfile*)pisnear->Clone();
+	 h->pisclose = (TProfile*)pisclose->Clone();
+	 h->pjeshlt = (TProfile*)pjeshlt->Clone();
+	 h->pjeshltmax = (TProfile*)pjeshltmax->Clone();
+	 h->pjeshltnear = (TProfile*)pjeshltnear->Clone();
+	 h->pjeshltclose = (TProfile*)pjeshltclose->Clone();
+	 h->ppthlt = (TProfile*)ppthlt->Clone();
+	 h->pptoff = (TProfile*)pptoff->Clone();
+	 h->ppttag = (TProfile*)ppttag->Clone();
+	 h->h2jeshlt = (TH2D*)h2jeshlt->Clone();
        } // for ipt
      } // for itrg
    } // doPtBins
@@ -518,6 +702,14 @@ void DijetHistosFill::Loop()
    Long64_t nentries = fChain->GetEntries();
    cout << "Loaded " << nentries << " entries" << endl << flush;
 
+   // For trigger matching studies
+   const int kMaxTrigJet = 3;
+   Float_t Jet_hltPt[kMaxTrigJet];
+   Float_t Jet_hltPtClose[kMaxTrigJet];
+   Float_t Jet_hltPtNear[kMaxTrigJet];
+   Float_t Jet_hltPtMax[kMaxTrigJet];
+   Float_t Jet_deltaJES[nJetMax];
+   
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -596,7 +788,61 @@ void DijetHistosFill::Loop()
       //} // fwd-only trigger
       //}
 
+      // Redo JEC right after event cuts but before anything else
+      // Do not re-sort
       int njet = nJet;
+      for (int i  = 0; i != njet; ++i) {
+	jec->setJetPt(Jet_pt[i] * (1.0 - Jet_rawFactor[i])); 
+	jec->setJetEta(Jet_eta[i]);
+	double corr = jec->getCorrection();
+	Jet_deltaJES[i] = (1./corr) / (1.0 - Jet_rawFactor[i]);
+	Jet_pt[i] = corr * Jet_pt[i] * (1.0 - Jet_rawFactor[i]); 
+	Jet_mass[i] = corr * Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
+	Jet_rawFactor[i] = (1.0 - 1.0/corr);
+      } // for njet
+
+      // Match leading jets to HLT objects
+      for (int i  = 0; i != min(njet,kMaxTrigJet); ++i) {
+	Jet_hltPt[i] = 0;
+	Jet_hltPtMax[i] = 0;
+	Jet_hltPtNear[i] = 0;
+	Jet_hltPtClose[i] = 0;
+	double dptmin(9999);
+	double drmin(999);
+	//double drmin2(999);
+	for (unsigned int j  = 0; j != nTrigObj; ++j) {
+	  if (TrigObj_id[j]==1) {
+	    double dphi = DELTAPHI(Jet_phi[i], TrigObj_phi[j]);
+	    double deta = fabs(Jet_eta[i] - TrigObj_eta[j]);
+	    double dr  = sqrt(dphi*dphi + deta*deta);
+	    // Closest in Pt HLT object within jet radius
+	    if (dr < 0.4 && fabs(Jet_pt[i] - TrigObj_pt[j]) < dptmin) {
+	      Jet_hltPtClose[i] = TrigObj_pt[j];
+	      dptmin = fabs(Jet_pt[i] - TrigObj_pt[j]);
+	    }
+	    // Hardest HLT object within jet radius
+	    if (dr < 0.4 && Jet_hltPtMax[i] < TrigObj_pt[j]) {
+	      Jet_hltPtMax[i] = TrigObj_pt[j];
+	    }
+	    // Nearest HLT object within jet radius
+	    if (dr < 0.4 && dr < drmin) {
+	      Jet_hltPtNear[i] = TrigObj_pt[j];
+	      drmin = dr;
+	    }
+	    // Nearest HLT object within half of jet radius
+	    //if (dr < 0.2 && dr < drmin2) {
+	    //Jet_hltPt[i] = TrigObj_pt[j];
+	    //drmin2 = dr;
+	    //}
+	  } // TrigObj==Jet
+	} // for nTrigObj
+	// Require best match within dR<R/2 and also closest in pT at dR<R
+	if (drmin<0.2 && Jet_hltPtClose[i]==Jet_hltPtNear[i]) {
+	  Jet_hltPt[i] = Jet_hltPtClose[i];
+	}
+      } // for njet
+
+      
       int njet3 = 0;
       int njetn = 0;
 
@@ -610,7 +856,7 @@ void DijetHistosFill::Loop()
       p4mn.SetPtEtaPhiM(0,0,0,0);
       p4mu.SetPtEtaPhiM(0,0,0,0);
       p4mo.SetPtEtaPhiM(0,0,0,0);
-      for (int i = 0; i != nJet; ++i) {
+      for (int i = 0; i != njet; ++i) {
 
 	p4.SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i], Jet_mass[i]);
 
@@ -743,10 +989,17 @@ void DijetHistosFill::Loop()
 	  double m0fx = 1 + (p4m0.Vect().Dot(p4fx.Vect()))/ptprobe;
 	  double m2fx = 1 + (p4m2.Vect().Dot(p4fx.Vect()))/ptprobe;
 
+	  // Dijet mass
+	  p4dj = p4t; p4dj += p4p;
+	  double mjj = p4dj.M();
+	  double deta = fabs(p4p.Eta()-p4t.Eta());
+	  //hmjj2->Fill(mjj);
+	  //if (deta<1.3) hmjj213->Fill(mjj);
+	  
 	  basicHistos *h(0);
 	  if (fabs(p4t.Eta())<1.3 && deltaphi>2.7 && fabs(asymm)<maxa) {
 
-	    for (unsigned int itrg = 0; itrg != ntrg; ++itrg) {
+	    for (int itrg = 0; itrg != ntrg; ++itrg) {
 	      
 	      string &trg = vtrg[itrg];
 	      if (!(*mtrg[trg])) continue;
@@ -760,6 +1013,9 @@ void DijetHistosFill::Loop()
 
 		h->hpta->Fill(ptave, w);
 		if (fabs(eta)>2.8) h->hptaf->Fill(ptave, w);
+
+		h->hmjj2->Fill(mjj);
+		if (deta<1.3) h->hmjj213->Fill(mjj);
 		
 		h->pm0ab->Fill(eta, m0b, w);
 		h->pm2ab->Fill(eta, m2b, w);
@@ -785,6 +1041,26 @@ void DijetHistosFill::Loop()
 		h->h2m2abx->Fill(eta, m2bx, w);
 		
 		h->p2etaphia->Fill(eta, p4p.Phi(), asymm, w);
+
+		h->pjes->Fill(eta, (1.0-Jet_rawFactor[iprobe]), w);
+		h->pdjes->Fill(eta, Jet_deltaJES[iprobe], w);
+		h->pchf->Fill(eta, Jet_chHEF[iprobe], w);
+		h->pnhf->Fill(eta, Jet_neHEF[iprobe], w);
+		h->pnef->Fill(eta, Jet_neEmEF[iprobe], w);
+		h->pcef->Fill(eta, Jet_chEmEF[iprobe], w);
+		h->pmuf->Fill(eta, Jet_muEF[iprobe], w);
+		h->phef->Fill(eta, Jet_hfEmEF[iprobe], w);
+		h->phhf->Fill(eta, Jet_hfHEF[iprobe], w);
+
+		if (fabs(eta)<1.3) {
+		  h->pjes13->Fill(ptave, (1.0-Jet_rawFactor[iprobe]), w);
+		  h->pdjes13->Fill(eta, Jet_deltaJES[iprobe], w);
+		  h->pchf13->Fill(ptave, Jet_chHEF[iprobe], w);
+		  h->pnhf13->Fill(ptave, Jet_neHEF[iprobe], w);
+		  h->pnef13->Fill(ptave, Jet_neEmEF[iprobe], w);
+		  h->pcef13->Fill(ptave, Jet_chEmEF[iprobe], w);
+		  h->pmuf13->Fill(ptave, Jet_muEF[iprobe], w);
+		}
 	      }
 	      //double pttag = p4t.Pt();
 	      //if (pttag >= 40 && pttag <50) {
@@ -796,6 +1072,9 @@ void DijetHistosFill::Loop()
 		h->hptt->Fill(pttag, w);
 		if (fabs(eta)>2.8) h->hpttf->Fill(pttag, w);
 
+		hmjj2->Fill(mjj);
+		if (deta<1.3) hmjj213->Fill(mjj);
+		
 		h->pm0tb->Fill(eta, m0b, w);
 		h->pm2tb->Fill(eta, m2b, w);
 		h->pmntb->Fill(eta, mnb, w);
@@ -819,6 +1098,46 @@ void DijetHistosFill::Loop()
 		h->h2m2tcx->Fill(eta, m2cx, w);
 		
 		h->p2etaphit->Fill(eta, p4p.Phi(), p4p.Pt()/pttag, w);
+
+		// Trigger matching studies
+		if (Jet_hltPtMax[itag] > h->trgpt) {
+		  phashlt->Fill(eta, Jet_hltPtMax[iprobe]>0 ? 1 : 0, w);
+		  h->phashlt->Fill(eta, Jet_hltPtMax[iprobe]>0 ? 1 : 0, w);
+		  pishlt->Fill(eta, Jet_hltPt[iprobe]>0 ? 1 : 0, w);
+		  h->pishlt->Fill(eta, Jet_hltPt[iprobe]>0 ? 1 : 0, w);
+		  if (Jet_hltPt[iprobe]>0) {
+		    h->pismax->Fill(eta, Jet_hltPt[iprobe]==Jet_hltPtMax[iprobe] ? 1 : 0,w);
+		    h->pjeshlt->Fill(eta, Jet_hltPt[iprobe]/Jet_pt[iprobe], w);
+		    h->pjeshltmax->Fill(eta, Jet_hltPtMax[iprobe]/Jet_pt[iprobe], w);
+		    h->h2jeshlt->Fill(eta,Jet_hltPt[iprobe]/Jet_pt[iprobe], w);
+		    h->ppthlt->Fill(eta, Jet_hltPt[iprobe], w);
+		    h->pptoff->Fill(eta, Jet_pt[iprobe], w);
+		    h->ppttag->Fill(eta, Jet_pt[itag], w);
+
+		    pismax->Fill(eta, Jet_hltPt[iprobe]==Jet_hltPtMax[iprobe] ? 1 : 0,w);
+		    pjeshlt->Fill(eta, Jet_hltPt[iprobe]/Jet_pt[iprobe], w);
+		    pjeshltmax->Fill(eta,Jet_hltPtMax[iprobe]/Jet_pt[iprobe],w);
+		    h2jeshlt->Fill(eta,Jet_hltPt[iprobe]/Jet_pt[iprobe], w);
+		    ppthlt->Fill(eta, Jet_hltPt[iprobe], w);
+		    pptoff->Fill(eta, Jet_pt[iprobe], w);
+		    ppttag->Fill(eta, Jet_pt[itag], w);
+		  } // good HLT match
+		  if (Jet_hltPtNear[iprobe]>0) {
+		    // Check if nearest is also closest in pT
+		    h->pisclose->Fill(eta, Jet_hltPtNear[iprobe]==Jet_hltPtClose[iprobe] ? 1 : 0,w);
+		    pisclose->Fill(eta, Jet_hltPtNear[iprobe]==Jet_hltPtClose[iprobe] ? 1 : 0,w);
+		    h->pjeshltnear->Fill(eta, Jet_hltPtNear[iprobe]/Jet_pt[iprobe], w);
+		    pjeshltnear->Fill(eta,Jet_hltPtNear[iprobe]/Jet_pt[iprobe], w);
+		  } // nearest HLT match
+		  if (Jet_hltPtClose[iprobe]>0) {
+		    // Check if closest in pT is also nearest
+		    h->pisnear->Fill(eta, Jet_hltPtClose[iprobe]==Jet_hltPtNear[iprobe] ? 1 : 0,w);
+		    pisnear->Fill(eta, Jet_hltPtClose[iprobe]==Jet_hltPtNear[iprobe] ? 1 : 0,w);
+		    h->pjeshltclose->Fill(eta, Jet_hltPtClose[iprobe]/Jet_pt[iprobe], w);
+		    pjeshltclose->Fill(eta, Jet_hltPtClose[iprobe]/Jet_pt[iprobe], w);
+		  } // closest HLT match
+		  
+		} // tag has HLT match above threshold		
 	      }
 	      //double ptprobe = p4p.Pt();
 	      //if (ptprobe >= 40 && ptprobe <50) {
@@ -830,6 +1149,9 @@ void DijetHistosFill::Loop()
 		h->hptp->Fill(ptprobe, w);
 		if (fabs(eta)>2.8) h->hptpf->Fill(ptprobe, w);
 
+		hmjj2->Fill(mjj);
+		if (deta<1.3) hmjj213->Fill(mjj);
+		
 		h->pm0pb->Fill(eta, m0b, w);
 		h->pm2pb->Fill(eta, m2b, w);
 		h->pmnpb->Fill(eta, mnb, w);
@@ -940,7 +1262,7 @@ void DijetHistosFill::Loop()
 
   cout << "Processed " << nrun << " runs, "
        << nls << " luminosity blocks and " << nevt << " events" << endl;
-   cout << "Saving these to file rootfiles/jmenano.json for brilcalc" << endl;
+  cout << "Saving these to file rootfiles/jmenano.json for brilcalc" << endl;
 
    ofstream fjson("rootfiles/jmenano.json");
    fjson << "{" << endl;
@@ -980,6 +1302,7 @@ void DijetHistosFill::Loop()
    fjson << "}" << endl;
    
    cout << Form("Analyzed %d events",_ngoodevts) << endl;
+   cout << "Saving these to " << fout->GetName() << " for drawJMENANO.C" << endl;
 
    //h2mhtvsmet->Draw("COLZ");
 }
@@ -990,11 +1313,20 @@ bool DijetHistosFill::LoadJSON()
   // Golden 1.44/fb
   // string json = "rootfiles/Cert_Collisions2022_355100_356615_Golden.json";
   // Golden JSON, 4.86/fb
-  string json = "rootfiles/Cert_Collisions2022_355100_357550_Golden..json";
-  // DCSOnly 6.40/fb
-  //string json = "rootfiles/Cert_Collisions2022_355100_357550_13p6TeV_DCSOnly_TkPx.json";
-  bool debug = false;
-  cout << "Processing LoadJSON() with " + json + " ...";
+  //string json = "rootfiles/Cert_Collisions2022_355100_357550_Golden..json";
+  // Golden JSON, 7.67/fb
+  string json = "rootfiles/Cert_Collisions2022_355100_357900_Golden.json";
+// Golden JSON RunB, 0.0846/fb
+//string json = "rootfiles/Cert_Collisions2022_eraB_355100_355769_Golden.json";
+// Golden JSON RunC, 4.84/fb
+//string json = "rootfiles/Cert_Collisions2022_eraC_355862_357482_Golden.json"
+// Golden JSON RunD, 2.74/fb
+//string json = "rootfiles/Cert_Collisions2022_eraD_357538_357900_Golden.json";
+  if (isRun2)
+    json="rootfiles/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt";
+  
+  bool debug = true;
+  cout << "Processing LoadJSON() with " + json + " ..." << flush;
   ifstream file(json, ios::in);
   if (!file.is_open()) return false;
   char c;

@@ -17,6 +17,32 @@ How to RUN on Hefaistos:
 
 - rsync -rutP files from Hefaistos
 
+// v8: add UL2018 samples. Implement redoing JEC, add HLT JES with T&P
+// data: 16:44->20:42 (3h58min). TrigObj doubling time?
+// mc: ~20:42->01:15 (4h33min). TrigObj doubling time?
+
+// v7: add PF composition vs eta and pT. Add hmjj2 and hmjj213
+// data 17:15->19:20 (2h5min). mc 21:15->23:27 (2h12min, died).
+// mcflat: 08:04->10:00 (1h56)
+// ul18a: 10:24->16:46 (6h22)
+// Found 10,793,303 bad events according to new JSON (events cut)
+// Found 113,084,154 bad events according to trigger bits (events cut)
+// Processed 117 runs, 55,380 luminosity blocks and 160,691,332 events
+// Analyzed 47,607,178 events
+// ul18mc: 9:14->11:59 (2h45h)
+// Processed 1 runs, 19,928 luminosity blocks and 19,928,000 events
+// Analyzed 19,928,000 events
+
+// v6bothmc on dataFile_QCDFlats.txt
+Loaded 38,809,694 entries
+Processed 1 runs, 19,996 luminosity blocks and 38,809,694 events
+(19:41->23:56->4h15min)
+
+// v6flatmc on dataFile_FlatQCD.txt (new version)
+Loaded 18,904,000 entries
+Processed 1 runs, 18,904 luminosity blocks and 18,904,000 events
+(15:48->17:47, 1h59min)
+
 // v6: run on dataFiles_RunC.txt with 4.86/fb golden JSON => 2.8954/fb
 Loaded 129,672,779 entries
 Found 49,796,825 bad events according to new JSON (events cut)
