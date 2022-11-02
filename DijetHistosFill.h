@@ -742,6 +742,28 @@ public :
    Float_t         TkMET_phi;
    Float_t         TkMET_pt;
    Float_t         TkMET_sumEt;
+   UInt_t          nTrigObjJMEAK4;
+   Float_t         TrigObjJMEAK4_pt[nJetMax];   //[nTrigObjJMEAK4]
+   Float_t         TrigObjJMEAK4_eta[nJetMax];   //[nTrigObjJMEAK4]
+   Float_t         TrigObjJMEAK4_phi[nJetMax];   //[nTrigObjJMEAK4]
+   Float_t         TrigObjJMEAK4_l1pt[nJetMax];   //[nTrigObjJMEAK4]
+   Float_t         TrigObjJMEAK4_l1pt_2[nJetMax];   //[nTrigObjJMEAK4]
+   Float_t         TrigObjJMEAK4_l2pt[nJetMax];   //[nTrigObjJMEAK4]
+   Int_t           TrigObjJMEAK4_id[nJetMax];   //[nTrigObjJMEAK4]
+   Int_t           TrigObjJMEAK4_l1iso[nJetMax];   //[nTrigObjJMEAK4]
+   Int_t           TrigObjJMEAK4_l1charge[nJetMax];   //[nTrigObjJMEAK4]
+   Int_t           TrigObjJMEAK4_filterBits[nJetMax];   //[nTrigObjJMEAK4]
+   UInt_t          nTrigObjJMEAK8;
+   Float_t         TrigObjJMEAK8_pt[nJetMax];   //[nTrigObjJMEAK8]
+   Float_t         TrigObjJMEAK8_eta[nJetMax];   //[nTrigObjJMEAK8]
+   Float_t         TrigObjJMEAK8_phi[nJetMax];   //[nTrigObjJMEAK8]
+   Float_t         TrigObjJMEAK8_l1pt[nJetMax];   //[nTrigObjJMEAK8]
+   Float_t         TrigObjJMEAK8_l1pt_2[nJetMax];   //[nTrigObjJMEAK8]
+   Float_t         TrigObjJMEAK8_l2pt[nJetMax];   //[nTrigObjJMEAK8]
+   Int_t           TrigObjJMEAK8_id[nJetMax];   //[nTrigObjJMEAK8]
+   Int_t           TrigObjJMEAK8_l1iso[nJetMax];   //[nTrigObjJMEAK8]
+   Int_t           TrigObjJMEAK8_l1charge[nJetMax];   //[nTrigObjJMEAK8]
+   Int_t           TrigObjJMEAK8_filterBits[nJetMax];   //[nTrigObjJMEAK8]
    UInt_t          nTrigObj;
    Float_t         TrigObj_pt[68];   //[nTrigObj]
    Float_t         TrigObj_eta[68];   //[nTrigObj]
@@ -1370,8 +1392,8 @@ public :
    Bool_t          HLT_DiPFJetAve160_HFJEC;
    Bool_t          HLT_DiPFJetAve220_HFJEC;
    Bool_t          HLT_DiPFJetAve300_HFJEC;
-   Bool_t          HLT_AK8PFJet15;
-   Bool_t          HLT_AK8PFJet25;
+  //Bool_t          HLT_AK8PFJet15;
+  //Bool_t          HLT_AK8PFJet25;
    Bool_t          HLT_AK8PFJet40;
    Bool_t          HLT_AK8PFJet60;
    Bool_t          HLT_AK8PFJet80;
@@ -1383,8 +1405,8 @@ public :
    Bool_t          HLT_AK8PFJet450;
    Bool_t          HLT_AK8PFJet500;
    Bool_t          HLT_AK8PFJet550;
-   Bool_t          HLT_PFJet15;
-   Bool_t          HLT_PFJet25;
+  //Bool_t          HLT_PFJet15;
+  //Bool_t          HLT_PFJet25;
    Bool_t          HLT_PFJet40;
    Bool_t          HLT_PFJet60;
    Bool_t          HLT_PFJet80;
@@ -5612,8 +5634,8 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_DiPFJetAve160_HFJEC", &HLT_DiPFJetAve160_HFJEC, &b_HLT_DiPFJetAve160_HFJEC);
    fChain->SetBranchAddress("HLT_DiPFJetAve220_HFJEC", &HLT_DiPFJetAve220_HFJEC, &b_HLT_DiPFJetAve220_HFJEC);
    fChain->SetBranchAddress("HLT_DiPFJetAve300_HFJEC", &HLT_DiPFJetAve300_HFJEC, &b_HLT_DiPFJetAve300_HFJEC);
-   fChain->SetBranchAddress("HLT_AK8PFJet15", &HLT_AK8PFJet15, &b_HLT_AK8PFJet15);
-   fChain->SetBranchAddress("HLT_AK8PFJet25", &HLT_AK8PFJet25, &b_HLT_AK8PFJet25);
+   //fChain->SetBranchAddress("HLT_AK8PFJet15", &HLT_AK8PFJet15, &b_HLT_AK8PFJet15);
+   //fChain->SetBranchAddress("HLT_AK8PFJet25", &HLT_AK8PFJet25, &b_HLT_AK8PFJet25);
    fChain->SetBranchAddress("HLT_AK8PFJet40", &HLT_AK8PFJet40, &b_HLT_AK8PFJet40);
    fChain->SetBranchAddress("HLT_AK8PFJet60", &HLT_AK8PFJet60, &b_HLT_AK8PFJet60);
    fChain->SetBranchAddress("HLT_AK8PFJet80", &HLT_AK8PFJet80, &b_HLT_AK8PFJet80);
@@ -5625,8 +5647,8 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_AK8PFJet450", &HLT_AK8PFJet450, &b_HLT_AK8PFJet450);
    fChain->SetBranchAddress("HLT_AK8PFJet500", &HLT_AK8PFJet500, &b_HLT_AK8PFJet500);
    fChain->SetBranchAddress("HLT_AK8PFJet550", &HLT_AK8PFJet550, &b_HLT_AK8PFJet550);
-   fChain->SetBranchAddress("HLT_PFJet15", &HLT_PFJet15, &b_HLT_PFJet15);
-   fChain->SetBranchAddress("HLT_PFJet25", &HLT_PFJet25, &b_HLT_PFJet25);
+   //fChain->SetBranchAddress("HLT_PFJet15", &HLT_PFJet15, &b_HLT_PFJet15);
+   //fChain->SetBranchAddress("HLT_PFJet25", &HLT_PFJet25, &b_HLT_PFJet25);
    fChain->SetBranchAddress("HLT_PFJet40", &HLT_PFJet40, &b_HLT_PFJet40);
    fChain->SetBranchAddress("HLT_PFJet60", &HLT_PFJet60, &b_HLT_PFJet60);
    fChain->SetBranchAddress("HLT_PFJet80", &HLT_PFJet80, &b_HLT_PFJet80);
@@ -5952,7 +5974,9 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_Physics_part6", &HLT_Physics_part6, &b_HLT_Physics_part6);
    fChain->SetBranchAddress("HLT_Physics_part7", &HLT_Physics_part7, &b_HLT_Physics_part7);
    fChain->SetBranchAddress("HLT_Random", &HLT_Random, &b_HLT_Random);
+   */
    fChain->SetBranchAddress("HLT_ZeroBias", &HLT_ZeroBias, &b_HLT_ZeroBias);
+   /*
    fChain->SetBranchAddress("HLT_ZeroBias_Alignment", &HLT_ZeroBias_Alignment, &b_HLT_ZeroBias_Alignment);
    fChain->SetBranchAddress("HLT_ZeroBias_part0", &HLT_ZeroBias_part0, &b_HLT_ZeroBias_part0);
    fChain->SetBranchAddress("HLT_ZeroBias_part1", &HLT_ZeroBias_part1, &b_HLT_ZeroBias_part1);
@@ -6133,6 +6157,8 @@ void DijetHistosFill::Init(TTree *tree)
    */
 
    //map<string, Bool_t *> mtrg;
+   mtrg["HLT_ZeroBias"] = &HLT_ZeroBias;
+   
    mtrg["HLT_DiPFJetAve40"] = &HLT_DiPFJetAve40;
    mtrg["HLT_DiPFJetAve60"] = &HLT_DiPFJetAve60;
    mtrg["HLT_DiPFJetAve80"] = &HLT_DiPFJetAve80;
@@ -6162,8 +6188,8 @@ void DijetHistosFill::Init(TTree *tree)
    mtrg["HLT_DiPFJetAve220_HFJEC"] = &HLT_DiPFJetAve220_HFJEC;
    mtrg["HLT_DiPFJetAve300_HFJEC"] = &HLT_DiPFJetAve300_HFJEC;
 
-   mtrg["HLT_PFJetFwd15"] = &HLT_PFJetFwd15;
-   mtrg["HLT_PFJetFwd25"] = &HLT_PFJetFwd25;
+   //mtrg["HLT_PFJetFwd15"] = &HLT_PFJetFwd15;
+   //mtrg["HLT_PFJetFwd25"] = &HLT_PFJetFwd25;
    mtrg["HLT_PFJetFwd40"] = &HLT_PFJetFwd40;
    mtrg["HLT_PFJetFwd60"] = &HLT_PFJetFwd60;
    mtrg["HLT_PFJetFwd80"] = &HLT_PFJetFwd80;

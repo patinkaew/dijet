@@ -36,17 +36,24 @@ R__LOAD_LIBRARY(DijetHistosFill_C.so)
 
 void mk_DijetHistosFill(string dataset = "X") {
 
+  // Get JMENANO from either location:
+  // - lxplus:/eos/cms/store/group/phys_jetmet/JMENanoRun3/v2p1/JetMET
+  // - Hefaistos:/media/DATA/JME_NANO_DATA
+  
   if (!(dataset=="RunCearly" || dataset=="RunC" ||
+	dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
 	dataset=="FlatQCD" || dataset=="Flat2018QCD" || dataset=="QCDFlats" ||
 	dataset=="UL2018A" || dataset=="UL2018Flat")) {
     cout << "Dataset not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
-	 << "RunCearly, RunC, FlatQCD, Flat2018QCD, QCDFlats" << endl
+	 << "RunCearly, RunC, RunCD, RunE, RunF "
+	 << "FlatQCD, Flat2018QCD, QCDFlats" << endl
 	 << "UL2018A, UL2018Flat" << endl;
   }
   
   // Settings
   bool addData = (dataset=="RunCearly" || dataset=="RunC" ||
+		  dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
 		  dataset=="UL2018A");
   bool addMC = (dataset=="FlatQCD" || dataset=="Flat2018QCD" ||
 		dataset=="QCDFlats" ||

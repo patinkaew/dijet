@@ -17,6 +17,26 @@ How to RUN on Hefaistos:
 
 - rsync -rutP files from Hefaistos
 
+// v13:	invert reference axes on Multijet so that result is pTlead/pTrecoil (v12 and earlier effectively pTrecoil/pTlead). Add requirement that jet[1] and jet[2] at |eta|<2.5, plus check both for pT>30 and pT<0.7*pT[0]
+// Implement also new dijetHistos2 for efficient analysis.
+// RunE v12e: 5.5/fb (5.476540005), RunF v12f: 1.4/fb (1.363428299)
+
+
+// v12: Add p2chf,p2nef,p2nhf and p2chftp,p2chftp,p2nhftp to Jetveto. Update JSON file for 2022BCDEF. Add RunF to mk_*.C listing. Add multijet/h2m2a control.
+=> todo: add Dijet folder with TProfile2D's vs eta and pT
+
+// v11: Add doJetveto and Jetveto folder. Changed multijet alpha veto from
+//      DELTAPHI to DELTAR (avoid bias on forward PU jets)
+
+// v10: Add HLT_ZeroBias. Split text files to ZeroBias and JetMET.
+//      Replace TrigObj with TrigObjJMEAK4. Add TH2D h2m0a and
+//      hcosdphi for multijet controls
+// Oct 12 full JSON: 9.705969501/fb. RunE only: 2.058990167/fb. (ABCD 7.6/fb)
+// (JMENANO on eos: v2p0 4.9 TB, v2p1 6.1 TB)
+
+// v9: Add inclusive jet and multijet folders. Add trigger counts.
+// v9mc: Switch off L2L3Res
+
 // v8: add UL2018 samples. Implement redoing JEC, add HLT JES with T&P
 // data: 16:44->20:42 (3h58min). TrigObj doubling time?
 // mc: ~20:42->01:15 (4h33min). TrigObj doubling time?
