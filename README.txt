@@ -2,12 +2,13 @@ How to RUN on Hefaistos:
 ------------------------
 (try mosh to not drop connection)
 - from local: 'rsync -rutP DijetHistosFill.C DijetHistosFill.h Hefaistos:/media/storage/dijet/'
-- source /work/data/root/bin/thisroot.sh
+- source /work/data/rootbinaries/root/bin/thisroot.sh
+  [was: source /work/data/root/bin/thisroot.sh]
 - (rm *.d *.so *.pcm)
 - root -l -b -q mk_CondFormats.C
 - #define GPU in mk_DijetHistosFill.C
 => edit (version, IOV_list) and execute 'python runAllIOVs.py'
-[- nohup root -l -b -q mk_DijetHistosFill.C > log.txt & ]
+[- nohup root -l -b -q mk_DijetHistosFill.C\(\"X\"\) > log.txt & ]
 + runtime about X
 => edit (version, IOV_list) and execute 'python renameAllIOVs.py'
 
@@ -17,10 +18,25 @@ How to RUN on Hefaistos:
 
 - rsync -rutP files from Hefaistos
 
+To-do:
+- add proper MET for MPF
+- add Crecoil for multijets (+more advanced 2D version)
+- add PF composition folder
+- add trigger turn-on folder
+- add jet veto maps
+- add smeared collection of jets for MC
+
+
+// v16: Fix linking of fixedGridRhoFastjetAll (Rho_*) for Run 2. Modify multijet selection (drop all |eta|>2.5 jets from recoil, not just 1+2).
+
+// v15: Add UL2016GH data+MC. Run time about 9h for data (77M/245M=>7.5k)? Added JetA and Rho as new inputs. Multijet still not working.
+
+// v14: fix absetamin thresholds for mt["HLT_PFJetFwdX"] for X>=140. Add missing HLT_PFJet400 trigger. Add Jetveto/heta_pretrg for minitools/drawFwdTrigEff.C.
+
 // v13:	invert reference axes on Multijet so that result is pTlead/pTrecoil (v12 and earlier effectively pTrecoil/pTlead). Add requirement that jet[1] and jet[2] at |eta|<2.5, plus check both for pT>30 and pT<0.7*pT[0]
 // Implement also new dijetHistos2 for efficient analysis.
 // RunE v12e: 5.5/fb (5.476540005), RunF v12f: 1.4/fb (1.363428299)
-
+// RunCD: 7.6/fb (7.561991506)
 
 // v12: Add p2chf,p2nef,p2nhf and p2chftp,p2chftp,p2nhftp to Jetveto. Update JSON file for 2022BCDEF. Add RunF to mk_*.C listing. Add multijet/h2m2a control.
 => todo: add Dijet folder with TProfile2D's vs eta and pT
