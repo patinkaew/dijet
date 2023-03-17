@@ -19,15 +19,15 @@ How to RUN on Hefaistos:
 - rsync -rutP files from Hefaistos
 
 To-do:
-- add proper MET for MPF
-- add Crecoil for multijets (+more advanced 2D version)
+- add proper MET for MPF => done
+- add Crecoil for multijets +more advanced 2D version => done 1D+2D
 - add PF composition folder
 - add trigger turn-on folder
 - add jet veto maps
 - add smeared collection of jets for MC
+- option: add monitoring of <rho> for each analysis?
 
-
-// v16: Fix linking of fixedGridRhoFastjetAll (Rho_*) for Run 2. Modify multijet selection (drop all |eta|>2.5 jets from recoil, not just 1+2).
+// v16: Fix linking of fixedGridRhoFastjetAll (Rho_*) for Run 2. Modify multijet selection (drop all |eta|>2.5 jets from recoil, not just 1+2), patch pT2/pT1<0.6 to pT2/pTrecoil<0.6 (5% bias!), veto all forward jets, add Crecoil 1D+2D. Implement proper L1L2L3-RC MET for MPF. Clean file structure.
 
 // v15: Add UL2016GH data+MC. Run time about 9h for data (77M/245M=>7.5k)? Added JetA and Rho as new inputs. Multijet still not working.
 
