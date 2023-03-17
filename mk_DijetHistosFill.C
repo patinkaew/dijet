@@ -1,4 +1,4 @@
-// Purpose: Fill gamma+jet analysis histograms
+// Purpose: Fill dijet analysis histograms
 // Author:  mikko.voutilainen@cern.ch
 // Created: June 6, 2021
 /*
@@ -18,9 +18,11 @@
 #include <string>
 
 #define GPU
+//#define LOCAL
 
-#ifdef LOCAL
+//#ifdef LOCAL
 // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
+// (works for 6.18.04?)
 /*
 R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectorParameters.cc+)
 R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrector.cc+)
@@ -29,10 +31,11 @@ R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc+)
 R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+)
 R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+)
 */
-R__LOAD_LIBRARY(DijetHistosFill.C+g)
-#else
+//R__LOAD_LIBRARY(DijetHistosFill.C+g)
+//#else
+// (works for 2.26/10)
 R__LOAD_LIBRARY(DijetHistosFill_C.so)
-#endif
+//#endif
 
 void mk_DijetHistosFill(string dataset = "X") {
 
@@ -43,21 +46,25 @@ void mk_DijetHistosFill(string dataset = "X") {
   if (!(dataset=="RunCearly" || dataset=="RunC" ||
 	dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
 	dataset=="FlatQCD" || dataset=="Flat2018QCD" || dataset=="QCDFlats" ||
-	dataset=="UL2018A" || dataset=="UL2018Flat")) {
+	dataset=="UL2018A" || dataset=="UL2018Flat" ||
+	dataset=="UL2016GH" || dataset=="UL2016Flat")) {
     cout << "Dataset not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
 	 << "RunCearly, RunC, RunCD, RunE, RunF "
 	 << "FlatQCD, Flat2018QCD, QCDFlats" << endl
-	 << "UL2018A, UL2018Flat" << endl;
+	 << "UL2018A, UL2018Flat" << endl
+    	 << "UL2016GH, UL2016Flat" << endl;
   }
   
   // Settings
   bool addData = (dataset=="RunCearly" || dataset=="RunC" ||
 		  dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
-		  dataset=="UL2018A");
+		  dataset=="UL2018A" ||
+		  dataset=="UL2016GH");
   bool addMC = (dataset=="FlatQCD" || dataset=="Flat2018QCD" ||
 		dataset=="QCDFlats" ||
-		dataset=="UL2018Flat"); 
+		dataset=="UL2018Flat" ||
+		dataset=="UL2016Flat"); 
 
   //cout << "Clean old shared objects and link files" << endl << flush;
   //gSystem->Exec("rm *.d");
