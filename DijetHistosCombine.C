@@ -1,0 +1,366 @@
+// Purpose: Combine output from DijetHistosFill for different triggers
+// Author:  Mikko Voutilainen, 17-Mar-2022
+#include "TFile.h"
+#include "TKey.h"
+#include "TDirectory.h"
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TProfile2D.h"
+#include <iostream>
+
+void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
+			 string trg, string folder);
+//void mergeDijet(TDirectory *dir, TDirectory *dout);
+bool copyBin(string trg, string folder, string histo, double pt, double eta);
+
+void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
+
+  TDirectory *curdir = gDirectory;
+  
+  // Open input and output files
+  TFile *fin = new TFile(file.c_str(),"READ");
+  assert(fin && !fin->IsZombie());
+  
+  TFile *fout = new TFile("rootfiles/jmenano_data_cmb.root","RECREATE");
+  assert(fout && !fout->IsZombie());
+
+  // Retrieve listing of available triggers from input file
+  TH1D *htrg = (TH1D*)fin->Get("htrg");
+  assert(htrg);
+
+  // Enter first folder and prepare folders+histograms for output file
+  //fin->cd(htrg->GetXaxis()->GetBinLabel(1));
+  fin->cd("HLT_PFJet450");
+  TDirectory *dir = gDirectory;
+  loopOverDirectories(dir,fout,"none","");
+  
+  // Then copy stuff over
+  for (int i = 1; i != htrg->GetNbinsX()+1; ++i) {
+    
+    string trg = htrg->GetXaxis()->GetBinLabel(i);
+    fin->cd(trg.c_str());
+    dir = gDirectory;
+    loopOverDirectories(dir,fout,trg.c_str(),"");
+  }
+
+  //mergeDijet(fin, fout);
+
+  fout->Write();
+} // DijetHistosCombine
+
+
+void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
+			 string trg, string folder) {
+
+  TIter next(dir->GetListOfKeys());
+  while (TKey *key = (TKey*)next()) {
+
+    // Recurse directory structure
+    if (string(key->GetClassName())=="TDirectoryFile") {
+      cout << key->GetName() << "->";
+      TDirectory *subdir = (TDirectory*)key->ReadObj();
+
+      if (!outdir->FindObject(subdir->GetName()))
+	outdir->mkdir(subdir->GetName());
+      outdir->cd(subdir->GetName());
+      TDirectory *suboutdir = gDirectory;
+
+      loopOverDirectories(subdir, suboutdir,
+			  trg=="" ? key->GetName() : trg,
+			  trg=="" ? "" : (folder=="" ? key->GetName():folder));
+    }
+    // Create histograms, if not yet there
+    else {
+
+      TObject *obj = key->ReadObj();
+      
+      if (obj->InheritsFrom("TProfile2D")) {
+	TProfile2D *p2 = (TProfile2D*)obj;
+	
+	// Collapse to TH2D until can figure out how to copy bins of TProfile2D
+	// This unfortunately makes rebinning later trickier
+	TH2D *h2o = (TH2D*)outdir->FindObject(key->GetName());
+	if (!h2o) {
+	  outdir->cd();
+	  h2o = p2->ProjectionXY(key->GetName());
+	  h2o->Reset();
+	}
+
+	for (int binx = 1; binx != p2->GetNbinsX()+1; ++binx) {
+	  for (int biny = 1; biny != p2->GetNbinsY()+1; ++biny) {
+	    int ibin = p2->GetBin(binx, biny);
+	    if (copyBin(trg, folder, key->GetName(),
+			h2o->GetYaxis()->GetBinCenter(biny),
+			h2o->GetXaxis()->GetBinCenter(binx))) {
+	      if (folder=="Jetveto") {
+		h2o->SetBinContent(ibin, h2o->GetBinContent(ibin)+
+				   p2->GetBinContent(ibin));
+		h2o->SetBinError(ibin, sqrt(pow(h2o->GetBinError(ibin),2)+
+					    pow(p2->GetBinError(ibin),2)));
+	      }
+	      else {
+		assert(h2o->GetBinContent(ibin)==0);
+		h2o->SetBinContent(ibin, p2->GetBinContent(ibin));
+		h2o->SetBinError(ibin, p2->GetBinError(ibin));
+	      }
+	    }
+	  } // for biny
+	} // for biny
+
+	/*
+	TProfile2D *p2o = (TProfile2D*)outdir->FindObject(key->GetName());
+	if (!p2o) {
+	  outdir->cd();
+	  p2o = (TProfile2D*)p2->Clone(key->GetName());
+	  p2o->Reset();
+	}
+
+	// https://root-forum.cern.ch/t/copy-entries-of-tprofile/11828
+	for (int binx = 1; binx != p2->GetNbinsX()+1; ++binx) {
+	  for (int biny = 1; biny != p2->GetNbinsY()+1; ++biny) {
+	    int ibin = p2->GetBin(binx, biny);
+	    (*p2o)[ibin] = (*p2)[ibin]; // copy bin y values
+	    (*p2o->GetSumw2())[ibin] = (*p2->GetSumw2())[ibin]; // copy bin y*y
+	    p2o->SetBinEntries(ibin, p2->GetBinEntries(ibin));  // copy entries
+	    // copy (if needed) bin sum of weight square
+	    if ( p2->GetBinSumw2()->fN > ibin ) { 
+	      p2o->Sumw2();
+	      (*p2o->GetBinSumw2())[ibin] = (*p2->GetBinSumw2())[ibin];   
+	    }
+	  } // for biny
+	} // for biny
+	*/
+
+      } // TProfile2D
+      else if (obj->InheritsFrom("TH2D")) {
+	TH2D *h2 = (TH2D*)obj;
+	TH2D *h2o = (TH2D*)outdir->FindObject(key->GetName());
+	if (!h2o) {
+	  outdir->cd();
+	  h2o = (TH2D*)h2->Clone(key->GetName());
+	  h2o->Reset();
+	}
+	for (int binx = 1; binx != h2->GetNbinsX()+1; ++binx) {
+	  for (int biny = 1; biny != h2->GetNbinsY()+1; ++biny) {
+	    int ibin = h2->GetBin(binx, biny);
+	    if (copyBin(trg, folder, key->GetName(),
+			h2o->GetYaxis()->GetBinCenter(biny),
+			h2o->GetXaxis()->GetBinCenter(binx))) {
+	      if (folder=="Jetveto") {
+		h2o->SetBinContent(ibin, h2o->GetBinContent(ibin)+
+				   h2->GetBinContent(ibin));
+		h2o->SetBinError(ibin, sqrt(pow(h2o->GetBinError(ibin),2)+
+					    pow(h2->GetBinError(ibin),2)));
+	      }
+	      else {
+		h2o->SetBinContent(ibin, h2->GetBinContent(ibin));
+		h2o->SetBinError(ibin, h2->GetBinError(ibin));
+	      }
+	    }
+	  } // for biny
+	} // for binx
+      } // TH2D
+      else if (obj->InheritsFrom("TProfile")) {
+	TProfile *p = (TProfile*)obj;
+	//TH1D *h1o = (TH1D*)outdir->FindObject(key->GetName());
+	//if (!h1o) {
+	//outdir->cd();
+	//h1o = p->ProjectionX(key->GetName());
+	//}
+
+	TProfile *po = (TProfile*)outdir->FindObject(key->GetName());
+	if (!po) {
+	  outdir->cd();
+	  po = (TProfile*)p->Clone(key->GetName());
+	  po->Reset();
+	}
+
+	// https://root-forum.cern.ch/t/copy-entries-of-tprofile/11828
+	for (int ibin = 1; ibin != p->GetNbinsX()+1; ++ibin) {
+	  if (copyBin(trg, folder, key->GetName(),
+		      po->GetBinCenter(ibin),0.)) {
+	    (*po)[ibin] = (*p)[ibin]; // copy bin y values
+	    (*po->GetSumw2())[ibin] = (*p->GetSumw2())[ibin]; // copy bin y*y
+	    po->SetBinEntries(ibin, p->GetBinEntries(ibin));  // copy entries
+	    // copy (if needed) bin sum of weight square
+	    if ( p->GetBinSumw2()->fN > ibin ) { 
+	      po->Sumw2();
+	      (*po->GetBinSumw2())[ibin] = (*p->GetBinSumw2())[ibin];   
+	    }
+	  }
+	} // for ibin
+      } // TProfile
+      else if (obj->InheritsFrom("TH1D")) {
+	TH1D *h = (TH1D*)obj;
+	TH1D *ho = (TH1D*)outdir->FindObject(key->GetName());
+	if (!ho) {
+	  outdir->cd();
+	  ho = (TH1D*)h->Clone(key->GetName());
+	  ho->Reset();
+	}
+	for (int ibin = 1; ibin != h->GetNbinsX()+1; ++ibin) {
+	  int ieta(0);
+	  if (folder=="Incjet") sscanf(key->GetName(),"hpt%d",&ieta);
+	  if (copyBin(trg, folder, key->GetName(),
+		      ho->GetBinCenter(ibin),0.1*ieta)) {
+	    ho->SetBinContent(ibin, h->GetBinContent(ibin));
+	    ho->SetBinError(ibin, h->GetBinError(ibin));
+	  }
+	} // for ibin
+      } // TH1D
+
+      cout << endl << "  " << key->GetName();
+    }
+  }
+  cout << endl;
+} // loopOverDirectories
+
+/*
+void mergeDijet(TDirectory *dir, TDirectory *dout) {
+
+  TIter next(dir->GetListOfKeys());
+  while (TKey *key = (TKey*)next()) {
+
+    // Recurse directory structure
+    if (string(key->GetClassName())=="TDirectoryFile") {
+      TString t = key->GetName();
+      
+
+} // mergeDijet
+*/
+
+struct range {
+  double ptmin;
+  double ptmax;
+  double absetamin;
+  double absetamax;
+};
+std::map<std::string, struct range> md;
+std::map<std::string, struct range> mj;
+std::map<std::string, struct range> mi;
+
+bool copyBin(string trg, string folder, string hist, double pt, double eta) {
+
+  //cout << "trg:"<<trg<<" folder:"<<folder<<" hist:"<<hist
+  //   << " pt:"<<pt<<" eta:"<<eta<<endl;
+
+  // Setup triggers only once
+  if (md.find("HLT_ZeroBias")==md.end()) {
+
+    double fwdeta = 3.139; // was 2.853. 80% (100%) on negative (positive) side
+    double fwdeta0 = 2.964;//2.853; // 40 and 260 up
+
+    // Dijet thresholds
+    md["HLT_ZeroBias"]      = range{15,  40,  0, 5.2};
+    
+    md["HLT_DiPFJetAve40"]  = range{40,  85,  0, 5.2};
+    md["HLT_DiPFJetAve60"]  = range{85,  100, 0, fwdeta};
+    md["HLT_DiPFJetAve80"]  = range{100, 155, 0, fwdeta};
+    md["HLT_DiPFJetAve140"] = range{155, 250, 0, fwdeta};
+    md["HLT_DiPFJetAve200"] = range{250, 300, 0, fwdeta0}; // 210->250
+    md["HLT_DiPFJetAve260"] = range{300, 400, 0, fwdeta0};
+    md["HLT_DiPFJetAve320"] = range{400, 500, 0, fwdeta0};
+    md["HLT_DiPFJetAve400"] = range{500, 600, 0, fwdeta0};
+    md["HLT_DiPFJetAve500"] = range{600,3000, 0, fwdeta0};
+    
+    md["HLT_DiPFJetAve60_HFJEC"]  = range{85,  100, fwdeta, 5.2};
+    md["HLT_DiPFJetAve80_HFJEC"]  = range{100, 125, fwdeta, 5.2};
+    md["HLT_DiPFJetAve100_HFJEC"] = range{125, 180, fwdeta, 5.2};
+    md["HLT_DiPFJetAve160_HFJEC"] = range{180, 250, fwdeta, 5.2};
+    md["HLT_DiPFJetAve220_HFJEC"] = range{250, 350, fwdeta0, 5.2};
+    md["HLT_DiPFJetAve300_HFJEC"] = range{350,3000, fwdeta0, 5.2};
+
+    // Multijet or dijet tag/probe thresholds
+    mj["HLT_PFJet40"]  = range{40,  85,  0, fwdeta0};
+    mj["HLT_PFJet60"]  = range{85,  100, 0, fwdeta};
+    mj["HLT_PFJet80"]  = range{100, 155, 0, fwdeta};
+    mj["HLT_PFJet140"] = range{155, 210, 0, fwdeta};
+    mj["HLT_PFJet200"] = range{210, 300, 0, fwdeta0};
+    mj["HLT_PFJet260"] = range{300, 400, 0, fwdeta0};
+    mj["HLT_PFJet320"] = range{400, 500, 0, fwdeta0};
+    mj["HLT_PFJet400"] = range{500, 600, 0, fwdeta0};
+    mj["HLT_PFJet450"] = range{500, 600, 0, fwdeta0};
+    mj["HLT_PFJet500"] = range{600,3000, 0, fwdeta0};
+    //mj["HLT_PFJet500"] = range{600, 700, 0, fwdeta0};
+    //mj["HLT_PFJet550"] = range{700,3000, 0, fwdeta0};
+    
+    mj["HLT_PFJetFwd40"]  = range{40,  85,  fwdeta0, 5.2};
+    mj["HLT_PFJetFwd60"]  = range{85,  100, fwdeta, 5.2};
+    mj["HLT_PFJetFwd80"]  = range{100, 155, fwdeta, 5.2};
+    mj["HLT_PFJetFwd140"] = range{155, 210, fwdeta, 5.2};
+    mj["HLT_PFJetFwd200"] = range{210, 300, fwdeta0, 5.2};
+    mj["HLT_PFJetFwd260"] = range{300, 400, fwdeta0, 5.2};
+    mj["HLT_PFJetFwd320"] = range{400, 500, fwdeta0, 5.2};
+    mj["HLT_PFJetFwd400"] = range{500, 600, fwdeta0, 5.2};
+    mj["HLT_PFJetFwd450"] = range{500, 600, fwdeta0, 5.2};
+    mj["HLT_PFJetFwd500"] = range{600,3000, fwdeta0, 5.2};
+
+    mi["HLT_ZeroBias"] = range{15,  49,  0, 5.2};
+
+    mi["HLT_PFJet40"]  = range{49,  84,  0, 5.2};
+    mi["HLT_PFJet60"]  = range{84,  114, 0, 5.2};
+    mi["HLT_PFJet80"]  = range{114, 196, 0, 5.2};
+    mi["HLT_PFJet140"] = range{196, 272, 0, 5.2};
+    mi["HLT_PFJet200"] = range{272, 330, 0, 5.2};
+    mi["HLT_PFJet260"] = range{330, 395, 0, 5.2};
+    mi["HLT_PFJet320"] = range{395, 468, 0, 5.2};
+    mi["HLT_PFJet400"] = range{468, 548, 0, 5.2};
+    mi["HLT_PFJet450"] = range{548, 686, 0, 5.2};
+    mi["HLT_PFJet500"] = range{686,6500, 0, 5.2};
+
+    /*
+    mi["HLT_PFJet40"]  = range{49,  84,  0, fwdeta0};
+    mi["HLT_PFJet60"]  = range{84,  114, 0, fwdeta};
+    mi["HLT_PFJet80"]  = range{114, 196, 0, fwdeta};
+    mi["HLT_PFJet140"] = range{196, 272, 0, fwdeta};
+    mi["HLT_PFJet200"] = range{272, 330, 0, fwdeta0};
+    mi["HLT_PFJet260"] = range{330, 395, 0, fwdeta0};
+    mi["HLT_PFJet320"] = range{395, 468, 0, fwdeta0};
+    mi["HLT_PFJet400"] = range{468, 548, 0, fwdeta0};
+    mi["HLT_PFJet450"] = range{548, 686, 0, fwdeta0};
+    mi["HLT_PFJet500"] = range{686,6500, 0, fwdeta0};
+    //mi["HLT_PFJet550"] = range{700,3000, 0, fwdeta0};
+    
+    mi["HLT_PFJetFwd40"]  = range{49,  84,  fwdeta0, 5.2};
+    mi["HLT_PFJetFwd60"]  = range{84,  114, fwdeta, 5.2};
+    mi["HLT_PFJetFwd80"]  = range{114, 196, fwdeta, 5.2};
+    mi["HLT_PFJetFwd140"] = range{196, 272, fwdeta, 5.2};
+    mi["HLT_PFJetFwd200"] = range{272, 330, fwdeta0, 5.2};
+    mi["HLT_PFJetFwd260"] = range{330, 395, fwdeta0, 5.2};
+    mi["HLT_PFJetFwd320"] = range{395, 468, fwdeta0, 5.2};
+    mi["HLT_PFJetFwd400"] = range{468, 548, fwdeta0, 5.2};
+    mi["HLT_PFJetFwd450"] = range{548, 686, fwdeta0, 5.2};
+    mi["HLT_PFJetFwd500"] = range{686,6500, fwdeta0, 5.2};
+    */
+  }
+
+  if (folder=="Jetveto" && (hist=="p2chf" || hist=="p2nhf" || hist=="p2nef" ||
+			    hist=="p2asymm" || hist=="h2phieta" ||
+			    hist=="h2phieta_ave"))
+    return true;
+  if (folder=="Incjet" &&
+      mi.find(trg)!=md.end() &&
+      pt >= mi[trg].ptmin && pt < mi[trg].ptmax &&
+      fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
+    return true;
+  if (folder=="Dijet" &&
+      md.find(trg)!=md.end() &&
+      pt >= md[trg].ptmin && pt < md[trg].ptmax &&
+      fabs(eta) >= md[trg].absetamin && fabs(eta) < md[trg].absetamax)
+    return true;
+  // 20% higher thresholds for multijet recoil binning
+  if (folder=="Multijet") {
+    double k(1);
+    if (hist=="hptr_all" || hist=="hptr_sel" || hist=="presr" ||
+	hist=="pcrecoilr" || hist=="pm0r" || hist=="pm2r" ||
+	hist=="pmnr" || hist=="pmur") k = 1.15;
+    if (mi.find(trg)!=md.end() &&
+	pt >= k*mi[trg].ptmin && pt < k*mi[trg].ptmax &&
+	fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
+    return true;
+  }
+
+  // else
+  return false;
+   //if (trg=="HLT_PFJet450" && pt>500 && pt<6500 && fabs(eta)<3.0) return true;
+}
