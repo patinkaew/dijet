@@ -2,7 +2,7 @@ How to RUN on Hefaistos:
 ------------------------
 (try mosh to not drop connection)
 - from local: 'rsync -rutP DijetHistosFill.C DijetHistosFill.h Hefaistos:/media/storage/dijet/'
-- source /work/data/rootbinaries/root/bin/thisroot.sh
+- source /work/data/rootbinaries/root/bin/thisroot.sh [6.26.10]
   [was: source /work/data/root/bin/thisroot.sh]
 - (rm *.d *.so *.pcm)
 - root -l -b -q mk_CondFormats.C
@@ -24,8 +24,16 @@ To-do:
 - add PF composition folder
 - add trigger turn-on folder
 - add jet veto maps
+- add MET filters => done: Flag_METFilter; also need others?
+- multijet: improve high pT efficiency (relative jet veto around leading jet?)
+  - also figure out O(5-10%) mpfu even at highest pT
 - add smeared collection of jets for MC
 - option: add monitoring of <rho> for each analysis?
+
+// v18: Implement pT,avp and proper bisector for dijet and multijet following JME-21-001. Keep previous pT,ave and bisector as dijet and multijet axes, respectively. Raise pT of recoil jets to 30 GeV in multijet in hopes of reducing MPFu. Add PF composition for incjet, dijet, multijet. Add 15-40 GeV bins for dijet.
+
+(Implement MC (flat, pThat binned, HT binned))
+// v17: Add Jet_jetId>=4 (tightLepVeto) and Flag_METFilters>0 (all?) for multijet, dijet, inclusive jet and jet veto maps
 
 // v16: Fix linking of fixedGridRhoFastjetAll (Rho_*) for Run 2. Modify multijet selection (drop all |eta|>2.5 jets from recoil, not just 1+2), patch pT2/pT1<0.6 to pT2/pTrecoil<0.6 (5% bias!), veto all forward jets, add Crecoil 1D+2D. Implement proper L1L2L3-RC MET for MPF. Clean file structure.
 
