@@ -8,6 +8,8 @@
 #include "TProfile2D.h"
 #include <iostream>
 
+bool debug = false;
+
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
@@ -21,7 +23,12 @@ void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
   TFile *fin = new TFile(file.c_str(),"READ");
   assert(fin && !fin->IsZombie());
   
-  TFile *fout = new TFile("rootfiles/jmenano_data_cmb.root","RECREATE");
+  TString t = file.c_str();
+  t.ReplaceAll("_out","_cmb");
+  string file2 = t.Data();
+  assert(file2!=file1);
+
+  TFile *fout = new TFile(file2.c_str(),"RECREATE");
   assert(fout && !fout->IsZombie());
 
   // Retrieve listing of available triggers from input file
@@ -57,7 +64,7 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 
     // Recurse directory structure
     if (string(key->GetClassName())=="TDirectoryFile") {
-      cout << key->GetName() << "->";
+      if (debug) cout << key->GetName() << "->";
       TDirectory *subdir = (TDirectory*)key->ReadObj();
 
       if (!outdir->FindObject(subdir->GetName()))
@@ -143,9 +150,16 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 	for (int binx = 1; binx != h2->GetNbinsX()+1; ++binx) {
 	  for (int biny = 1; biny != h2->GetNbinsY()+1; ++biny) {
 	    int ibin = h2->GetBin(binx, biny);
-	    if (copyBin(trg, folder, key->GetName(),
-			h2o->GetYaxis()->GetBinCenter(biny),
-			h2o->GetXaxis()->GetBinCenter(binx))) {
+	    string hist = key->GetName();
+	    double cpBin = 
+	      ((folder=="Multijet" && (hist=="h2recoila"||hist=="h2recoilm"||
+				       hist=="h2recoill" ||hist=="h2recoilr")) ?
+	       copyBin(trg, folder, key->GetName(),
+		       h2o->GetXaxis()->GetBinCenter(binx), 0.) :
+	       copyBin(trg, folder, key->GetName(),
+		       h2o->GetYaxis()->GetBinCenter(biny),
+		       h2o->GetXaxis()->GetBinCenter(binx)));
+	    if (cpBin) {
 	      if (folder=="Jetveto") {
 		h2o->SetBinContent(ibin, h2o->GetBinContent(ibin)+
 				   h2->GetBinContent(ibin));
@@ -209,10 +223,10 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 	} // for ibin
       } // TH1D
 
-      cout << endl << "  " << key->GetName();
+      if (debug) cout << endl << "  " << key->GetName();
     }
   }
-  cout << endl;
+  if (debug) cout << endl;
 } // loopOverDirectories
 
 /*
@@ -337,6 +351,11 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
   if (folder=="Jetveto" && (hist=="p2chf" || hist=="p2nhf" || hist=="p2nef" ||
 			    hist=="p2asymm" || hist=="h2phieta" ||
 			    hist=="h2phieta_ave"))
+    return true;
+  if (folder=="Jetveto" &&
+      mi.find(trg)!=md.end() &&
+      pt >= mi[trg].ptmin && pt < mi[trg].ptmax &&
+      fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
     return true;
   if (folder=="Incjet" &&
       mi.find(trg)!=md.end() &&

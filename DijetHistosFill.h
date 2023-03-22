@@ -233,12 +233,12 @@ public :
    Int_t           GenPart_pdgId[245];   //[nGenPart]
    Int_t           GenPart_status[245];   //[nGenPart]
    Int_t           GenPart_statusFlags[245];   //[nGenPart]
-   UInt_t          nGenProton;
-   Float_t         GenProton_px[13];   //[nGenProton]
-   Float_t         GenProton_py[13];   //[nGenProton]
-   Float_t         GenProton_pz[13];   //[nGenProton]
-   Float_t         GenProton_vz[13];   //[nGenProton]
-   Bool_t          GenProton_isPU[13];   //[nGenProton]
+  //UInt_t          nGenProton;
+  //Float_t         GenProton_px[13];   //[nGenProton]
+  //Float_t         GenProton_py[13];   //[nGenProton]
+  //Float_t         GenProton_pz[13];   //[nGenProton]
+  //Float_t         GenProton_vz[13];   //[nGenProton]
+  //Bool_t          GenProton_isPU[13];   //[nGenProton]
    UInt_t          nSubGenJetAK8;
    Float_t         SubGenJetAK8_eta[16];   //[nSubGenJetAK8]
    Float_t         SubGenJetAK8_mass[16];   //[nSubGenJetAK8]
@@ -2107,12 +2107,12 @@ public :
    TBranch        *b_GenPart_pdgId;   //!
    TBranch        *b_GenPart_status;   //!
    TBranch        *b_GenPart_statusFlags;   //!
-   TBranch        *b_nGenProton;   //!
-   TBranch        *b_GenProton_px;   //!
-   TBranch        *b_GenProton_py;   //!
-   TBranch        *b_GenProton_pz;   //!
-   TBranch        *b_GenProton_vz;   //!
-   TBranch        *b_GenProton_isPU;   //!
+  //TBranch        *b_nGenProton;   //!
+  //TBranch        *b_GenProton_px;   //!
+  //TBranch        *b_GenProton_py;   //!
+  //TBranch        *b_GenProton_pz;   //!
+  //TBranch        *b_GenProton_vz;   //!
+  //TBranch        *b_GenProton_isPU;   //!
    TBranch        *b_nSubGenJetAK8;   //!
    TBranch        *b_SubGenJetAK8_eta;   //!
    TBranch        *b_SubGenJetAK8_mass;   //!
@@ -4496,12 +4496,12 @@ void DijetHistosFill::Init(TTree *tree)
    if (isMC) fChain->SetBranchAddress("GenPart_pdgId", GenPart_pdgId, &b_GenPart_pdgId);
    if (isMC) fChain->SetBranchAddress("GenPart_status", GenPart_status, &b_GenPart_status);
    if (isMC) fChain->SetBranchAddress("GenPart_statusFlags", GenPart_statusFlags, &b_GenPart_statusFlags);
-   if (isMC) fChain->SetBranchAddress("nGenProton", &nGenProton, &b_nGenProton);
-   if (isMC) fChain->SetBranchAddress("GenProton_px", GenProton_px, &b_GenProton_px);
-   if (isMC) fChain->SetBranchAddress("GenProton_py", GenProton_py, &b_GenProton_py);
-   if (isMC) fChain->SetBranchAddress("GenProton_pz", GenProton_pz, &b_GenProton_pz);
-   if (isMC) fChain->SetBranchAddress("GenProton_vz", GenProton_vz, &b_GenProton_vz);
-   if (isMC) fChain->SetBranchAddress("GenProton_isPU", GenProton_isPU, &b_GenProton_isPU);
+   //if (isMC) fChain->SetBranchAddress("nGenProton", &nGenProton, &b_nGenProton);
+   //if (isMC) fChain->SetBranchAddress("GenProton_px", GenProton_px, &b_GenProton_px);
+   //if (isMC) fChain->SetBranchAddress("GenProton_py", GenProton_py, &b_GenProton_py);
+   //if (isMC) fChain->SetBranchAddress("GenProton_pz", GenProton_pz, &b_GenProton_pz);
+   //if (isMC) fChain->SetBranchAddress("GenProton_vz", GenProton_vz, &b_GenProton_vz);
+   //if (isMC) fChain->SetBranchAddress("GenProton_isPU", GenProton_isPU, &b_GenProton_isPU);
    if (isMC) fChain->SetBranchAddress("nSubGenJetAK8", &nSubGenJetAK8, &b_nSubGenJetAK8);
    if (isMC) fChain->SetBranchAddress("SubGenJetAK8_eta", SubGenJetAK8_eta, &b_SubGenJetAK8_eta);
    if (isMC) fChain->SetBranchAddress("SubGenJetAK8_mass", SubGenJetAK8_mass, &b_SubGenJetAK8_mass);
@@ -6173,6 +6173,8 @@ void DijetHistosFill::Init(TTree *tree)
    */
 
    //map<string, Bool_t *> mtrg;
+   Bool_t HLT_MC(true);
+   mtrg["HLT_MC"] = &HLT_MC;
    mtrg["HLT_ZeroBias"] = &HLT_ZeroBias;
    
    mtrg["HLT_DiPFJetAve40"] = &HLT_DiPFJetAve40;
@@ -6244,6 +6246,7 @@ Int_t DijetHistosFill::Cut(Long64_t entry)
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
+  if (entry) {}; // silence compilation warning about unused entry
    return 1;
 }
 #endif // #ifdef DijetHistosFill_cxx
