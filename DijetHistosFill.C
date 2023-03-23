@@ -16,7 +16,7 @@
 #include <string>
 
 // MC triggers (slow) or not (faster)
-bool doMCtrigOnly = false;//true;
+bool doMCtrigOnly = true;
 
 // Activate modules
 bool doJetveto = true;   // eta-phi maps
@@ -30,8 +30,7 @@ bool doDijetJER = true;
 
 // Additional variants and controls
 bool doJetvetoVariants = false;
-bool doDijetOrig = false;
-bool doMultijetControl = false;
+bool doMultijetControl = true;
 bool doMultijet2Drecoil = true;
 
 bool debug = false; // general debug
@@ -95,8 +94,8 @@ public:
   TH1D* vpt[ny];
 
   // (Optional) composition plots
-  TProfile2D *p2chf, *p2nef, *p2nhf, *p2cef, *p2muf;
-  TProfile *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13;
+  TProfile2D *p2pt, *p2rho, *p2chf, *p2nef, *p2nhf, *p2cef, *p2muf;
+  TProfile *ppt13, *prho13, *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13;
 };
 
 class dijetHistos {
@@ -119,8 +118,8 @@ public:
   TProfile2D *p2m0pf, *p2m2pf, *p2mnpf, *p2mupf; // pt,probe (forward)
 
   // (Optional) composition plots
-  TProfile2D *p2chf, *p2nef, *p2nhf, *p2cef, *p2muf;    // probe, pT,avp
-  TProfile *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13; // tag, pT,avp
+  TProfile2D *p2pt, *p2rho, *p2chf, *p2nef, *p2nhf, *p2cef, *p2muf; // probe,avp
+  TProfile *ppt13, *prho13, *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13; // tag
 };
 
 class multijetHistos {
@@ -145,8 +144,8 @@ public:
   TH2D *h2recoila, *h2recoilm, *h2recoill, *h2recoilr;
 
   // (Optional) composition plots
-  TProfile *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13; // lead, pT,avp
-  TProfile *pchf25, *pnef25, *pnhf25, *pcef25, *pmuf25; // recoil, pT,avp
+  TProfile *ppt13, *prho13, *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13; // lead pT,avp
+  TProfile *ppt25, *prho25, *pchf25, *pnef25, *pnhf25, *pcef25, *pmuf25; // recoil,pT,avp
   
   // (Optional) Controls
   TH2D *h2m0a;
@@ -227,10 +226,15 @@ void DijetHistosFill::Loop()
 
    fChain->SetBranchStatus("*",0);
 
-   if (debug) cout << "Setting branch status for "
-		   << (isMC ? "MC" : "DATA") << endl << flush;
+   //if (debug) 
+   cout << "Setting branch status for "
+	<< (isMC ? "MC" : "DATA") 
+	<< (isRun2 ? " and Run2 (" : " and Run3 (") << isRun2 << ")"
+	<< endl << flush;
    
-   if (isMC) fChain->SetBranchStatus("genWeight",1); // v2
+   if (isMC) fChain->SetBranchStatus("genWeight",1);
+   if (isMC) fChain->SetBranchStatus("Generator_binvar",1);
+   if (isMC) fChain->SetBranchStatus("Pileup_pthatmax",1);
 
    fChain->SetBranchStatus("run",1);
    fChain->SetBranchStatus("luminosityBlock",1);
@@ -238,7 +242,6 @@ void DijetHistosFill::Loop()
    //fChain->SetBranchStatus("Rho_fixedGridRhoAll",1);
    if (isRun2) fChain->SetBranchStatus("fixedGridRhoFastjetAll",1);
    
-
    // Listing of available triggers
    vector<string> vtrg;
 
@@ -412,15 +415,23 @@ void DijetHistosFill::Loop()
    }
    if (isRun2==2) {
      if (isMC) {
-       jec = getFJC("Summer19UL16_V7_MC_L1FastJet_AK4PFchs",
-		    "Summer19UL16_V7_MC_L2Relative_AK4PFchs","");
-       jecl1rc = getFJC("Summer19UL16_V7_MC_L1RC_AK4PFchs","","");
+       //jec = getFJC("Summer19UL16_V7_MC_L1FastJet_AK4PFchs",
+       // 	      "Summer19UL16_V7_MC_L2Relative_AK4PFchs","");
+       //jecl1rc = getFJC("Summer19UL16_V7_MC_L1RC_AK4PFchs","","");
+       jec = getFJC("Summer20UL16_V1_MC_L1FastJet_AK4PFchs",
+		    "Summer20UL16_V1_MC_L2Relative_AK4PFchs","");
+       jecl1rc = getFJC("Summer20UL16_V1_MC_L1RC_AK4PFchs","","");
      }
      else {
-       jec = getFJC("Summer19UL16_RunFGH_V7_DATA_L1FastJet_AK4PFchs",
-		    "Summer19UL16_RunFGH_V7_DATA_L2Relative_AK4PFchs",
+       //jec = getFJC("Summer19UL16_RunFGH_V7_DATA_L1FastJet_AK4PFchs",
+       //	    "Summer19UL16_RunFGH_V7_DATA_L2Relative_AK4PFchs",
+       //	    "Summer19UL16_RunFGH_V7_DATA_L2L3Residual_AK4PFchs");
+       //jecl1rc = getFJC("Summer19UL16_RunFGH_V7_DATA_L1RC_AK4PFchs","","");
+       jec = getFJC("Summer20UL16_RunGH_V1_DATA_L1FastJet_AK4PFchs",
+		    "Summer20UL16_RunGH_V1_DATA_L2Relative_AK4PFchs",
+		    //"Summer20UL16_RunGH_V1_DATA_L2L3Residual_AK4PFchs");
 		    "Summer19UL16_RunFGH_V7_DATA_L2L3Residual_AK4PFchs");
-       jecl1rc = getFJC("Summer19UL16_RunFGH_V7_DATA_L1RC_AK4PFchs","","");
+       jecl1rc = getFJC("Summer20UL16_RunGH_V1_DATA_L1RC_AK4PFchs","","");
      }
    }
    if (isRun2==3) {
@@ -698,6 +709,10 @@ void DijetHistosFill::Loop()
 	 dout->mkdir("Incjet/PFcomposition");
 	 dout->cd("Incjet/PFcomposition");
 
+	 h->p2pt = new TProfile2D("p2pt",";#eta;p_{T,jet} (GeV);"
+				  "p_{T,jet}", nx, vx, npt, vpt);
+	 h->p2rho = new TProfile2D("p2rho",";#eta;p_{T,jet} (GeV);"
+				   "#rho", nx, vx, npt, vpt);
 	 h->p2chf = new TProfile2D("p2chf",";#eta;p_{T,jet} (GeV);"
 				   "CHF", nx, vx, npt, vpt);
 	 h->p2nhf = new TProfile2D("p2nhf",";#eta;p_{T,jet} (GeV);"
@@ -709,6 +724,10 @@ void DijetHistosFill::Loop()
 	 h->p2muf = new TProfile2D("p2muf",";#eta;p_{T,jet} (GeV);"
 				   "MUF", nx, vx, npt, vpt);
 
+	 h->ppt13 = new TProfile("ppt13",";#eta;p_{T,jet} (GeV);"
+				 "p_{T,jet}", npt, vpt);
+	 h->prho13 = new TProfile("prho13",";#eta;p_{T,jet} (GeV);"
+				 "#rho", npt, vpt);
 	 h->pchf13 = new TProfile("pchf13",";#eta;p_{T,jet} (GeV);"
 				  "CHF", npt, vpt);
 	 h->pnhf13 = new TProfile("pnhf13",";#eta;p_{T,jet} (GeV);"
@@ -834,6 +853,10 @@ void DijetHistosFill::Loop()
 	 dout->mkdir("Dijet/PFcomposition");
 	 dout->cd("Dijet/PFcomposition");
 
+	 h->p2pt = new TProfile2D("p2pt",";#eta;p_{T,avp} (GeV);"
+				   "p_{T,probe}", nx, vx, npt, vpt);
+	 h->p2rho = new TProfile2D("p2rho",";#eta;p_{T,avp} (GeV);"
+				   "#rho", nx, vx, npt, vpt);
 	 h->p2chf = new TProfile2D("p2chf",";#eta;p_{T,avp} (GeV);"
 				   "CHF", nx, vx, npt, vpt);
 	 h->p2nhf = new TProfile2D("p2nhf",";#eta;p_{T,avp} (GeV);"
@@ -845,6 +868,10 @@ void DijetHistosFill::Loop()
 	 h->p2muf = new TProfile2D("p2muf",";#eta;p_{T,avp} (GeV);"
 				   "MUF", nx, vx, npt, vpt);
 
+	 h->ppt13 = new TProfile("ppt13",";#eta;p_{T,avp} (GeV);"
+				 "p_{T,tag}", npt, vpt);
+	 h->prho13 = new TProfile("prho13",";#eta;p_{T,avp} (GeV);"
+				  "#rho", npt, vpt);
 	 h->pchf13 = new TProfile("pchf13",";#eta;p_{T,avp} (GeV);"
 				  "CHF", npt, vpt);
 	 h->pnhf13 = new TProfile("pnhf13",";#eta;p_{T,avp} (GeV);"
@@ -941,27 +968,35 @@ void DijetHistosFill::Loop()
 	 dout->mkdir("Multijet/PFcomposition");
 	 dout->cd("Multijet/PFcomposition");
 
+	 h->ppt13 = new TProfile("ppt13",";#eta;p_{T,avp} (GeV);"
+				 "p_{T,lead}", npti, vpti);
+	 h->prho13 = new TProfile("prho13",";#eta;p_{T,avp} (GeV);"
+				  "#rho", npti, vpti);
 	 h->pchf13 = new TProfile("pchf13",";#eta;p_{T,avp} (GeV);"
-				  "CHF", npt, vpt);
+				  "CHF", npti, vpti);
 	 h->pnhf13 = new TProfile("pnhf13",";#eta;p_{T,avp} (GeV);"
-				  "NHF", npt, vpt);
+				  "NHF", npti, vpti);
 	 h->pnef13 = new TProfile("pnef13",";#eta;p_{T,avp} (GeV);"
-				  "NEF", npt, vpt);
+				  "NEF", npti, vpti);
 	 h->pcef13 = new TProfile("pcef13",";#eta;p_{T,avp} (GeV);"
-				  "CEF", npt, vpt);
+				  "CEF", npti, vpti);
 	 h->pmuf13 = new TProfile("pmuf13",";#eta;p_{T,avp} (GeV);"
-				  "MUF", npt, vpt);
+				  "MUF", npti, vpti);
 
+	 h->ppt25 = new TProfile("ppt25",";#eta;p_{T,avp} (GeV);"
+				 "p_{T,recoil}", npti, vpti);
+	 h->prho25 = new TProfile("prho25",";#eta;p_{T,avp} (GeV);"
+				  "#rho", npti, vpti);
 	 h->pchf25 = new TProfile("pchf25",";#eta;p_{T,avp} (GeV);"
-				  "CHF", npt, vpt);
+				  "CHF", npti, vpti);
 	 h->pnhf25 = new TProfile("pnhf25",";#eta;p_{T,avp} (GeV);"
-				  "NHF", npt, vpt);
+				  "NHF", npti, vpti);
 	 h->pnef25 = new TProfile("pnef25",";#eta;p_{T,avp} (GeV);"
-				  "NEF", npt, vpt);
+				  "NEF", npti, vpti);
 	 h->pcef25 = new TProfile("pcef25",";#eta;p_{T,avp} (GeV);"
-				  "CEF", npt, vpt);
+				  "CEF", npti, vpti);
 	 h->pmuf25 = new TProfile("pmuf25",";#eta;p_{T,avp} (GeV);"
-				  "MUF", npt, vpt);
+				  "MUF", npti, vpti);
        }
        
      } // doMultijet
@@ -989,8 +1024,6 @@ void DijetHistosFill::Loop()
       if (jentry%100000==0) cout << "." << flush;
       if (jentry%5000000==0) cout << "n="<<jentry<<endl<<flush;
 
-      double w = (isMC ? genWeight : 1.);
-
       if (debugevent) cout << "Read run+LS branches for JSON " << endl << flush;
 
       // Clean code from bad lumisections using JSON file
@@ -1013,6 +1046,14 @@ void DijetHistosFill::Loop()
       // Read rest of the event before trigger decision
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
+
+      double w = (isMC ? genWeight : 1.);
+      double rho = Rho_fixedGridRhoFastjetAll;
+
+      bool doPtHatFilter = true;
+      if (doPtHatFilter && isMC) {
+	if (Pileup_pthatmax>Generator_binvar) continue;
+      }
 
       if (debugevent) cout << "Keep track of run+LS" << endl << flush;
       
@@ -1208,6 +1249,8 @@ void DijetHistosFill::Loop()
 	      if (doPFComposition) {
 		double eta = p4.Eta();
 		double pt = p4.Pt();
+		h->p2pt->Fill(eta, pt, Jet_pt[i], w);
+		h->p2rho->Fill(eta, pt, rho, w);
 		h->p2chf->Fill(eta, pt, Jet_chHEF[i], w);
 		h->p2nhf->Fill(eta, pt, Jet_neHEF[i], w);
 		h->p2nef->Fill(eta, pt, Jet_neEmEF[i], w);
@@ -1215,6 +1258,8 @@ void DijetHistosFill::Loop()
 		h->p2muf->Fill(eta, pt, Jet_muEF[i], w);
 
 		if (fabs(eta)<1.3) {
+		  h->ppt13->Fill(pt, Jet_pt[i], w);
+		  h->prho13->Fill(pt, rho, w);
 		  h->pchf13->Fill(pt, Jet_chHEF[i], w);
 		  h->pnhf13->Fill(pt, Jet_neHEF[i], w);
 		  h->pnef13->Fill(pt, Jet_neEmEF[i], w);
@@ -1271,9 +1316,9 @@ void DijetHistosFill::Loop()
       } // for i in njet
 
       // Calculate unclustered MET from the remainders
-      // met = -m2 - mn - mu => mu = -met - m2 - mn
-      p4mu -= p4t1met + p4m2 + p4mn;
-      p4mu3 -= p4t1met + p4m3 + p4mn3;
+      // met = -j2 -jn -ju = m2 + mn + mu => mu = met -m2 -mn
+      p4mu = p4m0 -p4m2 -p4mn;
+      p4mu3 = p4m0 -p4m3 -p4mn3;
 
       // Also check recoil phi for multijet selection
       double ptrecoil = p4recoil.Pt();
@@ -1342,6 +1387,7 @@ void DijetHistosFill::Loop()
 		h->h2recoilr->Fill(ptrecoil, pti, w*Fi);
 
 		if (doPFComposition) {
+		  h->ppt25->Fill(ptavp3, Jet_pt[i], w*Fi);
 		  h->pchf25->Fill(ptavp3, Jet_chHEF[i], w*Fi);
 		  h->pnhf25->Fill(ptavp3, Jet_neHEF[i], w*Fi);
 		  h->pnef25->Fill(ptavp3, Jet_neEmEF[i], w*Fi);
@@ -1527,12 +1573,16 @@ void DijetHistosFill::Loop()
 		    h->p2m2x->Fill(eta, ptavp2, m2bx, w);
 		  }
 		  if (doPFComposition) {
+		    h->p2pt->Fill(eta, ptavp2, Jet_pt[iprobe], w);
+		    h->p2rho->Fill(eta, ptavp2, rho, w);
 		    h->p2chf->Fill(eta, ptavp2, Jet_chHEF[iprobe], w);
 		    h->p2nhf->Fill(eta, ptavp2, Jet_neHEF[iprobe], w);
 		    h->p2nef->Fill(eta, ptavp2, Jet_neEmEF[iprobe], w);
 		    h->p2cef->Fill(eta, ptavp2, Jet_chEmEF[iprobe], w);
 		    h->p2muf->Fill(eta, ptavp2, Jet_muEF[iprobe], w);
 
+		    h->ppt13->Fill(ptavp2, Jet_pt[itag], w);
+		    h->prho13->Fill(ptavp2, rho, w);
 		    h->pchf13->Fill(ptavp2, Jet_chHEF[itag], w);
 		    h->pnhf13->Fill(ptavp2, Jet_neHEF[itag], w);
 		    h->pnef13->Fill(ptavp2, Jet_neEmEF[itag], w);
@@ -1719,6 +1769,8 @@ void DijetHistosFill::Loop()
 	  }
 
 	  if (doPFComposition) {
+	    h->ppt13->Fill(ptavp3, Jet_pt[0], w);
+	    h->prho13->Fill(ptavp3, rho, w);
 	    h->pchf13->Fill(ptavp3, Jet_chHEF[0], w);
 	    h->pnhf13->Fill(ptavp3, Jet_neHEF[0], w);
 	    h->pnef13->Fill(ptavp3, Jet_neEmEF[0], w);
