@@ -37,6 +37,8 @@ public :
 
    map<int, map<int, int> > _json;
 
+   Bool_t HLT_MC = kTRUE;
+  
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
@@ -1911,7 +1913,7 @@ public :
    Bool_t          HLTriggerFinalPath;
 
    // Pointers to branches
-   map<string, Bool_t *> mtrg;
+   map<string, const Bool_t *> mtrg;
 
    // List of branches
    TBranch        *b_run;   //!
@@ -6173,7 +6175,7 @@ void DijetHistosFill::Init(TTree *tree)
    */
 
    //map<string, Bool_t *> mtrg;
-   Bool_t HLT_MC(true);
+   //Bool_t HLT_MC(true);
    mtrg["HLT_MC"] = &HLT_MC;
    mtrg["HLT_ZeroBias"] = &HLT_ZeroBias;
    
