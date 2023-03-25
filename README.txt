@@ -23,7 +23,7 @@ To-do:
 - add Crecoil for multijets +more advanced 2D version => done 1D+2D
 - add PF composition folder => done
 - add trigger turn-on folder
-- add jet veto maps
+- add jet veto maps => done
 - add MET filters => done: Flag_METFilter; also need others?
 - multijet: improve high pT efficiency (relative jet veto around leading jet?)
   - also figure out O(5-10%) mpfu even at highest pT
@@ -35,7 +35,9 @@ Bugs:
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
 
-// v19: Fix JEC S19_V7->S20_V1 (except data L2L3Res still S19_V7). Fix MC weight. Fix bug in MPFu calculation (sign error between jX and mX=-jX). Filter Pileup_pthatmax>Generator_binvar. Add prho to PFComposition.
+// v20: Add Dijet2 for DESY-style dijet bins in eta and pT. Add jet veto maps. Add timer to estimate run time.
+
+// v19: Fix JEC S19_V7->S20_V1 (except data L2L3Res still S19_V7). Fix MC weight. Fix bug in MPFu calculation (sign error between jX and mX=-jX). Filter Pileup_pthatmax>Generator_binvar. Add prho to PFComposition. (v19b for MC: fix HLT_MC).
 
 // v18: Implement pT,avp and proper bisector for dijet and multijet following JME-21-001. Keep previous pT,ave and bisector as dijet and multijet axes, respectively. Raise pT of recoil jets to 30 GeV in multijet in hopes of reducing MPFu. Add PF composition for incjet, dijet, multijet. Add 15-40 GeV bins for dijet.
 

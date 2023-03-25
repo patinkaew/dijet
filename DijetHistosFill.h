@@ -38,6 +38,7 @@ public :
    map<int, map<int, int> > _json;
 
    Bool_t HLT_MC = kTRUE;
+   Bool_t Jet_jetveto[100];
   
 // Fixed size dimensions of array or collections stored in the TTree if any.
 

@@ -204,11 +204,6 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
       } // TH2D
       else if (obj->InheritsFrom("TProfile")) {
 	TProfile *p = (TProfile*)obj;
-	//TH1D *h1o = (TH1D*)outdir->FindObject(key->GetName());
-	//if (!h1o) {
-	//outdir->cd();
-	//h1o = p->ProjectionX(key->GetName());
-	//}
 
 	TProfile *po = (TProfile*)outdir->FindObject(key->GetName());
 	if (!po) {
@@ -257,20 +252,6 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
   if (debug) cout << endl;
 } // loopOverDirectories
 
-/*
-void mergeDijet(TDirectory *dir, TDirectory *dout) {
-
-  TIter next(dir->GetListOfKeys());
-  while (TKey *key = (TKey*)next()) {
-
-    // Recurse directory structure
-    if (string(key->GetClassName())=="TDirectoryFile") {
-      TString t = key->GetName();
-      
-
-} // mergeDijet
-*/
-
 struct range {
   double ptmin;
   double ptmax;
@@ -278,6 +259,7 @@ struct range {
   double absetamax;
 };
 std::map<std::string, struct range> md;
+std::map<std::string, struct range> md2;
 std::map<std::string, struct range> mj;
 std::map<std::string, struct range> mi;
 
@@ -291,6 +273,7 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
 
     double fwdeta = 3.139; // was 2.853. 80% (100%) on negative (positive) side
     double fwdeta0 = 2.964;//2.853; // 40 and 260 up
+    double fwdetad = 2.853;
 
     // Dijet thresholds
     md["HLT_ZeroBias"]      = range{15,  40,  0, 5.2};
@@ -312,6 +295,27 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     md["HLT_DiPFJetAve160_HFJEC"] = range{180, 250, fwdeta, 5.2};
     md["HLT_DiPFJetAve220_HFJEC"] = range{250, 350, fwdeta0, 5.2};
     md["HLT_DiPFJetAve300_HFJEC"] = range{350,3000, fwdeta0, 5.2};
+
+    // https://indico.cern.ch/event/1263476/contributions/5311425/attachments/2612023/4513129/L2Res+HDM-March15.pdf
+    md2["HLT_ZeroBias"]      = range{15,  59,  0, 5.2};
+    md2["HLT_MC"]            = range{15,6500,  0, 5.2};
+    
+    md2["HLT_DiPFJetAve40"]  = range{40,  86,  0, 5.2};
+    md2["HLT_DiPFJetAve60"]  = range{86,  110, 0, fwdetad};
+    md2["HLT_DiPFJetAve80"]  = range{110, 170, 0, fwdetad};
+    md2["HLT_DiPFJetAve140"] = range{170, 236, 0, fwdetad};
+    md2["HLT_DiPFJetAve200"] = range{236, 302, 0, fwdetad};
+    md2["HLT_DiPFJetAve260"] = range{302, 373, 0, fwdetad};
+    md2["HLT_DiPFJetAve320"] = range{373, 460, 0, fwdetad};
+    md2["HLT_DiPFJetAve400"] = range{460, 575, 0, fwdetad};
+    md2["HLT_DiPFJetAve500"] = range{575,6500, 0, fwdetad};
+    
+    md2["HLT_DiPFJetAve60_HFJEC"]  = range{86,  110, fwdetad, 5.2};
+    md2["HLT_DiPFJetAve80_HFJEC"]  = range{110, 132, fwdetad, 5.2};
+    md2["HLT_DiPFJetAve100_HFJEC"] = range{132, 204, fwdetad, 5.2};
+    md2["HLT_DiPFJetAve160_HFJEC"] = range{204, 279, fwdetad, 5.2};
+    md2["HLT_DiPFJetAve220_HFJEC"] = range{279, 373, fwdetad, 5.2};
+    md2["HLT_DiPFJetAve300_HFJEC"] = range{373,3000, fwdetad, 5.2};
 
     // Multijet or dijet tag/probe thresholds
     mj["HLT_PFJet40"]  = range{40,  85,  0, fwdeta0};
@@ -392,6 +396,11 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
       fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
     return true;
   if (folder=="Dijet" &&
+      md.find(trg)!=md.end() &&
+      pt >= md[trg].ptmin && pt < md[trg].ptmax &&
+      fabs(eta) >= md[trg].absetamin && fabs(eta) < md[trg].absetamax)
+    return true;
+  if (folder=="Dijet2" &&
       md.find(trg)!=md.end() &&
       pt >= md[trg].ptmin && pt < md[trg].ptmax &&
       fabs(eta) >= md[trg].absetamin && fabs(eta) < md[trg].absetamax)

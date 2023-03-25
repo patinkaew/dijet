@@ -8,6 +8,7 @@
 #include "TH2D.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TStopwatch.h"
 
 #include <iostream>
 #include <fstream>
@@ -22,6 +23,7 @@ bool doMCtrigOnly = true;
 bool doJetveto = true;   // eta-phi maps
 bool doIncjet = true;    // inclusive jets
 bool doDijet = true;     // dijet selection
+bool doDijet2 = true;     // dijet selection (DESY style)
 bool doMultijet = true;  // multijet selection
 
 // Core additions
@@ -120,6 +122,19 @@ public:
   // (Optional) composition plots
   TProfile2D *p2pt, *p2rho, *p2chf, *p2nef, *p2nhf, *p2cef, *p2muf; // probe,avp
   TProfile *ppt13, *prho13, *pchf13, *pnef13, *pnhf13, *pcef13, *pmuf13; // tag
+};
+
+class dijetHistos2 {
+public:
+
+  // Basic information about the trigger
+  string trg;
+  int trgpt;
+  double ptmin, ptmax, absetamin, absetamax;
+
+  TH2D *h2pteta;
+  TProfile2D *p2res, *p2m0, *p2m2, *p2mn, *p2mu;
+  TProfile2D *p2m0x, *p2m2x;
 };
 
 class multijetHistos {
@@ -223,6 +238,13 @@ void DijetHistosFill::Loop()
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
+
+   //ROOT.EnableImplicitMT(); // From Nico on Skype, to parallelize processing
+
+   TStopwatch fulltime, laptime;
+   fulltime.Start();
+   TDatime bgn;
+   int nlap(0);
 
    fChain->SetBranchStatus("*",0);
 
@@ -474,8 +496,23 @@ void DijetHistosFill::Loop()
       2640, 2787, 2941, 3103, 3273, 3450, 3637, 3832, 4037, 4252, 4477, 4713,
       4961, 5220, 5492, 5777, 6076, 6389, 6717, 7000};
    double npti = sizeof(vpti)/sizeof(vpti[0])-1;
+   // L2Res pT binning (central+forward hybrid)
+   double vptd[] = 
+     //{59.,85.,104.,170.,236., 302., 370., 460., 575.}; // central
+     //{86., 110., 132., 204., 279., 373.} // forward
+     {15, 21, 28, 37, 49,
+      59, 86, 110, 132, 170, 204, 236, 279, 302, 373, 460, 575,
+      638, 737, 846, 967, 1101, 1248,
+      1410, 1588, 1784, 2000, 2238, 2500, 2787, 3103};
+   double nptd = sizeof(vptd)/sizeof(vptd[0])-1;
+   // L3Res (gamma+jet) pT binning adapted and extended
+   const double vpt[] = {15, 20, 25, 30, 35,
+			 40, 50, 60, 70, 85, 100, 125, 155, 180, 210, 250, 300,
+			 350, 400, 500, 600, 800, 1000, 1200, 1500,
+			 1800, 2100, 2400, 2700, 3000};
+   const int npt = sizeof(vpt)/sizeof(vpt[0])-1;
 
-   // Regular L2Relative and L2Res eta binning
+   // Regular L2Relative eta binning
    double vx[] =
      {-5.191,
       -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489,
@@ -488,6 +525,12 @@ void DijetHistosFill::Loop()
       2.65, 2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191,
       4.363, 4.538, 4.716, 4.889, 5.191};
    const int nx = sizeof(vx)/sizeof(vx[0])-1;
+   // Current L2Res |eta| binning from Jindrich
+   // https://indico.cern.ch/event/1263476/contributions/5311425/attachments/2612023/4513129/L2Res+HDM-March15.pdf
+   double vxd[] =
+     {0, 0.261, 0.522, 0.783, 1.044, 1.305, 1.479, 1.653, 1.93, 2.172, 2.322, 2.5, 2.65, 2.853, 2.964, 3.139, 3.489, 3.839, 5.191};
+   const int nxd = sizeof(vxd)/sizeof(vxd[0])-1;
+
    const int ny = 800;
    double vy[ny+1];
    for (int i = 0; i != ny+1; ++i) vy[i] = -3. + (+5.+3.)/ny*i;
@@ -509,6 +552,7 @@ void DijetHistosFill::Loop()
    fout->cd("Refs");
    TH1D *hnjet = new TH1D("hnjet","hnjet",500,0,500);
 
+   /*
    // PF composition plots
    // Copy L2Res histograms for multiple pT bins
    const double vpt[] = {15, 20, 25, 30, 35,
@@ -516,7 +560,7 @@ void DijetHistosFill::Loop()
 			 350, 400, 500, 600, 800, 1000, 1200, 1500,
 			 1800, 2100, 2400, 2700, 3000};
    const int npt = sizeof(vpt)/sizeof(vpt[0])-1;
-   /*
+
    TH1D *hptbins = new TH1D("hptbins",";p_{T} (GeV);N_{events}",npt,vpt);
 
    TProfile *pjes = new TProfile("pjes","JES",nx,vx);
@@ -571,6 +615,7 @@ void DijetHistosFill::Loop()
    map<string, jetvetoHistos*> mhjv;
    map<string, incjetHistos*> mhij;
    map<string, dijetHistos*> mhdj;
+   map<string, dijetHistos2*> mhdj2;
    map<string, multijetHistos*> mhmj;
 
    for (int itrg = 0; itrg != ntrg; ++itrg) {
@@ -886,6 +931,48 @@ void DijetHistosFill::Loop()
        
      } // doDijet
 
+     if (doDijet2) {
+       if (debug) cout << "Setup doDijet2 " << trgpt << endl << flush;
+       
+       dout->mkdir("Dijet2");
+       dout->cd("Dijet2");
+       
+       dijetHistos2 *h = new dijetHistos2();
+       
+       string &t = vtrg[itrg];
+       mhdj2[t] = h;
+       h->trg = t;
+       h->trgpt = trgpt;
+       
+       struct range &r  = mt[t];
+       h->ptmin = r.ptmin;
+       h->ptmax = r.ptmax;
+       h->absetamin = r.absetamin;
+       h->absetamax = r.absetamax;
+       
+       // Counting of events, and JEC L2L3Res for undoing
+       h->h2pteta = new TH2D("h2pteta",";#eta;p_{T,avp} (GeV);"
+			     "N_{events}",nxd,vxd, nptd, vptd);
+       h->p2res = new TProfile2D("p2res",";#eta;p_{T,avp} (GeV);"
+				 "JES(probe)/JES(tag)",
+				 nxd,vxd, nptd, vptd);
+       
+       // MPF decomposition for HDM method
+       h->p2m0 = new TProfile2D("p2m0",";#eta;p_{T,avp} (GeV);MPF0",
+				nxd,vxd, nptd, vptd);
+       h->p2m2 = new TProfile2D("p2m2",";#eta;p_{T,avp} (GeV);MPF2",
+				nxd,vxd, nptd, vptd);
+       h->p2mn = new TProfile2D("p2mn",";#eta;p_{T,avp} (GeV);MPFn",
+				nxd,vxd, nptd, vptd);
+       h->p2mu = new TProfile2D("p2mu",";#eta;p_{T,avp} (GeV);MPFu",
+				nxd,vxd, nptd, vptd);
+       
+       h->p2m0x = new TProfile2D("p2m0x",";#eta;p_{T,avp} (GeV);"
+				 "MPFX0 (MPFX)",nxd,vxd, nptd, vptd, "S");
+       h->p2m2x = new TProfile2D("p2m2x",";#eta;p_{T,avp} (GeV);"
+				 "MPF2 (DBX)",nxd,vxd, nptd, vptd, "S");
+     } // doDijet2
+
      // Multijet per trigger
      if (doMultijet) {
        
@@ -1003,6 +1090,39 @@ void DijetHistosFill::Loop()
      
    } // for itrg
 
+   if (debugevent) cout << "Load jet veto maps" << endl << flush;
+
+   // Load veto maps
+   // JECDatabase/jet_veto_maps/Summer19UL16_V0/hotjets-UL16.root
+   // JECDatabase/jet_veto_maps/Summer19UL17_V2/hotjets-UL17_v2.root
+   // JECDatabase/jet_veto_maps/Summer19UL18_V1/hotjets-UL18.root
+   TFile *fjv(0);
+   if (isRun2==1 || isRun2==2) //TString(ds.c_str()).Contains("2016"))
+     fjv = new TFile("rootfiles/hotjets-UL16.root","READ");
+   if (isRun2==3) //TString(ds.c_str()).Contains("2017"))
+	fjv = new TFile("rootfiles/hotjets-UL17_v2.root","READ");
+   if (isRun2==4) //TString(ds.c_str()).Contains("2018"))
+	fjv = new TFile("rootfiles/hotjets-UL18.root","READ");
+   assert(fjv);
+   
+   // Veto lists for different years (NB: extra MC map for UL16):
+   // h2hot_ul16_plus_hbm2_hbp12_qie11 + h2hot_mc (for UL16)
+   // h2hot_ul17_plus_hep17_plus_hbpw89 (UL17)
+   // h2hot_ul18_plus_hem1516_and_hbp2m1 (UL18)
+   TH2D *h2jv(0);
+   if (isRun2==1 || isRun2==2) { //TString(ds.c_str()).Contains("2016")) {
+     h2jv = (TH2D*)fjv->Get("h2hot_ul16_plus_hbm2_hbp12_qie11");
+     assert(h2jv);
+     TH2D *h2mc = (TH2D*)fjv->Get("h2hot_mc");
+     assert(h2mc);
+     h2jv->Add(h2mc);
+   }
+   if (isRun2==3) //TString(ds.c_str()).Contains("2017"))
+     h2jv = (TH2D*)fjv->Get("h2hot_ul17_plus_hep17_plus_hbpw89");
+   if (isRun2==4) //TString(ds.c_str()).Contains("2018"))
+     h2jv = (TH2D*)fjv->Get("h2hot_ul18_plus_hem1516_and_hbp2m1");
+   assert(h2jv);
+   
    //Long64_t nentries = fChain->GetEntriesFast();
    Long64_t nentries = fChain->GetEntries(); // Long startup time
    cout << "Loaded " << nentries << " entries" << endl << flush;
@@ -1024,6 +1144,31 @@ void DijetHistosFill::Loop()
       if (jentry%100000==0) cout << "." << flush;
       if (jentry%5000000==0) cout << "n="<<jentry<<endl<<flush;
 
+      if (jentry==100000 || jentry==1000000 || jentry==1000000 ||
+	  (jentry%1000000==0 && jentry<10000000) ||
+	  (jentry%10000000==0) || jentry==nentries-1) {
+	if (jentry==0) { laptime.Start(); }
+	if (nentries!=0) {
+	  cout << Form("\nProcessed %lld events (%1.1f%%) in %1.0f sec. "
+		       "(%1.0f sec. for last %d)",
+		       jentry, 100.*jentry/nentries, fulltime.RealTime(),
+		       laptime.RealTime(), nlap);
+	}
+	if (jentry!=0 && nlap!=0) {
+	  cout << Form("\nEstimated runtime:  %1.0f sec. "
+		       " (%1.0f sec. for last %d)\n",
+		       1.*nentries/jentry*fulltime.RealTime(),
+		       1.*nentries/nlap*laptime.RealTime(),nlap) << flush;
+	  laptime.Reset();
+	  nlap = 0;
+	}
+	if (jentry==0) fulltime.Reset(); // Leave out initialization time
+	fulltime.Continue();
+	laptime.Continue();
+      }
+      if (jentry%10000==0) cout << "." << flush;
+      ++nlap;
+   
       if (debugevent) cout << "Read run+LS branches for JSON " << endl << flush;
 
       // Clean code from bad lumisections using JSON file
@@ -1080,7 +1225,7 @@ void DijetHistosFill::Loop()
       ++_ngoodevts;
 
       if (debugevent) cout << "Redo JEC" << endl << flush;
-      
+
       // Redo JEC right after event cuts but before anything else
       // Do not re-sort (for now)
       int njet = nJet;
@@ -1109,6 +1254,12 @@ void DijetHistosFill::Loop()
 	Jet_rawFactor[i] = (1.0 - 1.0/corr);
 	// pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
 	Jet_l1rcFactor[i] = (isRun2 ? (1.0-jecl1rc->getCorrection()/corr) : 1);
+
+	if (true) { // check jet veto
+	  int i1 = h2jv->GetXaxis()->FindBin(Jet_eta[i]);
+	  int j1 = h2jv->GetYaxis()->FindBin(Jet_phi[i]);
+	  Jet_jetveto[i] = (h2jv->GetBinContent(i1,j1)>0);
+	} // jet veto
       } // for njet
 
       /*
@@ -1233,7 +1384,7 @@ void DijetHistosFill::Loop()
 	    incjetHistos *h = mhij[trg];
 	    
 	    h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
-	    if (Jet_jetId[i]>=4 && Flag_METFilters>0) {
+	    if (Jet_jetId[i]>=4 && !Jet_jetveto[i] && Flag_METFilters>0) {
 	      
 	      if (p4.Pt() >= h->ptmin && p4.Pt() < h->ptmax &&
 		  fabs(p4.Rapidity()) > h->absetamin &&
@@ -1330,6 +1481,7 @@ void DijetHistosFill::Loop()
 	 Jet_pt[0]>30. && fabs(Jet_eta[0])<1.3 && Jet_jetId[0]>=4 &&
 	 Jet_pt[1]>30. && fabs(Jet_eta[1])<2.5 && Jet_jetId[1]>=4 &&
 	 Jet_pt[2]>30. && fabs(Jet_eta[2])<2.5 && Jet_jetId[2]>=4 &&
+	 !Jet_jetveto[0] && !Jet_jetveto[1] && !Jet_jetveto[2] &&
 	 Jet_pt[1] < 0.6*ptrecoil && Jet_pt[2] < 0.6*ptrecoil);
 
       // Calculate Crecoil
@@ -1511,6 +1663,7 @@ void DijetHistosFill::Loop()
 	  bool isdijet = (fabs(p4t.Eta())<1.3 && dphi>2.7 && fabs(asymm)<maxa &&
 			  p4t.Pt()>15. && Jet_jetId[itag]>=4 &&
 			  p4p.Pt()>15. &&Jet_jetId[iprobe]>=4 &&
+			  !Jet_jetveto[itag] && !Jet_jetveto[iprobe] &&
 			  Flag_METFilters>0);
 	  if (isdijet) {
 
@@ -1634,9 +1787,26 @@ void DijetHistosFill::Loop()
 		}
 	      } // doDijet
 
+	      if (doDijet2) {
+
+		dijetHistos2 *h = mhdj2[trg];
+		double res = Jet_RES[iprobe] / Jet_RES[itag];
+
+		double abseta = fabs(eta);
+		h->h2pteta->Fill(abseta, ptavp2, w);
+
+		h->p2res->Fill(abseta, ptavp2, res, w);
+		h->p2m0->Fill(abseta, ptavp2, m0b, w);
+		h->p2m2->Fill(abseta, ptavp2, m2b, w);
+		h->p2mn->Fill(abseta, ptavp2, mnb, w);
+		h->p2mu->Fill(abseta, ptavp2, mub, w);
+
+		h->p2m0x->Fill(abseta, ptavp2, m0bx, w);
+		h->p2m2x->Fill(abseta, ptavp2, m2bx, w);
+	      } // doDijet2
+
 	    } // for itrg
 	  } // dijet tag-and-probe selection
-
 
 	  // Dijet without deltaphi cut
 	  if (fabs(p4t.Eta()<1.3) && fabs(asymm)<maxa) {
