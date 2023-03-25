@@ -26,7 +26,7 @@ void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
   TString t = file.c_str();
   t.ReplaceAll("_out","_cmb");
   string file2 = t.Data();
-  assert(file2!=file1);
+  assert(file2!=file);
 
   TFile *fout = new TFile(file2.c_str(),"RECREATE");
   assert(fout && !fout->IsZombie());
@@ -36,8 +36,8 @@ void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
   assert(htrg);
 
   // Enter first folder and prepare folders+histograms for output file
-  //fin->cd(htrg->GetXaxis()->GetBinLabel(1));
-  fin->cd("HLT_PFJet450");
+  fin->cd(htrg->GetXaxis()->GetBinLabel(1));
+  //fin->cd("HLT_PFJet450");
   TDirectory *dir = gDirectory;
   loopOverDirectories(dir,fout,"none","");
   
@@ -84,6 +84,7 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
       if (obj->InheritsFrom("TProfile2D")) {
 	TProfile2D *p2 = (TProfile2D*)obj;
 	
+	/*
 	// Collapse to TH2D until can figure out how to copy bins of TProfile2D
 	// This unfortunately makes rebinning later trickier
 	TH2D *h2o = (TH2D*)outdir->FindObject(key->GetName());
@@ -113,8 +114,8 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 	    }
 	  } // for biny
 	} // for biny
+	*/
 
-	/*
 	TProfile2D *p2o = (TProfile2D*)outdir->FindObject(key->GetName());
 	if (!p2o) {
 	  outdir->cd();
@@ -122,21 +123,48 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 	  p2o->Reset();
 	}
 
+	// profile keeps track of sumw, sumwz, sumwz2, sumw2
+	// sumw=fArray, sumwz=fBinEntries.fArray, 
+	// sumwz2 = fBinSumw2.fArray, sumw2 = fSum2.fArray
+
+	// GetBinContent = sumwz/sumw
+
 	// https://root-forum.cern.ch/t/copy-entries-of-tprofile/11828
 	for (int binx = 1; binx != p2->GetNbinsX()+1; ++binx) {
 	  for (int biny = 1; biny != p2->GetNbinsY()+1; ++biny) {
 	    int ibin = p2->GetBin(binx, biny);
-	    (*p2o)[ibin] = (*p2)[ibin]; // copy bin y values
-	    (*p2o->GetSumw2())[ibin] = (*p2->GetSumw2())[ibin]; // copy bin y*y
-	    p2o->SetBinEntries(ibin, p2->GetBinEntries(ibin));  // copy entries
-	    // copy (if needed) bin sum of weight square
-	    if ( p2->GetBinSumw2()->fN > ibin ) { 
-	      p2o->Sumw2();
-	      (*p2o->GetBinSumw2())[ibin] = (*p2->GetBinSumw2())[ibin];   
-	    }
+	    if (copyBin(trg, folder, key->GetName(),
+			p2o->GetYaxis()->GetBinCenter(biny),
+			p2o->GetXaxis()->GetBinCenter(binx))) {
+	      if (folder=="Jetveto") {
+	
+		p2o->SetEntries(p2o->GetEntries()+p2->GetEntries());
+		(*p2o)[ibin] = (*p2)[ibin] + (*p2o)[ibin];
+		(*p2o->GetSumw2())[ibin] = (*p2->GetSumw2())[ibin] +
+		  (*p2o->GetSumw2())[ibin];
+		p2o->SetBinEntries(ibin, p2->GetBinEntries(ibin) +
+				   p2o->GetBinEntries(ibin));
+		// copy (if needed) bin sum of weight square
+		if ( p2->GetBinSumw2()->fN > ibin ) { 
+		  //p2o->Sumw2();
+		  (*p2o->GetBinSumw2())[ibin] = (*p2->GetBinSumw2())[ibin] +
+		    (*p2o->GetBinSumw2())[ibin];
+		}
+	      }	// Jetveto
+	      else {
+		p2o->SetEntries(p2o->GetEntries()+p2->GetEntries());
+		(*p2o)[ibin] = (*p2)[ibin]; // copy bin y values
+		(*p2o->GetSumw2())[ibin] = (*p2->GetSumw2())[ibin]; // copy y*y
+		p2o->SetBinEntries(ibin, p2->GetBinEntries(ibin));  // entries
+		// copy (if needed) bin sum of weight square
+		if ( p2->GetBinSumw2()->fN > ibin ) { 
+		  //p2o->Sumw2();
+		  (*p2o->GetBinSumw2())[ibin] = (*p2->GetBinSumw2())[ibin];   
+		}
+	      } // !Jetveto
+	    } // copyBin
 	  } // for biny
 	} // for biny
-	*/
 
       } // TProfile2D
       else if (obj->InheritsFrom("TH2D")) {
@@ -198,7 +226,7 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 	    po->SetBinEntries(ibin, p->GetBinEntries(ibin));  // copy entries
 	    // copy (if needed) bin sum of weight square
 	    if ( p->GetBinSumw2()->fN > ibin ) { 
-	      po->Sumw2();
+	      //po->Sumw2(); // already copied when cloning
 	      (*po->GetBinSumw2())[ibin] = (*p->GetBinSumw2())[ibin];   
 	    }
 	  }
@@ -266,6 +294,7 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
 
     // Dijet thresholds
     md["HLT_ZeroBias"]      = range{15,  40,  0, 5.2};
+    md["HLT_MC"]            = range{15,6500,  0, 5.2};
     
     md["HLT_DiPFJetAve40"]  = range{40,  85,  0, 5.2};
     md["HLT_DiPFJetAve60"]  = range{85,  100, 0, fwdeta};
@@ -353,12 +382,12 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
 			    hist=="h2phieta_ave"))
     return true;
   if (folder=="Jetveto" &&
-      mi.find(trg)!=md.end() &&
+      mi.find(trg)!=mi.end() &&
       pt >= mi[trg].ptmin && pt < mi[trg].ptmax &&
       fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
     return true;
   if (folder=="Incjet" &&
-      mi.find(trg)!=md.end() &&
+      mi.find(trg)!=mi.end() &&
       pt >= mi[trg].ptmin && pt < mi[trg].ptmax &&
       fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
     return true;
@@ -373,7 +402,7 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     if (hist=="hptr_all" || hist=="hptr_sel" || hist=="presr" ||
 	hist=="pcrecoilr" || hist=="pm0r" || hist=="pm2r" ||
 	hist=="pmnr" || hist=="pmur") k = 1.15;
-    if (mi.find(trg)!=md.end() &&
+    if (mi.find(trg)!=mi.end() &&
 	pt >= k*mi[trg].ptmin && pt < k*mi[trg].ptmax &&
 	fabs(eta) >= mi[trg].absetamin && fabs(eta) < mi[trg].absetamax)
     return true;
