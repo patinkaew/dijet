@@ -1228,6 +1228,7 @@ void DijetHistosFill::Loop()
 
       // Redo JEC right after event cuts but before anything else
       // Do not re-sort (for now)
+      bool allJetsGood(true);
       int njet = nJet;
       for (int i  = 0; i != njet; ++i) {
 	
@@ -1260,6 +1261,12 @@ void DijetHistosFill::Loop()
 	  int j1 = h2jv->GetYaxis()->FindBin(Jet_phi[i]);
 	  Jet_jetveto[i] = (h2jv->GetBinContent(i1,j1)>0);
 	} // jet veto
+	else
+	  Jet_jetveto[i] = false;
+
+	// Fail allJetsGood flag if any jet of pT>15 is not good
+	if (!(Jet_jetId[i]>=4 && !Jet_jetveto[i]) && Jet_pt[i]>15.)
+	  allJetsGood = false;
       } // for njet
 
       /*
@@ -1659,165 +1666,172 @@ void DijetHistosFill::Loop()
 	  double mjj = p4dj.M();
 	  double deta = fabs(p4p.Eta()-p4t.Eta());
 	  
-	  dijetHistos *h(0);
-	  bool isdijet = (fabs(p4t.Eta())<1.3 && dphi>2.7 && fabs(asymm)<maxa &&
+	  bool isdijet = (fabs(p4t.Eta())<1.3 && dphi>2.7 &&
+			  fabs(asymm)<maxa && //!
 			  p4t.Pt()>15. && Jet_jetId[itag]>=4 &&
-			  p4p.Pt()>15. &&Jet_jetId[iprobe]>=4 &&
-			  !Jet_jetveto[itag] && !Jet_jetveto[iprobe] &&
+			  p4p.Pt()>15. && Jet_jetId[iprobe]>=4 &&
+			  !Jet_jetveto[itag] && !Jet_jetveto[iprobe] && //!
 			  Flag_METFilters>0);
-	  if (isdijet) {
+	  // DESY selection. Note tighter asymmetry cut and allJetsGood
+	  bool isdijet2 = (fabs(p4t.Eta())<1.3 && dphi>2.7 &&
+			   fabs((pttag-ptprobe)/(pttag+ptprobe))<0.7 && //!
+			   //fabs(asymm)<maxa && //!
+			   p4t.Pt()>15. && Jet_jetId[itag]>=4 &&
+			   p4p.Pt()>15. && Jet_jetId[iprobe]>=4 &&
+			   //!Jet_jetveto[itag] && !Jet_jetveto[iprobe] && //!
+			   allJetsGood && //!
+			   Flag_METFilters>0);
 
-	    for (int itrg = 0; itrg != ntrg; ++itrg) {
-	      
-	      if (debugevent) cout << "Check trigger #"<<itrg<<" for dijet "
-				   << endl << flush;
-	      
-	      string &trg = vtrg[itrg];
-	      if (!(*mtrg[trg])) continue;
+	  
+	  for (int itrg = 0; itrg != ntrg; ++itrg) {
+	    
+	    if (debugevent) cout << "Check trigger #"<<itrg<<" for dijet "
+				 << endl << flush;
+	    
+	    string &trg = vtrg[itrg];
+	    if (!(*mtrg[trg])) continue;
 
-	      if (doJetveto) {
+	    if (doJetveto && isdijet) {
 
-		jetvetoHistos *h = mhjv[trg];
+	      jetvetoHistos *h = mhjv[trg];
 
+	      if (doJetvetoVariants)
+		h->h2ptaeta_all->Fill(eta, ptave, w);
+	      if (ptave >= h->ptmin && ptave < h->ptmax &&
+		  fabs(eta) >= h->absetamin && fabs(eta) < h->absetamax) {
 		if (doJetvetoVariants)
-		  h->h2ptaeta_all->Fill(eta, ptave, w);
-		if (ptave >= h->ptmin && ptave < h->ptmax &&
-		    fabs(eta) >= h->absetamin && fabs(eta) < h->absetamax) {
-		  if (doJetvetoVariants)
-		    h->h2ptaeta_sel->Fill(eta, ptave, w);
-		  h->p2asymm->Fill(eta, p4p.Phi(), asymm, w);
-		  h->h2phieta_ave->Fill(eta, p4p.Phi(), w);
-		}
-
-		if (doJetvetoVariants) {
-		  if (doPFComposition && fabs(p4t.Eta())<1.3) {
-		    h->h2ptteta_all->Fill(eta, ptave, w);
-		    if (pttag >= h->ptmin && pttag < h->ptmax) {
-		      h->h2ptteta_sel->Fill(eta, pttag, w);
-		      h->h2phieta_tag->Fill(eta, p4.Phi(), w);
-		      h->p2chftp->Fill(eta, p4p.Phi(), Jet_chHEF[iprobe], w);
-		      h->p2nhftp->Fill(eta, p4p.Phi(), Jet_neHEF[iprobe], w);
-		      h->p2neftp->Fill(eta, p4p.Phi(), Jet_neEmEF[iprobe], w);
-		    }
+		  h->h2ptaeta_sel->Fill(eta, ptave, w);
+		h->p2asymm->Fill(eta, p4p.Phi(), asymm, w);
+		h->h2phieta_ave->Fill(eta, p4p.Phi(), w);
+	      }
+	      
+	      if (doJetvetoVariants) {
+		if (doPFComposition && fabs(p4t.Eta())<1.3) {
+		  h->h2ptteta_all->Fill(eta, ptave, w);
+		  if (pttag >= h->ptmin && pttag < h->ptmax) {
+		    h->h2ptteta_sel->Fill(eta, pttag, w);
+		    h->h2phieta_tag->Fill(eta, p4.Phi(), w);
+		    h->p2chftp->Fill(eta, p4p.Phi(), Jet_chHEF[iprobe], w);
+		    h->p2nhftp->Fill(eta, p4p.Phi(), Jet_neHEF[iprobe], w);
+		    h->p2neftp->Fill(eta, p4p.Phi(), Jet_neEmEF[iprobe], w);
 		  }
 		}
-	      } // doJetveto
+	      }
+	    } // doJetveto
 
-	      if (doDijet) {
+	    if (doDijet && isdijet) {
 
-		dijetHistos *h = mhdj[trg];
-		double res = Jet_RES[iprobe] / Jet_RES[itag];
+	      dijetHistos *h = mhdj[trg];
+	      double res = Jet_RES[iprobe] / Jet_RES[itag];
 
-		h->h2pteta_aball->Fill(eta, ptavp2, w);
-		h->h2pteta_adall->Fill(eta, ptave, w);
-		h->h2pteta_tcall->Fill(eta, pttag, w);
-		h->h2pteta_pfall->Fill(eta, ptprobe, w);
-
-		// Bisector (proper)
-		if (ptavp2 >= h->ptmin && ptavp2 < h->ptmax &&
-		    fabs(eta) >= h->absetamin && fabs(eta) < h->absetamax) {
-		  h->h2pteta_absel->Fill(eta, ptavp2, w);
+	      h->h2pteta_aball->Fill(eta, ptavp2, w);
+	      h->h2pteta_adall->Fill(eta, ptave, w);
+	      h->h2pteta_tcall->Fill(eta, pttag, w);
+	      h->h2pteta_pfall->Fill(eta, ptprobe, w);
+	      
+	      // Bisector (proper)
+	      if (ptavp2 >= h->ptmin && ptavp2 < h->ptmax &&
+		  fabs(eta) >= h->absetamin && fabs(eta) < h->absetamax) {
+		h->h2pteta_absel->Fill(eta, ptavp2, w);
+	      }
+	      { // Bisector (proper)
+		if (doDijetJER) {
+		  h->p2m0->Fill(eta, ptavp2, m0b, w);
+		  h->p2m0x->Fill(eta, ptavp2, m0bx, w);
+		  h->p2m2->Fill(eta, ptavp2, m2b, w);
+		  h->p2m2x->Fill(eta, ptavp2, m2bx, w);
 		}
-		{ // Bisector (proper)
-		  if (doDijetJER) {
-		    h->p2m0->Fill(eta, ptavp2, m0b, w);
-		    h->p2m0x->Fill(eta, ptavp2, m0bx, w);
-		    h->p2m2->Fill(eta, ptavp2, m2b, w);
-		    h->p2m2x->Fill(eta, ptavp2, m2bx, w);
-		  }
-		  if (doPFComposition) {
-		    h->p2pt->Fill(eta, ptavp2, Jet_pt[iprobe], w);
-		    h->p2rho->Fill(eta, ptavp2, rho, w);
-		    h->p2chf->Fill(eta, ptavp2, Jet_chHEF[iprobe], w);
-		    h->p2nhf->Fill(eta, ptavp2, Jet_neHEF[iprobe], w);
-		    h->p2nef->Fill(eta, ptavp2, Jet_neEmEF[iprobe], w);
-		    h->p2cef->Fill(eta, ptavp2, Jet_chEmEF[iprobe], w);
-		    h->p2muf->Fill(eta, ptavp2, Jet_muEF[iprobe], w);
-
-		    h->ppt13->Fill(ptavp2, Jet_pt[itag], w);
-		    h->prho13->Fill(ptavp2, rho, w);
-		    h->pchf13->Fill(ptavp2, Jet_chHEF[itag], w);
-		    h->pnhf13->Fill(ptavp2, Jet_neHEF[itag], w);
-		    h->pnef13->Fill(ptavp2, Jet_neEmEF[itag], w);
-		    h->pcef13->Fill(ptavp2, Jet_chEmEF[itag], w);
-		    h->pmuf13->Fill(ptavp2, Jet_muEF[itag], w);
-		  }
-
-		  h->p2resab->Fill(eta, ptavp2, res, w);
-		  h->p2m0ab->Fill(eta, ptavp2, m0b, w);
-		  h->p2m2ab->Fill(eta, ptavp2, m2b, w);
-		  h->p2mnab->Fill(eta, ptavp2, mnb, w);
-		  h->p2muab->Fill(eta, ptavp2, mub, w);
+		if (doPFComposition) {
+		  h->p2pt->Fill(eta, ptavp2, Jet_pt[iprobe], w);
+		  h->p2rho->Fill(eta, ptavp2, rho, w);
+		  h->p2chf->Fill(eta, ptavp2, Jet_chHEF[iprobe], w);
+		  h->p2nhf->Fill(eta, ptavp2, Jet_neHEF[iprobe], w);
+		  h->p2nef->Fill(eta, ptavp2, Jet_neEmEF[iprobe], w);
+		  h->p2cef->Fill(eta, ptavp2, Jet_chEmEF[iprobe], w);
+		  h->p2muf->Fill(eta, ptavp2, Jet_muEF[iprobe], w);
+		  
+		  h->ppt13->Fill(ptavp2, Jet_pt[itag], w);
+		  h->prho13->Fill(ptavp2, rho, w);
+		  h->pchf13->Fill(ptavp2, Jet_chHEF[itag], w);
+		  h->pnhf13->Fill(ptavp2, Jet_neHEF[itag], w);
+		  h->pnef13->Fill(ptavp2, Jet_neEmEF[itag], w);
+		  h->pcef13->Fill(ptavp2, Jet_chEmEF[itag], w);
+		  h->pmuf13->Fill(ptavp2, Jet_muEF[itag], w);
 		}
-		// Dijet axis
-		if (ptave >= h->ptmin && ptave < h->ptmax &&
-		    fabs(eta) >= h->absetamin && fabs(eta) < h->absetamax) {
-		  h->h2pteta_adsel->Fill(eta, ptave, w);
-		}
-		{ // Dijet axis
-		  h->p2resad->Fill(eta, ptave, res, w);
-		  h->p2m0ad->Fill(eta, ptave, m0d, w);
-		  h->p2m2ad->Fill(eta, ptave, m2d, w);
-		  h->p2mnad->Fill(eta, ptave, mnd, w);
-		  h->p2muad->Fill(eta, ptave, mud, w);
-		}
-		// Tag jet axis
-		if (pttag >= h->ptmin && pttag < h->ptmax) {
-		  h->h2pteta_tcsel->Fill(eta, pttag, w);
-		}
-		// Tag jet axis
-		{
-		  h->p2restc->Fill(eta, pttag, res, w);
-		  h->p2m0tc->Fill(eta, pttag, m0c, w);
-		  h->p2m2tc->Fill(eta, pttag, m2c, w);
-		  h->p2mntc->Fill(eta, pttag, mnc, w);
-		  h->p2mutc->Fill(eta, pttag, muc, w);
-		}
-		// Probe jet axis
-		if (ptprobe >= h->ptmin && ptprobe < h->ptmax) {
-		  h->h2pteta_pfsel->Fill(eta, ptprobe, w);
-		} 
-		// Probe jet axis
-		{
-		  h->p2respf->Fill(eta, ptprobe, res, w);
-		  h->p2m0pf->Fill(eta, ptprobe, m0f, w);
-		  h->p2m2pf->Fill(eta, ptprobe, m2f, w);
-		  h->p2mnpf->Fill(eta, ptprobe, mnf, w);
-		  h->p2mupf->Fill(eta, ptprobe, muf, w);
-		}
-	      } // doDijet
+		
+		h->p2resab->Fill(eta, ptavp2, res, w);
+		h->p2m0ab->Fill(eta, ptavp2, m0b, w);
+		h->p2m2ab->Fill(eta, ptavp2, m2b, w);
+		h->p2mnab->Fill(eta, ptavp2, mnb, w);
+		h->p2muab->Fill(eta, ptavp2, mub, w);
+	      }
+	      // Dijet axis
+	      if (ptave >= h->ptmin && ptave < h->ptmax &&
+		  fabs(eta) >= h->absetamin && fabs(eta) < h->absetamax) {
+		h->h2pteta_adsel->Fill(eta, ptave, w);
+	      }
+	      { // Dijet axis
+		h->p2resad->Fill(eta, ptave, res, w);
+		h->p2m0ad->Fill(eta, ptave, m0d, w);
+		h->p2m2ad->Fill(eta, ptave, m2d, w);
+		h->p2mnad->Fill(eta, ptave, mnd, w);
+		h->p2muad->Fill(eta, ptave, mud, w);
+	      }
+	      // Tag jet axis
+	      if (pttag >= h->ptmin && pttag < h->ptmax) {
+		h->h2pteta_tcsel->Fill(eta, pttag, w);
+	      }
+	      // Tag jet axis
+	      {
+		h->p2restc->Fill(eta, pttag, res, w);
+		h->p2m0tc->Fill(eta, pttag, m0c, w);
+		h->p2m2tc->Fill(eta, pttag, m2c, w);
+		h->p2mntc->Fill(eta, pttag, mnc, w);
+		h->p2mutc->Fill(eta, pttag, muc, w);
+	      }
+	      // Probe jet axis
+	      if (ptprobe >= h->ptmin && ptprobe < h->ptmax) {
+		h->h2pteta_pfsel->Fill(eta, ptprobe, w);
+	      } 
+	      // Probe jet axis
+	      {
+		h->p2respf->Fill(eta, ptprobe, res, w);
+		h->p2m0pf->Fill(eta, ptprobe, m0f, w);
+		h->p2m2pf->Fill(eta, ptprobe, m2f, w);
+		h->p2mnpf->Fill(eta, ptprobe, mnf, w);
+		h->p2mupf->Fill(eta, ptprobe, muf, w);
+	      }
+	    } // doDijet
 
-	      if (doDijet2) {
+	    if (doDijet2 && isdijet2) {
 
-		dijetHistos2 *h = mhdj2[trg];
-		double res = Jet_RES[iprobe] / Jet_RES[itag];
-
-		double abseta = fabs(eta);
-		h->h2pteta->Fill(abseta, ptavp2, w);
-
-		h->p2res->Fill(abseta, ptavp2, res, w);
-		h->p2m0->Fill(abseta, ptavp2, m0b, w);
-		h->p2m2->Fill(abseta, ptavp2, m2b, w);
-		h->p2mn->Fill(abseta, ptavp2, mnb, w);
-		h->p2mu->Fill(abseta, ptavp2, mub, w);
-
-		h->p2m0x->Fill(abseta, ptavp2, m0bx, w);
-		h->p2m2x->Fill(abseta, ptavp2, m2bx, w);
-	      } // doDijet2
-
-	    } // for itrg
-	  } // dijet tag-and-probe selection
+	      dijetHistos2 *h = mhdj2[trg];
+	      double res = Jet_RES[iprobe] / Jet_RES[itag];
+		
+	      double abseta = fabs(eta);
+	      h->h2pteta->Fill(abseta, ptavp2, w);
+	      
+	      h->p2res->Fill(abseta, ptavp2, res, w);
+	      h->p2m0->Fill(abseta, ptavp2, m0b, w);
+	      h->p2m2->Fill(abseta, ptavp2, m2b, w);
+	      h->p2mn->Fill(abseta, ptavp2, mnb, w);
+	      h->p2mu->Fill(abseta, ptavp2, mub, w);
+	      
+	      h->p2m0x->Fill(abseta, ptavp2, m0bx, w);
+	      h->p2m2x->Fill(abseta, ptavp2, m2bx, w);
+	    } // doDijet2
+	    
+	  } // for itrg
 
 	  // Dijet without deltaphi cut
 	  if (fabs(p4t.Eta()<1.3) && fabs(asymm)<maxa) {
-
+	    
 	    if (ptave>=40) {
 	      h2dphi->Fill(p4p.Eta(),dphi, w);
 	    }
 	  }
-
 	} // for itag
-      } // dijet
+      } // njet>=2
 
       // Multijet selection
       if (ismultijet && doMultijet) {

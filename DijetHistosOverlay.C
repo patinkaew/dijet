@@ -1,0 +1,236 @@
+// Purpose: overlay DijetHistos with DESY results
+#include "TFile.h"
+#include "../jecsys2020/tdrstyle_mod15.C"
+#include "TGraphErrors.h"
+#include "TKey.h"
+#include "TLatex.h"
+#include "TLine.h"
+#include "TH2D.h"
+#include "TProfile2D.h"
+#include <string>
+
+bool debug = false;
+
+int findBin(TH2D *h2, double x, double *xnew = 0);
+void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
+	     TH1D *h1count, TH2D *h2count);
+
+void DijetHistosOverlays(string obs, string data, bool data3=false);
+void DijetHistosOverlay() {
+
+  DijetHistosOverlays("MPF","data");
+  DijetHistosOverlays("mpf2","data");
+  DijetHistosOverlays("mpfN","data");
+  DijetHistosOverlays("mpfU","data");
+
+  DijetHistosOverlays("MPF","mc");
+  DijetHistosOverlays("mpf2","mc");
+  DijetHistosOverlays("mpfN","mc");
+  DijetHistosOverlays("mpfU","mc");
+
+  //DijetHistosOverlays("MPF","mc");
+  //DijetHistosOverlays("mpf2","mc");
+  //DijetHistosOverlays("MPF","data");
+  //DijetHistosOverlays("mpf2","data");
+
+  //DijetHistosOverlays("mpf2","data",true);
+  //DijetHistosOverlays("MPF","data",true);
+  //DijetHistosOverlays("mpfU","data",true);
+}
+
+void DijetHistosOverlays(string obs, string data, bool data3) {
+
+  setTDRStyle();
+  TDirectory *curdir = gDirectory;
+
+  TLatex *tex = new TLatex();
+  tex->SetNDC(); tex->SetTextSize(0.045*1.5);
+  TLine *l = new TLine();
+
+  string s = Form("_%s_%s",data.c_str(),obs.c_str());
+  const char *c = s.c_str();
+
+  TFile *f1(0), *f12(0), *f13(0);
+  if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
+  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
+  /*
+  if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb.root","READ");
+  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
+  */
+  if (data3) {
+    f1 = new TFile("rootfiles/dijet2_a_dijet_cmb.root","READ");
+    f12 = new TFile("rootfiles/dijet2_b_asymm_cmb.root","READ");
+    f13 = new TFile("rootfiles/dijet2_c_allgood_cmb.root","READ");
+    assert(f12 && !f12->IsZombie());
+    assert(f13 && !f13->IsZombie());
+  }
+  assert(f1 && !f1->IsZombie());
+
+  TProfile2D *p2(0), *p22(0), *p23(0);
+  TH2D *h2n(0), *h2n2(0), *h2n3(0);
+  /*
+  if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet/p2m0ab");
+  if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet/p2m2ab");
+  if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet/p2mnab");
+  if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet/p2muab");
+  */
+  if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet2/p2m0");
+  if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet2/p2m2");
+  if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet2/p2mn");
+  if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet2/p2mu");
+  assert(p2);
+  //TH2D *h2 = p2->ProjectionXY(Form("h2%s",c));
+  //TH2D *h2n = (TH2D*)f1->Get("Dijet/h2pteta_aball"); assert(h2n); // Dijet
+  h2n = (TH2D*)f1->Get("Dijet2/h2pteta"); assert(h2n); // Dijet2
+
+  if (data3) {
+    p22 = (TProfile2D*)f12->Get(Form("Dijet2/%s",p2->GetName())); assert(p22);
+    p23 = (TProfile2D*)f13->Get(Form("Dijet2/%s",p2->GetName())); assert(p23);
+    h2n2 = (TH2D*)f12->Get("Dijet2/h2pteta"); assert(h2n2);
+    h2n3 = (TH2D*)f13->Get("Dijet2/h2pteta"); assert(h2n3);
+  }
+
+  
+  TFile *f2 = new TFile("../jecsys2020/rootfiles/CombinationFiles-Run2016FGH-3.root","READ");
+  assert(f2 && !f2->IsZombie());
+
+  f2->cd(data.c_str());//"data");
+  TDirectory *d2 = gDirectory;
+
+  curdir->cd();
+
+  TCanvas *c1 = new TCanvas(Form("c1%s",c),Form("c1%s",c),1200,600);
+  c1->Divide(6,3,0,0);
+
+  int neta(0);
+  TIter next(d2->GetListOfKeys());
+  while (TKey *key = (TKey*)next()) {
+
+    // Recurse directory structure
+    if (!(string(key->GetClassName())=="TDirectoryFile")) continue;
+    if (debug) cout << key->GetName() << "->";
+    TDirectory *d2s = (TDirectory*)key->ReadObj();
+    d2s->cd();
+    
+    int ietamin, ietamax;
+    sscanf(key->GetName(),"eta_%d_%d",&ietamin,&ietamax);
+
+    c1->cd(++neta);
+    gPad->SetLogx();
+
+    TH1D *h = tdrHist(Form("h%s_%d",c,neta),Form("%s (%s)",obs.c_str(),data.c_str()),0.98,1.07);
+    if (obs=="MPF" || obs=="mpf2") {
+      if (neta>=1)  h->GetYaxis()->SetRangeUser(0.97,1.07);
+      //if (neta>=7)  h->GetYaxis()->SetRangeUser(0.98,1.08);
+      if (neta>=7)  h->GetYaxis()->SetRangeUser(0.90,1.10);
+      if (neta>=13) h->GetYaxis()->SetRangeUser(0.80,1.25);
+    }
+    if (obs=="mpfN" || obs=="mpfU") {
+      if (neta>=1) h->GetYaxis()->SetRangeUser(-0.03,0.05);
+      if (neta>=7) h->GetYaxis()->SetRangeUser(-0.05,0.15);
+      if (neta>=13) h->GetYaxis()->SetRangeUser(-0.05,0.25);
+    }
+
+    TGraphErrors *g0(0);
+    if (obs=="MPF") g0 = (TGraphErrors*)d2s->Get("mpfchs_dijet_a100");
+    if (obs=="mpf2") g0 = (TGraphErrors*)d2s->Get("mpfchs2_dijet_a100");
+    if (obs=="mpfN") g0 = (TGraphErrors*)d2s->Get("mpfchsN_dijet_a100");
+    if (obs=="mpfU") g0 = (TGraphErrors*)d2s->Get("mpfchsU_dijet_a100");
+    assert(g0);
+
+    h->Draw();
+    l->DrawLine(15,1,3500,1);
+    g0->SetLineWidth(2);
+    g0->Draw("SAMEPz");
+
+    double etamin;
+    int i1m = findBin(p2, -0.1*ietamin);
+    int i1p = findBin(p2, +0.1*ietamin, &etamin);
+
+    double etamax;
+    int i2m = findBin(p2, -0.1*ietamax);
+    int i2p = findBin(p2, +0.1*ietamax, &etamax);
+
+    //int nbins = (i2p-i1p) + (i1m-i2m); // Dijet
+    int nbins = (i2p-i1p); // Dijet2
+
+    //TH1D *h0m = p2->ProjectionY(Form("h0m_%d",neta),i2m,i1m-1);
+    //TH1D *h0p = p2->ProjectionY(Form("h0p_%d",neta),i1p,i2p-1);
+    //TH1D *h0 = (TH1D*)h0m->Clone(Form("h0_%d",neta));
+    //h0->Add(h0p);
+    //h0->Scale(1./nbins);
+    //h0->Draw("SAME");
+						
+    TH1D *h0 = p2->ProjectionY(Form("h0m%s_%d",c,neta),-1,-1);
+    TH1D *h1 = (TH1D*)h0->Clone(Form("h1%s_%d",c,neta)); h1->Reset();
+    TH1D *h1n = (TH1D*)h0->Clone(Form("h1n%s_%d",c,neta)); h1n->Reset();
+    //addBins(h1,p2,i2m,i1m-1,h1n,h2n); // Dijet only
+    addBins(h1,p2,i1p,i2p-1,h1n,h2n); // Dijet2+Dijet
+    h1->SetLineColor(kGreen+2);
+    h1->Draw("SAMEH");
+
+    if (data3) {
+      TH1D *h12 = p22->ProjectionY(Form("h12_%s_%d",c,neta),i1p,i2p-1);//-1,-1);
+      TH1D *h13 = p23->ProjectionY(Form("h13_%s_%d",c,neta),i1p,i2p-1);//-1,-1);
+      h12->SetLineColor(kBlue);
+      h12->SetLineStyle(kDotted);
+      h12->Draw("SAMEH");
+      h13->SetLineColor(kRed);
+      h13->Draw("SAMEH");
+    }
+
+    tex->DrawLatex(0.60,0.92,Form("eta_%02d_%02d (%d)",ietamin,ietamax,nbins));
+    tex->DrawLatex(0.60,0.86,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (neta==1 || neta%6==0) {
+      TLegend *leg = tdrLeg(0.60,0.83-2*0.06,0.90,0.83);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(g0,"DESY mini","PLE");
+      leg->AddEntry(h1,"JME nano","PLE");
+    }	      
+
+  } // while tkey
+
+  c1->SaveAs(Form("pdf/DijetHistosOverlay_%s_%s_%s.pdf","2016GH",
+		  data.c_str(),obs.c_str()));
+} // DijetHistosOverlay
+
+int findBin(TH2D *h2, double x, double *xnew) {
+
+    int i = h2->GetXaxis()->FindBin(x);
+    double x2 = h2->GetXaxis()->GetBinLowEdge(i);
+    if (fabs(h2->GetXaxis()->GetBinLowEdge(i-1)-x)<fabs(x2-x)) --i;
+    if (fabs(h2->GetXaxis()->GetBinLowEdge(i+1)-x)<fabs(x2-x)) ++i;
+    x2 = h2->GetXaxis()->GetBinLowEdge(i);
+    if (xnew) (*xnew) = x2;
+    
+    return i;
+} // findBin
+
+
+void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
+	     TH1D *h1count, TH2D *h2count) {
+
+  assert(h1to->GetNbinsX()==h2from->GetNbinsY());
+  
+  for (int j = 1; j != h1to->GetNbinsX()+1; ++j) {
+
+    double sumw = h1count->GetBinContent(j);
+    double sumwz = sumw * h1to->GetBinContent(j);
+    double sumwe2 = sumw * pow(h1to->GetBinError(j),2);
+    
+    for (int i = i1; i != i2+1; ++i) {
+      
+      double w = h2count->GetBinContent(i,j);
+      double wz = w * h2from->GetBinContent(i,j);
+      double we2 = w * pow(h2from->GetBinError(i,j),2);
+      sumw += w;
+      sumwz += wz;
+      sumwe2 += we2;
+    } // for j
+    
+    h1to->SetBinContent(j, sumw ? sumwz / sumw : 0);
+    h1to->SetBinError(j, sumw ? sqrt(sumwe2 / sumw) : 0);
+    h1count->SetBinContent(j, sumw);
+  } // for i
+} // addBins
