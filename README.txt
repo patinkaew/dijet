@@ -29,11 +29,24 @@ To-do:
   - also figure out O(5-10%) mpfu even at highest pT
 - add smeared collection of jets for MC
 - option: add monitoring of <rho> for each analysis? => add to PFComposition
+- check JetID and METFilters
+
+From Fikri, 31 March 2023:
+I don't thinkFlag_METFilters is defined at Nano production level. Its defined at Mini production level [1]
+As for Jet_jetId, JMENanoV9 uses the same release as the central NanoAODv9, which is 10_6_26. The jetId decisions should follow the recommendations [2] .
+[1] https://github.com/cms-sw/cmssw/blob/CMSSW_10_6_26/PhysicsTools/PatAlgos/python/slimming/metFilterPaths_cff.py#L49
+[2] https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVUL#Preliminary_Recommendations_for 
 
 Bugs:
 - mpfu in multijet large compared to mpfn. Why? => sign error
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
+
+// v22b: Add MadGraph capability (isMG).
+
+// v22: Add extra profiles to Dijet2 for FSR studies (p2mnu, p2mnux, p2m0tc, p2m0pf etc.)
+
+// v21: Add |pT1-pT2|/|pT1+pT2|<0.7 and allJetsGood flag for Dijet2.
 
 // v20: Add Dijet2 for DESY-style dijet bins in eta and pT. Add jet veto maps. Add timer to estimate run time.
 

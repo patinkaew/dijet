@@ -253,13 +253,15 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 } // loopOverDirectories
 
 struct range {
-  double ptmin;
-  double ptmax;
+  int ptmin;
+  int ptmax;
   double absetamin;
   double absetamax;
 };
 std::map<std::string, struct range> md;
 std::map<std::string, struct range> md2;
+std::map<std::string, struct range> md2tc;
+std::map<std::string, struct range> md2pf;
 std::map<std::string, struct range> mj;
 std::map<std::string, struct range> mi;
 
@@ -300,7 +302,7 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     md2["HLT_ZeroBias"]      = range{15,  59,  0, 5.2};
     md2["HLT_MC"]            = range{15,6500,  0, 5.2};
     
-    md2["HLT_DiPFJetAve40"]  = range{40,  86,  0, 5.2};
+    md2["HLT_DiPFJetAve40"]  = range{59,  86,  0, 5.2};
     md2["HLT_DiPFJetAve60"]  = range{86,  110, 0, fwdetad};
     md2["HLT_DiPFJetAve80"]  = range{110, 170, 0, fwdetad};
     md2["HLT_DiPFJetAve140"] = range{170, 236, 0, fwdetad};
@@ -317,6 +319,30 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     md2["HLT_DiPFJetAve220_HFJEC"] = range{279, 373, fwdetad, 5.2};
     md2["HLT_DiPFJetAve300_HFJEC"] = range{373,3000, fwdetad, 5.2};
 
+    md2pf["HLT_ZeroBias"] = range{15,  59,  0, 5.2};
+    md2pf["HLT_MC"]       = range{15,6500,  0, 5.2};
+    md2pf["HLT_PFJet40"]  = range{59,  86,  0, 5.2};
+    md2pf["HLT_PFJet60"]  = range{86,  110, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet80"]  = range{110, 170, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet140"] = range{170, 236, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet200"] = range{236, 302, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet260"] = range{302, 373, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet320"] = range{373, 460, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet400"] = range{460, 575, 0, 5.2};//fwdetad};
+    md2pf["HLT_PFJet500"] = range{575,6500, 0, 5.2};//fwdetad};
+
+    md2tc["HLT_ZeroBias"] = range{15,  59,  0, 5.2};
+    md2tc["HLT_MC"]       = range{15,6500,  0, 5.2};
+    md2tc["HLT_PFJet40"]  = range{59,  86,  0, 5.2};
+    md2tc["HLT_PFJet60"]  = range{86,  110, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet80"]  = range{110, 170, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet140"] = range{170, 236, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet200"] = range{236, 302, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet260"] = range{302, 373, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet320"] = range{373, 460, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet400"] = range{460, 575, 0, 5.2};//fwdetad};
+    md2tc["HLT_PFJet500"] = range{575,6500, 0, 5.2};//fwdetad};
+    
     // Multijet or dijet tag/probe thresholds
     mj["HLT_PFJet40"]  = range{40,  85,  0, fwdeta0};
     mj["HLT_PFJet60"]  = range{85,  100, 0, fwdeta};
@@ -381,6 +407,13 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     */
   }
 
+  bool tcHist = (folder=="Dijet2" && (hist=="h2ptetatc" || hist=="p2restc" ||
+				      hist=="p2m0tc" || hist=="p2m2tc" ||
+				      hist=="p2mntc" || hist=="p2mutc"));
+  bool pfHist = (folder=="Dijet2" && (hist=="h2ptetapf" || hist=="p2respf" ||
+				      hist=="p2m0pf" || hist=="p2m2pf" ||
+				      hist=="p2mnpf" || hist=="p2mupf"));
+  
   if (folder=="Jetveto" && (hist=="p2chf" || hist=="p2nhf" || hist=="p2nef" ||
 			    hist=="p2asymm" || hist=="h2phieta" ||
 			    hist=="h2phieta_ave"))
@@ -400,11 +433,27 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
       pt >= md[trg].ptmin && pt < md[trg].ptmax &&
       fabs(eta) >= md[trg].absetamin && fabs(eta) < md[trg].absetamax)
     return true;
-  if (folder=="Dijet2" &&
-      md.find(trg)!=md.end() &&
-      pt >= md[trg].ptmin && pt < md[trg].ptmax &&
-      fabs(eta) >= md[trg].absetamin && fabs(eta) < md[trg].absetamax)
-    return true;
+  if (folder=="Dijet2") {
+    
+    if (tcHist) { // pT,tag binning
+      if (md2tc.find(trg)!=md2tc.end() &&
+	  pt >= md2tc[trg].ptmin && pt < md2tc[trg].ptmax &&
+	  fabs(eta) >= md2tc[trg].absetamin && fabs(eta) < md2tc[trg].absetamax)
+	return true;
+    }
+    else if (pfHist) { // pT,probe binning
+      if (md2pf.find(trg)!=md2pf.end() &&
+	  pt >= md2pf[trg].ptmin && pt < md2pf[trg].ptmax &&
+	  fabs(eta) >= md2pf[trg].absetamin && fabs(eta) < md2pf[trg].absetamax)
+	return true;
+    }
+    else { // pT,AVP or pT,ave binning
+      if (md2.find(trg)!=md2.end() &&
+	  pt >= md2[trg].ptmin && pt < md2[trg].ptmax &&
+	  fabs(eta) >= md2[trg].absetamin && fabs(eta) < md2[trg].absetamax)
+	return true;
+    }
+  } // Dijet2
   // 20% higher thresholds for multijet recoil binning
   if (folder=="Multijet") {
     double k(1);

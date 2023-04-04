@@ -31,6 +31,7 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
 
    int             isMC;     // data=0, PythiaPtFlat=1, MadGraphHT=2
+   bool            isMG;     // isMC==2
    int             isRun2;   // 2016apv=1, 2016gh=2, 2017=3, 2018=4
    string          dataset;
    string          _filename; // file name for debugging purposes
@@ -248,6 +249,7 @@ public :
    Float_t         SubGenJetAK8_phi[16];   //[nSubGenJetAK8]
    Float_t         SubGenJetAK8_pt[16];   //[nSubGenJetAK8]
    Float_t         Generator_binvar;
+   Float_t         LHE_HT; // added by hand
    Float_t         Generator_scalePDF;
    Float_t         Generator_weight;
    Float_t         Generator_x1;
@@ -2122,6 +2124,7 @@ public :
    TBranch        *b_SubGenJetAK8_phi;   //!
    TBranch        *b_SubGenJetAK8_pt;   //!
    TBranch        *b_Generator_binvar;   //!
+   TBranch        *b_LHE_HT; // added by hand
    TBranch        *b_Generator_scalePDF;   //!
    TBranch        *b_Generator_weight;   //!
    TBranch        *b_Generator_x1;   //!
@@ -3791,6 +3794,7 @@ DijetHistosFill::DijetHistosFill(TTree *tree, int itype, string datasetname) : f
 	     (TString(datasetname.c_str()).Contains("UL2016APV") ? 1 :
 	      (TString(datasetname.c_str()).Contains("UL2016") ? 2 :
 	       0))));
+  isMG = (isMC==2);
   
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -4511,6 +4515,7 @@ void DijetHistosFill::Init(TTree *tree)
    if (isMC) fChain->SetBranchAddress("SubGenJetAK8_phi", SubGenJetAK8_phi, &b_SubGenJetAK8_phi);
    if (isMC) fChain->SetBranchAddress("SubGenJetAK8_pt", SubGenJetAK8_pt, &b_SubGenJetAK8_pt);
    if (isMC) fChain->SetBranchAddress("Generator_binvar", &Generator_binvar, &b_Generator_binvar);
+   if (isMG) fChain->SetBranchAddress("LHE_HT", &LHE_HT, &b_LHE_HT); // added by hand
    if (isMC) fChain->SetBranchAddress("Generator_scalePDF", &Generator_scalePDF, &b_Generator_scalePDF);
    if (isMC) fChain->SetBranchAddress("Generator_weight", &Generator_weight, &b_Generator_weight);
    if (isMC) fChain->SetBranchAddress("Generator_x1", &Generator_x1, &b_Generator_x1);

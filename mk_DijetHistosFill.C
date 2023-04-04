@@ -17,8 +17,8 @@
 #include <fstream>
 #include <string>
 
-#define GPU
-//#define LOCAL
+//#define GPU
+#define LOCAL
 
 //#ifdef LOCAL
 // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
@@ -47,13 +47,13 @@ void mk_DijetHistosFill(string dataset = "X") {
 	dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
 	dataset=="FlatQCD" || dataset=="Flat2018QCD" || dataset=="QCDFlats" ||
 	dataset=="UL2018A" || dataset=="UL2018Flat" ||
-	dataset=="UL2016GH" || dataset=="UL2016Flat")) {
+	dataset=="UL2016GH" || dataset=="UL2016Flat" || dataset=="UL2016MG")) {
     cout << "Dataset not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
 	 << "RunCearly, RunC, RunCD, RunE, RunF "
 	 << "FlatQCD, Flat2018QCD, QCDFlats" << endl
 	 << "UL2018A, UL2018Flat" << endl
-    	 << "UL2016GH, UL2016Flat" << endl;
+    	 << "UL2016GH, UL2016Flat, UL2016MG" << endl;
   }
   
   // Settings
@@ -64,7 +64,7 @@ void mk_DijetHistosFill(string dataset = "X") {
   bool addMC = (dataset=="FlatQCD" || dataset=="Flat2018QCD" ||
 		dataset=="QCDFlats" ||
 		dataset=="UL2018Flat" ||
-		dataset=="UL2016Flat"); 
+		dataset=="UL2016Flat" || dataset=="UL2016MG"); 
 
   //cout << "Clean old shared objects and link files" << endl << flush;
   //gSystem->Exec("rm *.d");
@@ -117,7 +117,7 @@ void mk_DijetHistosFill(string dataset = "X") {
   }
   
   if (addMC) {
-    ifstream fin(runLocal ? "mcFiles_local.txt" :
+    ifstream fin(runLocal ? Form("mcFiles_local_%s.txt",dataset.c_str()) :
 		 Form("mcFiles_%s.txt",dataset.c_str()), ios::in);
     string filename;
     cout << "Chaining MC files:" << endl << flush;
@@ -127,8 +127,10 @@ void mk_DijetHistosFill(string dataset = "X") {
       c->AddFile(filename.c_str());
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
-  
-    DijetHistosFill filler(c,1,dataset);
+
+    bool isMG = (dataset=="UL2016MG");
+    
+    DijetHistosFill filler(c, isMG ? 2 : 1, dataset);
     filler.Loop();
   }
 

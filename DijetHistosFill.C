@@ -135,6 +135,12 @@ public:
   TH2D *h2pteta;
   TProfile2D *p2res, *p2m0, *p2m2, *p2mn, *p2mu;
   TProfile2D *p2m0x, *p2m2x;
+
+  // Extra for FSR studies
+  TProfile2D *p2mnu, *p2mnx, *p2mux, *p2mnux;
+  TH2D *h2ptetatc, *h2ptetapf;
+  TProfile2D *p2restc, *p2m0tc, *p2m2tc, *p2mntc, *p2mutc; // pT,tag (central)
+  TProfile2D *p2respf, *p2m0pf, *p2m2pf, *p2mnpf, *p2mupf; // pT,probe (forward)
 };
 
 class multijetHistos {
@@ -250,13 +256,15 @@ void DijetHistosFill::Loop()
 
    //if (debug) 
    cout << "Setting branch status for "
-	<< (isMC ? "MC" : "DATA") 
+	<< (isMC ? (isMG ? "MC (MG)" : "MC (Flat)") : "DATA") 
 	<< (isRun2 ? " and Run2 (" : " and Run3 (") << isRun2 << ")"
 	<< endl << flush;
    
    if (isMC) fChain->SetBranchStatus("genWeight",1);
-   if (isMC) fChain->SetBranchStatus("Generator_binvar",1);
+   if (isMC) fChain->SetBranchStatus("Generator_binvar",1); // pThat in Pythia8
    if (isMC) fChain->SetBranchStatus("Pileup_pthatmax",1);
+
+   if (isMG) fChain->SetBranchStatus("LHE_HT",1); // HT in MadGraph
 
    fChain->SetBranchStatus("run",1);
    fChain->SetBranchStatus("luminosityBlock",1);
@@ -329,6 +337,7 @@ void DijetHistosFill::Loop()
      }
      assert(mtrg[vtrg[i]]!=0);
    }
+
 
    fChain->SetBranchStatus("nJet",1);
    fChain->SetBranchStatus("Jet_pt",1);
@@ -486,6 +495,42 @@ void DijetHistosFill::Loop()
    }
 
    if (debug) cout << "Setting up histograms" << endl << flush;   
+
+   // Setup HT bin weighting and monitoring
+   TH1D *hxsec(0), *hnevt(0), *hLHE_HT(0), *hHT(0);
+   double vht[] = {0,25,50,100,200,300,500,700,1000,1500,2000,6500};
+   const int nht = sizeof(vht)/sizeof(vht[0])-1;
+   int nMG(0);
+   if (isMG) {
+     
+     hxsec = new TH1D("hxsec",";H_{T} (GeV);pb",nht,vht);
+     hnevt = new TH1D("hnevt",";H_{T} (GeV);N_{evt}",nht,vht);
+     hLHE_HT = new TH1D("hLHE_HT",";H_{T} (GeV);N_{evt} (unweighted)",nht,vht);
+     hHT = new TH1D("hHT",";H_{T} (GeV);N_{evt} (weighted)",2485,15,2500);
+
+     // Number of events, retrieved manuallay with
+     // TChain c("Events"); c.AddFile("<path to files>/*.root"); c.GetEntries();
+     int vnevt[9] =
+       {11197186 /*50to100*/, 23002929 /*100to200*/, 17512439 /*200to300*/,
+	16405924 /*300to500*/, 14359110 /*500to700*/, 13473185 /*700to1000*/,
+	4365993 /*1000to1500*/, 2944561 /*1500to2000*/, 1836165 /*2000toInf*/};
+     cout << "Loading Hefaistos MadGraph event numbers" << endl << flush;
+     // Number of events in local folder
+     //int vnevt[9] = {144239, 54785, 56653, 56952, 45937, 44868, 46093, 45831, 34787}; // local files
+     //cout << "Loading local MadGraph event numbers" << endl << flush;
+     for (int i = 0; i != 9; ++i) {
+       hnevt->SetBinContent(i+3, vnevt[i]);
+       nMG += vnevt[i];
+     }
+     cout << "Loaded " << nMG << " events" << endl << flush;
+     
+     // xsec from jetphys/settings.h_template
+     //double vxsec[9] = {23700000,23700000,1547000,322600,29980,6334,1088,99.11,20.23}; // first one must be wrong
+     //double vxsec[9] = {246300000,28060000,1710000,347500,32060,6829,1207,120.0,25.25}; // P8M1
+     double vxsec[9] = {246300000.*23700000./28060000., 23700000,1547000,322600,29980,6334,1088,99.11,20.23}; // Scale P8M1 first, others CP5
+     for (int i = 0; i != 9; ++i)
+       hxsec->SetBinContent(i+3, vxsec[i]);
+   } // isMG
 
    // Inclusive jets pT binning
    double vpti[] = 
@@ -968,9 +1013,48 @@ void DijetHistosFill::Loop()
 				nxd,vxd, nptd, vptd);
        
        h->p2m0x = new TProfile2D("p2m0x",";#eta;p_{T,avp} (GeV);"
-				 "MPFX0 (MPFX)",nxd,vxd, nptd, vptd, "S");
+				 "MPF0X (MPFX)",nxd,vxd, nptd, vptd, "S");
        h->p2m2x = new TProfile2D("p2m2x",";#eta;p_{T,avp} (GeV);"
-				 "MPF2 (DBX)",nxd,vxd, nptd, vptd, "S");
+				 "MPF2X (DBX)",nxd,vxd, nptd, vptd, "S");
+
+       // Extra for FRS studies
+       h->p2mnu = new TProfile2D("p2mnu",";#eta;p_{T,avp} (GeV);MPFnu",
+				 nxd,vxd, nptd, vptd);
+       h->p2mnx = new TProfile2D("p2mnx",";#eta;p_{T,avp} (GeV);"
+				 "MPFNX",nxd,vxd, nptd, vptd, "S");
+       h->p2mux = new TProfile2D("p2mux",";#eta;p_{T,avp} (GeV);"
+				 "MPFUX",nxd,vxd, nptd, vptd, "S");
+       h->p2mnux = new TProfile2D("p2mnux",";#eta;p_{T,avp} (GeV);"
+				  "MPFNUX",nxd,vxd, nptd, vptd, "S");
+
+       h->h2ptetatc = new TH2D("h2ptetatc",";#eta;p_{T,tag} (GeV);"
+			       "N_{events}",nxd,vxd, nptd, vptd);
+       h->p2restc = new TProfile2D("p2rest ",";#eta;p_{T,tag} (GeV);"
+				   "JES(probe)/JES(tag)",
+				   nxd,vxd, nptd, vptd);
+       h->p2m0tc = new TProfile2D("p2m0tc",";#eta;p_{T,tag} (GeV);MPF0",
+				  nxd,vxd, nptd, vptd);
+       h->p2m2tc = new TProfile2D("p2m2tc",";#eta;p_{T,tag} (GeV);MPF2",
+				  nxd,vxd, nptd, vptd);
+       h->p2mntc = new TProfile2D("p2mntc",";#eta;p_{T,tag} (GeV);MPFn",
+				  nxd,vxd, nptd, vptd);
+       h->p2mutc = new TProfile2D("p2mutc",";#eta;p_{T,tag} (GeV);MPFu",
+				  nxd,vxd, nptd, vptd);
+
+       h->h2ptetapf = new TH2D("h2ptetapf",";#eta;p_{T,probe} (GeV);"
+			       "N_{events}",nxd,vxd, nptd, vptd);
+       h->p2respf = new TProfile2D("p2respf",";#eta;p_{T,probe} (GeV);"
+				   "JES(probe)/JES(tag)",
+				   nxd,vxd, nptd, vptd);
+       h->p2m0pf = new TProfile2D("p2m0pf",";#eta;p_{T,probe} (GeV);MPF0",
+				  nxd,vxd, nptd, vptd);
+       h->p2m2pf = new TProfile2D("p2m2pf",";#eta;p_{T,probe} (GeV);MPF2",
+				  nxd,vxd, nptd, vptd);
+       h->p2mnpf = new TProfile2D("p2mnpf",";#eta;p_{T,probe} (GeV);MPFn",
+				  nxd,vxd, nptd, vptd);
+       h->p2mupf = new TProfile2D("p2mupf",";#eta;p_{T,probe} (GeV);MPFu",
+				  nxd,vxd, nptd, vptd);
+	      
      } // doDijet2
 
      // Multijet per trigger
@@ -1127,6 +1211,8 @@ void DijetHistosFill::Loop()
    Long64_t nentries = fChain->GetEntries(); // Long startup time
    cout << "Loaded " << nentries << " entries" << endl << flush;
 
+   if (isMG && nentries!=nMG) assert(false);
+
    // For trigger matching studies
    //const int kMaxTrigJet = 3;
    //Float_t Jet_hltPt[kMaxTrigJet];
@@ -1193,11 +1279,21 @@ void DijetHistosFill::Loop()
       // if (Cut(ientry) < 0) continue;
 
       double w = (isMC ? genWeight : 1.);
+      if (isMG) {
+	int iht = hxsec->FindBin(LHE_HT);
+	double xsec = hxsec->GetBinContent(iht);
+	double nevt = hnevt->GetBinContent(iht);
+	double wht = (nevt ? xsec / nevt : 1);
+	w *= wht;
+	hLHE_HT->Fill(LHE_HT); // cross-check hnevt afterwards
+	hHT->Fill(LHE_HT, w); // cross-check HT spectrum smoothness afterwards
+      }
       double rho = Rho_fixedGridRhoFastjetAll;
-
+      
       bool doPtHatFilter = true;
       if (doPtHatFilter && isMC) {
-	if (Pileup_pthatmax>Generator_binvar) continue;
+	if ( isMG && 2.*Pileup_pthatmax>LHE_HT) continue;
+	if (!isMG && Pileup_pthatmax>Generator_binvar) continue;
       }
 
       if (debugevent) cout << "Keep track of run+LS" << endl << flush;
@@ -1611,6 +1707,13 @@ void DijetHistosFill::Loop()
 
 	  double m0bx = 1 + (p4m0.Vect().Dot(p4bx.Vect()))/ptavp2;
 	  double m2bx = 1 + (p4m2.Vect().Dot(p4bx.Vect()))/ptavp2;
+
+	  // Extras
+	  double cu = 1./0.92;
+	  double mnub = 0 + ((p4mn+cu*p4mu).Vect().Dot(p4b.Vect()))/ptavp2;
+	  double mnbx = 0 + (p4mn.Vect().Dot(p4bx.Vect()))/ptavp2;
+	  double mubx = 0 + (p4mu.Vect().Dot(p4bx.Vect()))/ptavp2;
+	  double mnubx = 0 + ((p4mn+cu*p4mu).Vect().Dot(p4bx.Vect()))/ptavp2;
 	  
 	  // bisector axis => dijet axis really (not equal angles)
 	  p4d.SetPtEtaPhiM(0,0,0,0);
@@ -1819,6 +1922,26 @@ void DijetHistosFill::Loop()
 	      
 	      h->p2m0x->Fill(abseta, ptavp2, m0bx, w);
 	      h->p2m2x->Fill(abseta, ptavp2, m2bx, w);
+
+	      // Extras for FSR studies
+	      h->p2mnu->Fill(abseta, ptavp2, mnub, w);
+	      h->p2mnx->Fill(abseta, ptavp2, mnbx, w);
+	      h->p2mux->Fill(abseta, ptavp2, mubx, w);
+	      h->p2mnux->Fill(abseta, ptavp2, mnubx, w);
+
+	      h->h2ptetatc->Fill(abseta, pttag, w);
+	      h->p2restc->Fill(abseta, pttag, res, w);
+	      h->p2m0tc->Fill(abseta, pttag, m0c, w);
+	      h->p2m2tc->Fill(abseta, pttag, m2c, w);
+	      h->p2mntc->Fill(abseta, pttag, mnc, w);
+	      h->p2mutc->Fill(abseta, pttag, muc, w);
+
+	      h->h2ptetapf->Fill(abseta, ptprobe, w);
+	      h->p2respf->Fill(abseta, ptprobe, res, w);
+	      h->p2m0pf->Fill(abseta, ptprobe, m0f, w);
+	      h->p2m2pf->Fill(abseta, ptprobe, m2f, w);
+	      h->p2mnpf->Fill(abseta, ptprobe, mnf, w);
+	      h->p2mupf->Fill(abseta, ptprobe, muf, w);
 	    } // doDijet2
 	    
 	  } // for itrg
@@ -1854,7 +1977,7 @@ void DijetHistosFill::Loop()
 	double m3b = 1 + (p4m3.Vect().Dot(p4b3.Vect()))/ptave;
 	double mnb = 0 + (p4mn3.Vect().Dot(p4b3.Vect()))/ptave;
 	double mub = 0 + (p4mu3.Vect().Dot(p4b3.Vect()))/ptave;
-	
+
 	// Dijet axis (not equal angles)
 	p4m.SetPtEtaPhiM(0,0,0,0);
 	p4m -= p4lead;

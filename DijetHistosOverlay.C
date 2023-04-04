@@ -14,8 +14,13 @@ bool debug = false;
 int findBin(TH2D *h2, double x, double *xnew = 0);
 void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
 	     TH1D *h1count, TH2D *h2count);
+void rebin(TH1D *h1, TH1D *h1n, TH1D *h1old, TH1D *h1nold);
 
-void DijetHistosOverlays(string obs, string data, bool data3=false);
+//void DijetHistosOverlays(string obs, string data, string spt = "PtAVP",
+//void DijetHistosOverlays(string obs, string data, string spt = "PtTag",
+void DijetHistosOverlays(string obs, string data, string spt = "PtProbe",
+//void DijetHistosOverlays(string obs, string data, string spt = "PtAve",
+			 bool data3=false);
 void DijetHistosOverlay() {
 
   DijetHistosOverlays("MPF","data");
@@ -38,7 +43,8 @@ void DijetHistosOverlay() {
   //DijetHistosOverlays("mpfU","data",true);
 }
 
-void DijetHistosOverlays(string obs, string data, bool data3) {
+void DijetHistosOverlays(string obs, string data, string spt,
+			 bool data3) {
 
   setTDRStyle();
   TDirectory *curdir = gDirectory;
@@ -49,14 +55,16 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
 
   string s = Form("_%s_%s",data.c_str(),obs.c_str());
   const char *c = s.c_str();
+  const char *cpt = spt.c_str();
 
   TFile *f1(0), *f12(0), *f13(0);
-  if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
-  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
-  /*
-  if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb.root","READ");
-  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
-  */
+  if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  //if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
+  //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
+  //if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb.root","READ");
+  //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
+
   if (data3) {
     f1 = new TFile("rootfiles/dijet2_a_dijet_cmb.root","READ");
     f12 = new TFile("rootfiles/dijet2_b_asymm_cmb.root","READ");
@@ -68,30 +76,50 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
 
   TProfile2D *p2(0), *p22(0), *p23(0);
   TH2D *h2n(0), *h2n2(0), *h2n3(0);
-  /*
-  if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet/p2m0ab");
-  if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet/p2m2ab");
-  if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet/p2mnab");
-  if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet/p2muab");
-  */
-  if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet2/p2m0");
-  if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet2/p2m2");
-  if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet2/p2mn");
-  if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet2/p2mu");
+  if (spt=="PtAVP" || spt=="PtAve") {
+    /*
+      if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet/p2m0ab");
+      if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet/p2m2ab");
+      if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet/p2mnab");
+      if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet/p2muab");
+    */
+    if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet2/p2m0");
+    if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet2/p2m2");
+    if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet2/p2mn");
+    if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet2/p2mu");
+    h2n = (TH2D*)f1->Get("Dijet2/h2pteta"); assert(h2n); // Dijet2
+  }
+  if (spt=="PtTag") {
+    if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet2/p2m0tc");
+    if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet2/p2m2tc");
+    if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet2/p2mntc");
+    if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet2/p2mutc");
+    h2n = (TH2D*)f1->Get("Dijet2/h2ptetatc"); assert(h2n); // Dijet2
+  }
+  if (spt=="PtProbe") {
+    if (obs=="MPF") p2 = (TProfile2D*)f1->Get("Dijet2/p2m0pf");
+    if (obs=="mpf2") p2 = (TProfile2D*)f1->Get("Dijet2/p2m2pf");
+    if (obs=="mpfN") p2 = (TProfile2D*)f1->Get("Dijet2/p2mnpf");
+    if (obs=="mpfU") p2 = (TProfile2D*)f1->Get("Dijet2/p2mupf");
+    h2n = (TH2D*)f1->Get("Dijet2/h2ptetatc"); assert(h2n); // Dijet2
+  }      
   assert(p2);
+  assert(h2n);
   //TH2D *h2 = p2->ProjectionXY(Form("h2%s",c));
   //TH2D *h2n = (TH2D*)f1->Get("Dijet/h2pteta_aball"); assert(h2n); // Dijet
-  h2n = (TH2D*)f1->Get("Dijet2/h2pteta"); assert(h2n); // Dijet2
-
+  //h2n = (TH2D*)f1->Get("Dijet2/h2pteta"); assert(h2n); // Dijet2
+  
   if (data3) {
     p22 = (TProfile2D*)f12->Get(Form("Dijet2/%s",p2->GetName())); assert(p22);
     p23 = (TProfile2D*)f13->Get(Form("Dijet2/%s",p2->GetName())); assert(p23);
     h2n2 = (TH2D*)f12->Get("Dijet2/h2pteta"); assert(h2n2);
     h2n3 = (TH2D*)f13->Get("Dijet2/h2pteta"); assert(h2n3);
   }
-
   
-  TFile *f2 = new TFile("../jecsys2020/rootfiles/CombinationFiles-Run2016FGH-3.root","READ");
+  
+  // TFile *f2 = new TFile("../jecsys2020/rootfiles/CombinationFiles-Run2016FGH-3.root","READ");
+  //TFile *f2 = new TFile(Form("rootfiles/CombinationFiles-Run2016FGH-%s.root",cpt),"READ");
+  TFile *f2 = new TFile(Form("rootfiles/CombinationFiles-Run2016FGH-%s.root",spt=="PtAve" ? "PtAVP" : cpt),"READ");
   assert(f2 && !f2->IsZombie());
 
   f2->cd(data.c_str());//"data");
@@ -101,6 +129,9 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
 
   TCanvas *c1 = new TCanvas(Form("c1%s",c),Form("c1%s",c),1200,600);
   c1->Divide(6,3,0,0);
+
+  TCanvas *c2 = new TCanvas(Form("c2%s",c),Form("c2%s",c),1200,600);
+  c2->Divide(6,3,0,0);
 
   int neta(0);
   TIter next(d2->GetListOfKeys());
@@ -118,19 +149,38 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
     c1->cd(++neta);
     gPad->SetLogx();
 
-    TH1D *h = tdrHist(Form("h%s_%d",c,neta),Form("%s (%s)",obs.c_str(),data.c_str()),0.98,1.07);
-    if (obs=="MPF" || obs=="mpf2") {
-      if (neta>=1)  h->GetYaxis()->SetRangeUser(0.97,1.07);
-      //if (neta>=7)  h->GetYaxis()->SetRangeUser(0.98,1.08);
-      if (neta>=7)  h->GetYaxis()->SetRangeUser(0.90,1.10);
-      if (neta>=13) h->GetYaxis()->SetRangeUser(0.80,1.25);
+    TH1D *h = tdrHist(Form("h%s_%d",c,neta),Form("%s (%s)",obs.c_str(),data.c_str()),0.98,1.07,"p_{T,avp} (GeV)");
+    if (spt=="PtAVP") {
+      if (obs=="MPF" || obs=="mpf2") {
+	if (neta>=1)  h->GetYaxis()->SetRangeUser(0.97,1.07);
+	//if (neta>=7)  h->GetYaxis()->SetRangeUser(0.98,1.08);
+	if (neta>=7)  h->GetYaxis()->SetRangeUser(0.90,1.10);
+	if (neta>=13) h->GetYaxis()->SetRangeUser(0.80,1.25);
+      }
+      if (obs=="mpfN" || obs=="mpfU") {
+	if (neta>=1) h->GetYaxis()->SetRangeUser(-0.03,0.05);
+	if (neta>=7) h->GetYaxis()->SetRangeUser(-0.05,0.15);
+	if (neta>=13) h->GetYaxis()->SetRangeUser(-0.05,0.25);
+      }
     }
-    if (obs=="mpfN" || obs=="mpfU") {
-      if (neta>=1) h->GetYaxis()->SetRangeUser(-0.03,0.05);
-      if (neta>=7) h->GetYaxis()->SetRangeUser(-0.05,0.15);
-      if (neta>=13) h->GetYaxis()->SetRangeUser(-0.05,0.25);
+    if (spt=="PtTag" || spt=="PtProbe" || spt=="PtAve") {
+      if (obs=="MPF" || obs=="mpf2") {
+	if (neta>=1)  h->GetYaxis()->SetRangeUser(0.6,1.4);
+	if (neta>=7)  h->GetYaxis()->SetRangeUser(0.6,1.4);
+	if (neta>=13) h->GetYaxis()->SetRangeUser(0.6,1.4);
+      }
+      if (obs=="mpfN" || obs=="mpfU") {
+	if (neta>=1) h->GetYaxis()->SetRangeUser(-0.3,0.3);
+	if (neta>=7) h->GetYaxis()->SetRangeUser(-0.3,0.3);
+	if (neta>=13) h->GetYaxis()->SetRangeUser(-0.3,0.3);
+      }
+      if (spt=="PtTag") h->SetXTitle("p_{T,tag} (GeV)");
+      if (spt=="PtProbe") h->SetXTitle("p_{T,probe} (GeV)");
+      if (spt=="PtAve") h->SetXTitle("p_{T,avp} (GeV)");
     }
 
+    TH1D *h1c = (TH1D*)d2s->Get(Form("%s_RawNEvents_a100",data.c_str()));
+    assert(h1c);
     TGraphErrors *g0(0);
     if (obs=="MPF") g0 = (TGraphErrors*)d2s->Get("mpfchs_dijet_a100");
     if (obs=="mpf2") g0 = (TGraphErrors*)d2s->Get("mpfchs2_dijet_a100");
@@ -140,7 +190,9 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
 
     h->Draw();
     l->DrawLine(15,1,3500,1);
-    g0->SetLineWidth(2);
+    //g0->SetLineWidth(2);
+    g0->SetLineColor(kRed);
+    g0->SetMarkerColor(kRed);
     g0->Draw("SAMEPz");
 
     double etamin;
@@ -167,6 +219,29 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
     //addBins(h1,p2,i2m,i1m-1,h1n,h2n); // Dijet only
     addBins(h1,p2,i1p,i2p-1,h1n,h2n); // Dijet2+Dijet
     h1->SetLineColor(kGreen+2);
+    //h1->Draw("SAMEH");
+
+    //doublx xr[] = {15, 21, 28, 37, 49,
+    //		     59, 86, 110, 132, 170, 204, 236, 279, 302, 373, 460, 575,
+    //		     638, 737, 846, 967, 1101, 1248,
+    //               1410, 1588, 1784, 2000, 2238, 2500, 2787, 3103};
+    //double xb[] = {59, 85, 104, 170, 236, 302, 370, 460, 575, 1000, 2000};
+    double xb[] = {15,28, 59, 86, 110, 170, 236, 302, 373, 460, 575,
+		   1000, 2000, 3103};
+    double nb = sizeof(xb)/sizeof(xb[0])-1;
+    //double xf[] = {59, 86, 110, 132, 204, 279, 373};
+    double xf[] = {59, 86, 110, 132, 204, 279, 373,  460, 575,
+		   1000, 2000, 3103};
+    int nf = sizeof(xf)/sizeof(xf[0])-1;
+    double *x = (etamin>2.8 ? xf : xb);
+    int n = (etamin>2.8 ? nf : nb);
+    TH1D *h1old = h1;
+    TH1D *h1nold = h1n;
+    h1 = new TH1D(Form("h1new%s_%d",c,neta),"",n,x);
+    h1n = new TH1D(Form("h1nnew%s_%d",c,neta),"",n,x);
+    rebin(h1,h1n,h1old,h1nold);
+    h1->SetLineColor(kGreen+2);
+    h1->SetMarkerStyle(kNone);
     h1->Draw("SAMEH");
 
     if (data3) {
@@ -189,10 +264,33 @@ void DijetHistosOverlays(string obs, string data, bool data3) {
       leg->AddEntry(h1,"JME nano","PLE");
     }	      
 
+    // Jet counts
+    c2->cd(neta);
+    gPad->SetLogx();
+    gPad->SetLogy();
+
+    TH1D *h2 = tdrHist(Form("h2%s_%d",c,neta),Form("%s (%s)","Counts",data.c_str()),0.5,1e7,"p_{T,avp} (GeV)");    
+
+    h2->Draw();
+    h1c->SetMarkerColor(kRed);
+    h1c->SetLineColor(kRed);
+    if (etamin<1.3) h1c->Scale(2.);
+    h1c->Draw("SAMEH");
+    h1n->SetMarkerStyle(kNone);
+    h1n->SetLineColor(kGreen+2);
+    h1n->Draw("SAMEHE");
+
+    tex->DrawLatex(0.60,0.92,Form("eta_%02d_%02d (%d)",ietamin,ietamax,nbins));
+    tex->DrawLatex(0.60,0.86,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    gPad->RedrawAxis();
+
   } // while tkey
 
-  c1->SaveAs(Form("pdf/DijetHistosOverlay_%s_%s_%s.pdf","2016GH",
-		  data.c_str(),obs.c_str()));
+  c1->SaveAs(Form("pdf/DijetHistosOverlay_%s_%s_%s_%s.pdf","2016GH",
+		  data.c_str(),obs.c_str(),cpt));
+  c2->SaveAs(Form("pdf/DijetHistosOverlay_%s_%s_%s_%s.pdf","2016GH",
+		  data.c_str(),"counts",cpt));
 } // DijetHistosOverlay
 
 int findBin(TH2D *h2, double x, double *xnew) {
@@ -234,3 +332,23 @@ void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
     h1count->SetBinContent(j, sumw);
   } // for i
 } // addBins
+
+void rebin(TH1D *h1, TH1D *h1n, TH1D *h1old, TH1D *h1nold) {
+
+  // Add bins with sum of weights
+  for (int i = 1; i != h1old->GetNbinsX()+1; ++i) {
+    int j = h1->FindBin(h1old->GetBinCenter(i));
+    double n = h1nold->GetBinContent(i);
+    h1->SetBinContent(j, h1->GetBinContent(j) + n*h1old->GetBinContent(i));
+    h1->SetBinError(j, h1->GetBinError(j) + n*pow(h1old->GetBinError(i),2));
+    h1n->SetBinContent(j, h1n->GetBinContent(j) + n);
+    h1n->SetBinError(j, h1n->GetBinContent(j)+n*pow(h1nold->GetBinError(i),2));
+  }
+  for (int i = 1; i != h1->GetNbinsX()+1; ++i) {
+    double n = h1n->GetBinContent(i);
+    h1->SetBinContent(i, n ? h1->GetBinContent(i) / n : 0);
+    h1->SetBinError(i, n ? sqrt(h1->GetBinError(i)/n) : 0);
+    h1n->SetBinError(i, n ? sqrt(h1n->GetBinError(i)/n) : 0);
+  }
+
+} // rebin
