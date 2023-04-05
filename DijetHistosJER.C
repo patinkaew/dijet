@@ -21,6 +21,9 @@ void DijetHistosJER() {
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet/JER");
   */
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16mg.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","Dijet2");
   //drawDijetHistosJER();
   drawDijetHistosJERtest();
 }
@@ -305,16 +308,22 @@ void drawDijetHistosJERtest() {
   //TFile *f = new TFile("rootfiles/jmenano_data_cmb.root","READ");
   assert(f && !f->IsZombie());
 
-  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
   assert(fm && !fm->IsZombie());
+
+  TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  assert(fp && !fp->IsZombie());
 
 
   TProfile2D *p2m0 = (TProfile2D*)f->Get("Dijet2/p2m0"); assert(p2m0);
   TProfile2D *p2m0x = (TProfile2D*)f->Get("Dijet2/p2m0x"); assert(p2m0x);
   TProfile2D *p2m0m = (TProfile2D*)fm->Get("Dijet2/p2m0"); assert(p2m0m);
   TProfile2D *p2m0xm = (TProfile2D*)fm->Get("Dijet2/p2m0x"); assert(p2m0xm);
+  TProfile2D *p2m0p = (TProfile2D*)fp->Get("Dijet2/p2m0"); assert(p2m0p);
+  TProfile2D *p2m0xp = (TProfile2D*)fp->Get("Dijet2/p2m0x"); assert(p2m0xp);
 
   TProfile2D *p2m2 = (TProfile2D*)f->Get("Dijet2/p2m2"); assert(p2m2);
   TProfile2D *p2m2x = (TProfile2D*)f->Get("Dijet2/p2m2x"); assert(p2m2x);
@@ -325,6 +334,11 @@ void drawDijetHistosJERtest() {
   TProfile2D *p2m2xm = (TProfile2D*)fm->Get("Dijet2/p2m2x"); assert(p2m2xm);
   TProfile2D *p2mnum = (TProfile2D*)fm->Get("Dijet2/p2mnu"); assert(p2mnum);
   TProfile2D *p2mnuxm = (TProfile2D*)fm->Get("Dijet2/p2mnux"); assert(p2mnuxm);
+
+  TProfile2D *p2m2p = (TProfile2D*)fp->Get("Dijet2/p2m2"); assert(p2m2p);
+  TProfile2D *p2m2xp = (TProfile2D*)fp->Get("Dijet2/p2m2x"); assert(p2m2xp);
+  TProfile2D *p2mnup = (TProfile2D*)fp->Get("Dijet2/p2mnu"); assert(p2mnup);
+  TProfile2D *p2mnuxp = (TProfile2D*)fp->Get("Dijet2/p2mnux"); assert(p2mnuxp);
   curdir->cd();
 
   lumi_13TeV = "2016GH, 16.8 fb^{-1}";
@@ -345,22 +359,32 @@ void drawDijetHistosJERtest() {
   TH1D *h1jerm(0), *h1m0sm(0), *h1m0xsm(0);
   p2m0m->SetName("p2m0m");
   h1jerm = getJER(p2m0m,p2m0xm,0,1.3,&h1m0sm,&h1m0xsm);
+  TH1D *h1jerp(0), *h1m0sp(0), *h1m0xsp(0);
+  p2m0p->SetName("p2m0p");
+  h1jerp = getJER(p2m0p,p2m0xp,0,1.3,&h1m0sp,&h1m0xsp);
 
   TH1D *h1bal(0), *h1m2s(0), *h1m2xs(0);
   h1bal = getJER(p2m2,p2m2x,0,1.3,&h1m2s,&h1m2xs);
   TH1D *h1balm(0), *h1m2sm(0), *h1m2xsm(0);
   p2m2m->SetName("p2m2m");
   h1balm = getJER(p2m2m,p2m2xm,0,1.3,&h1m2sm,&h1m2xsm);
+  TH1D *h1balp(0), *h1m2sp(0), *h1m2xsp(0);
+  p2m2p->SetName("p2m2p");
+  h1balp = getJER(p2m2p,p2m2xp,0,1.3,&h1m2sp,&h1m2xsp);
 
   TH1D *h1fsr(0), *h1mnus(0), *h1mnuxs(0);
   h1fsr = getJER(p2mnu,p2mnux,0,1.3,&h1mnus,&h1mnuxs);
   TH1D *h1fsrm(0), *h1mnusm(0), *h1mnuxsm(0);
   p2mnum->SetName("p2mnum");
   h1fsrm = getJER(p2mnum,p2mnuxm,0,1.3,&h1mnusm,&h1mnuxsm);
+  TH1D *h1fsrp(0), *h1mnusp(0), *h1mnuxsp(0);
+  p2mnup->SetName("p2mnup");
+  h1fsrp = getJER(p2mnup,p2mnuxp,0,1.3,&h1mnusp,&h1mnuxsp);
 
   // Extract JER from MPF2 by subtracting FSR = MPFNU-MPFNUX
   TH1D *h1jer2 = (TH1D*)h1m2s->Clone("h1jer2");
   TH1D *h1jer2m = (TH1D*)h1m2sm->Clone("h1jer2m");
+  TH1D *h1jer2p = (TH1D*)h1m2sp->Clone("h1jer2p");
   for (int i = 1; i != h1jer2->GetNbinsX()+1; ++i) {
     //double bal = h1m2sm->GetBinContent(i);
     double bal = h1bal->GetBinContent(i);
@@ -369,11 +393,16 @@ void drawDijetHistosJERtest() {
     double balm = h1balm->GetBinContent(i);
     double fsrm = h1fsrm->GetBinContent(i);
     h1jer2m->SetBinContent(i, sqrt(max(balm*balm - fsrm*fsrm,0.)));
+    double balp = h1balp->GetBinContent(i);
+    double fsrp = h1fsrp->GetBinContent(i);
+    h1jer2p->SetBinContent(i, sqrt(max(balp*balp - fsrp*fsrp,0.)));
   }
   
   TF1 *fjer = new TF1("fjer","sqrt([0]*fabs([0])/(x*x)+[1]*[1]/x+[2]*[2])",
 		      30,3000);
   TF1 *fjerm = new TF1("fjerm","sqrt([0]*fabs([0])/(x*x)+[1]*[1]/x+[2]*[2])",
+		       30,3000);
+  TF1 *fjerp = new TF1("fjerp","sqrt([0]*fabs([0])/(x*x)+[1]*[1]/x+[2]*[2])",
 		       30,3000);
 
   fjer->SetParameters(-1,1,0.05);
@@ -385,11 +414,22 @@ void drawDijetHistosJERtest() {
   h1jerm->Fit(fjerm,"QRN");
   fjerm->SetRange(15,3500);
 
+  fjerp->SetParameters(fjer->GetParameter(0),fjer->GetParameter(1),
+		       fjer->GetParameter(2));
+  h1jerp->Fit(fjerm,"QRN");
+  fjerp->SetRange(15,3500);
+
   fjer->SetLineWidth(2);
   fjer->SetLineColor(kGreen+2);
   fjer->Draw("SAME");
   fjerm->SetLineColor(kGreen+2);
   fjerm->Draw("SAME");
+  fjerp->SetLineColor(kGreen-9);
+  fjerp->Draw("SAME");
+
+  tdrDraw(h1m0sp,"PE",kOpenCircle,kBlue-9);
+  tdrDraw(h1m0xsp,"PE",kOpenDiamond,kRed-9);
+  tdrDraw(h1jerp,"PE",kOpenCircle,kGreen-9);
 
   tdrDraw(h1m0sm,"PE",kOpenCircle,kBlue);
   tdrDraw(h1m0xsm,"PE",kOpenDiamond,kRed);
@@ -398,7 +438,11 @@ void drawDijetHistosJERtest() {
   tdrDraw(h1m0s,"PE",kFullCircle,kBlue);
   tdrDraw(h1m0xs,"PE",kFullDiamond,kRed);
   tdrDraw(h1jer,"PE",kFullCircle,kGreen+2);
-  
+
+  tdrDraw(h1balp,"PE",kOpenDiamond,kMagenta-9);
+  tdrDraw(h1fsrp,"PE",kOpenStar,kOrange-9);
+  tdrDraw(h1jer2p,"PE",kOpenSquare,kGreen-9);
+
   //tdrDraw(h1m2sm,"PE",kOpenDiamond,kMagenta+2);
   tdrDraw(h1balm,"PE",kOpenDiamond,kMagenta+2);
   //tdrDraw(h1mnusm,"PE",kOpenStar,kOrange+2);
@@ -428,17 +472,25 @@ void drawDijetHistosJERtest() {
   leg->AddEntry(h1jer,"JER = M #oplus -MX","PLE");
 
   TLegend *legm = tdrLeg(0.53,0.88-7*0.05,0.78,0.88);
-  legm->SetHeader("MC");
+  legm->SetHeader("MG");
   legm->AddEntry(h1m0sm,"","PLE");
   legm->AddEntry(h1m0xsm,"","PLE");
   legm->AddEntry(h1jerm,"","PLE");
+  TLegend *legp = tdrLeg(0.47,0.88-7*0.05,0.72,0.88);
+  legp->SetHeader("P8");
+  legp->AddEntry(h1m0sp,"","PLE");
+  legp->AddEntry(h1m0xsp,"","PLE");
+  legp->AddEntry(h1jerp,"","PLE");
 
   leg->AddEntry(h1bal,"B = M2 #oplus -M2X","PLE");
   legm->AddEntry(h1balm,"","PLE");
+  legp->AddEntry(h1balp,"","PLE");
   leg->AddEntry(h1fsr,"F = MNU #oplus -MNUX","PLE");
   legm->AddEntry(h1fsrm,"","PLE");
+  legp->AddEntry(h1fsrp,"","PLE");
   leg->AddEntry(h1jer2,"JER = B #oplus -F","PLE");
   legm->AddEntry(h1jer2m,"","PLE");
+  legp->AddEntry(h1jer2p,"","PLE");
 
   //tex->DrawLatex(0.53,0.60,"|#eta| < 1.3");
   tex->DrawLatex(0.53,0.45,"|#eta| < 1.3");
@@ -448,14 +500,30 @@ void drawDijetHistosJERtest() {
   
   l->DrawLine(15,1,3500,1);
 
+  TH1D *h1m0spr = (TH1D*)h1m0s->Clone("h1m0spr"); h1m0spr->Divide(h1m0sp);
+  TH1D *h1m0xspr = (TH1D*)h1m0xs->Clone("h1m0xspr"); h1m0xspr->Divide(h1m0xsp);
+  TH1D *h1jerpr = (TH1D*)h1jer->Clone("hjerpr"); h1jerpr->Divide(h1jerp);
+
   TH1D *h1m0sr = (TH1D*)h1m0s->Clone("h1m0sr"); h1m0sr->Divide(h1m0sm);
   TH1D *h1m0xsr = (TH1D*)h1m0xs->Clone("h1m0xsr"); h1m0xsr->Divide(h1m0xsm);
   TH1D *h1jerr = (TH1D*)h1jer->Clone("hjerr"); h1jerr->Divide(h1jerm);
 
+  TH1D *h1fsrpr = (TH1D*)h1fsr->Clone("h1fsrpr"); h1fsrpr->Divide(h1fsrp);
+  TH1D *h1jer2pr = (TH1D*)h1jer2->Clone("h1jer2pr"); h1jer2pr->Divide(h1jer2p);
 
   TH1D *h1fsrr = (TH1D*)h1fsr->Clone("h1fsrr"); h1fsrr->Divide(h1fsrm);
   TH1D *h1jer2r = (TH1D*)h1jer2->Clone("h1jer2r"); h1jer2r->Divide(h1jer2m);
 
+  TF1 *fjerpr = new TF1("fjerpr","sqrt([0]*fabs([0])/(x*x)+[1]*[1]/x+[2]*[2]) /"
+			"sqrt([3]*fabs([3])/(x*x)+[4]*[4]/x+[5]*[5])",15,3000);
+  fjerpr->SetParameters(fjer->GetParameter(0),fjer->GetParameter(1),
+			fjer->GetParameter(2),
+			fjerp->GetParameter(0),fjerp->GetParameter(1),
+			fjerp->GetParameter(2));
+  fjerpr->SetLineWidth(1);
+  fjerpr->SetLineColor(kGreen-9);
+  fjerpr->Draw("SAME");
+  
   TF1 *fjerr = new TF1("fjerr","sqrt([0]*fabs([0])/(x*x)+[1]*[1]/x+[2]*[2]) /"
 		       "sqrt([3]*fabs([3])/(x*x)+[4]*[4]/x+[5]*[5])",15,3000);
   fjerr->SetParameters(fjer->GetParameter(0),fjer->GetParameter(1),
@@ -466,6 +534,13 @@ void drawDijetHistosJERtest() {
   fjerr->SetLineColor(kGreen+2);
   fjerr->Draw("SAME");
 
+  tdrDraw(h1m0spr,"PE",kFullCircle,kBlue-9);
+  tdrDraw(h1m0xspr,"PE",kFullDiamond,kRed-9);
+  tdrDraw(h1jerpr,"PE",kFullCircle,kGreen-9);
+
+  tdrDraw(h1fsrpr,"PE",kFullStar,kOrange-9);
+  tdrDraw(h1jer2pr,"PE",kFullSquare,kGreen-9); 
+  
   tdrDraw(h1m0sr,"PE",kFullCircle,kBlue);
   tdrDraw(h1m0xsr,"PE",kFullDiamond,kRed);
   tdrDraw(h1jerr,"PE",kFullCircle,kGreen+2);

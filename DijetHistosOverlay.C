@@ -21,9 +21,13 @@ void rebin(TH1D *h1, TH1D *h1n, TH1D *h1old, TH1D *h1nold);
 void DijetHistosOverlays(string obs, string data, string spt = "PtProbe",
 //void DijetHistosOverlays(string obs, string data, string spt = "PtAve",
 			 bool data3=false);
+void DijetHistosOverlayPtBins(string obs);
+void DijetHistosOverlayJER();
+
 void DijetHistosOverlay() {
 
-  DijetHistosOverlays("MPF","data");
+  /*
+  DjetHistosOverlays("MPF","data");
   DijetHistosOverlays("mpf2","data");
   DijetHistosOverlays("mpfN","data");
   DijetHistosOverlays("mpfU","data");
@@ -32,7 +36,7 @@ void DijetHistosOverlay() {
   DijetHistosOverlays("mpf2","mc");
   DijetHistosOverlays("mpfN","mc");
   DijetHistosOverlays("mpfU","mc");
-
+  */
   //DijetHistosOverlays("MPF","mc");
   //DijetHistosOverlays("mpf2","mc");
   //DijetHistosOverlays("MPF","data");
@@ -41,7 +45,16 @@ void DijetHistosOverlay() {
   //DijetHistosOverlays("mpf2","data",true);
   //DijetHistosOverlays("MPF","data",true);
   //DijetHistosOverlays("mpfU","data",true);
-}
+
+  /*
+  DijetHistosOverlayPtBins("mpfU");
+  DijetHistosOverlayPtBins("mpfN");
+  DijetHistosOverlayPtBins("mpf2");
+  DijetHistosOverlayPtBins("MPF");
+  */
+
+  DijetHistosOverlayJER();
+} // DijetHistosOverlay
 
 void DijetHistosOverlays(string obs, string data, string spt,
 			 bool data3) {
@@ -292,6 +305,449 @@ void DijetHistosOverlays(string obs, string data, string spt,
   c2->SaveAs(Form("pdf/DijetHistosOverlay_%s_%s_%s_%s.pdf","2016GH",
 		  data.c_str(),"counts",cpt));
 } // DijetHistosOverlay
+
+
+void DijetHistosOverlayPtBins(string obs) {
+
+  setTDRStyle();
+  TDirectory *curdir = gDirectory;
+
+  TLatex *tex = new TLatex();
+  tex->SetNDC(); tex->SetTextSize(0.045*1.5);
+  TLine *l = new TLine();
+
+  const char *co = obs.c_str();
+
+  TFile *f1(0), *f1m(0), *f1p(0);
+  f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  assert(f1 && !f1->IsZombie());
+  f1m = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  assert(f1m && !f1m->IsZombie());
+  f1p = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  assert(f1p && !f1p->IsZombie());
+
+  TProfile2D *p2a(0), *p2t(0), *p2p(0);
+  TProfile2D *p2am(0), *p2tm(0), *p2pm(0);
+  TProfile2D *p2ap(0), *p2tp(0), *p2pp(0);
+  //TH2D *h2na(0), *h2nt(0), *h2np(0);
+
+  map<string,string> mh;
+  mh["MPF"] = "Dijet2/p2m0";
+  mh["mpf2"] = "Dijet2/p2m2";
+  mh["mpfN"] = "Dijet2/p2mn";
+  mh["mpfU"] = "Dijet2/p2mu";
+
+  const char *ch = mh[obs].c_str();
+  p2a = (TProfile2D*)f1->Get(Form("%s",ch));   assert(p2a);
+  p2t = (TProfile2D*)f1->Get(Form("%stc",ch)); assert(p2t);
+  p2p = (TProfile2D*)f1->Get(Form("%spf",ch)); assert(p2p);
+
+  p2am = (TProfile2D*)f1m->Get(Form("%s",ch));   assert(p2am);
+  p2tm = (TProfile2D*)f1m->Get(Form("%stc",ch)); assert(p2tm);
+  p2pm = (TProfile2D*)f1m->Get(Form("%spf",ch)); assert(p2pm);
+
+  p2ap = (TProfile2D*)f1p->Get(Form("%s",ch));   assert(p2ap);
+  p2tp = (TProfile2D*)f1p->Get(Form("%stc",ch)); assert(p2tp);
+  p2pp = (TProfile2D*)f1p->Get(Form("%spf",ch)); assert(p2pp);
+
+  curdir->cd();
+
+  TCanvas *c1 = new TCanvas(Form("c1%s",co),Form("c1%s",co),1200,600);
+  c1->Divide(6,3,0,0);
+
+  TCanvas *c2 = new TCanvas(Form("c2%s",co),Form("c2%s",co),1200,600);
+  c2->Divide(6,3,0,0);
+
+  for (int ieta = 1; ieta != p2a->GetNbinsX()+1; ++ieta) {
+    
+    c1->cd(ieta);
+    gPad->SetLogx();
+    
+    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),co,0.6,1.5);
+    /*
+    if (obs=="MPF")  h->GetYaxis()->SetRangeUser(0.8,1.4);
+    if (obs=="mpf2") h->GetYaxis()->SetRangeUser(0.5,1.6);
+    if (obs=="mpfN") h->GetYaxis()->SetRangeUser(-0.25,0.5);
+    if (obs=="mpfU") h->GetYaxis()->SetRangeUser(-0.1,0.2);
+    */
+    // Common ranges
+    if (obs=="MPF" || obs=="mpf2")  h->GetYaxis()->SetRangeUser(0.5,1.6);
+    //if (obs=="mpfN" || obs=="mpfU") h->GetYaxis()->SetRangeUser(-0.25,0.5);
+    if (obs=="mpfN" || obs=="mpfU") h->GetYaxis()->SetRangeUser(-0.5,0.6);
+    h->Draw();
+
+    l->SetLineStyle(kDotted);
+    l->SetLineStyle(kGray+1);
+    double ymin = h->GetMaximum();//GetYaxis()->GetXmin();
+    double ymax = h->GetMinimum();//GetYaxis()->GetXmax();
+    l->DrawLine(59,ymin,59,ymax);
+    double etamin = p2a->GetXaxis()->GetBinLowEdge(ieta);
+    double etamax = p2a->GetXaxis()->GetBinLowEdge(ieta+1);
+    double ptmax = 0.5*6500/cosh(etamin);
+    l->DrawLine(ptmax,ymin,ptmax,ymax);
+
+    l->SetLineStyle(kDotted);
+    l->SetLineStyle(kGray);
+    double ptmax2 = 0.7*6500/cosh(etamin);
+    l->DrawLine(ptmax2,ymin,ptmax2,ymax);
+
+    l->SetLineStyle(kSolid);
+    l->SetLineColor(kBlack);
+    l->DrawLine(15,1,3500,1);
+    
+    TH1D *ha = p2a->ProjectionY(Form("ha%s_%d",co,ieta),ieta,ieta);
+    TH1D *ht = p2t->ProjectionY(Form("ht%s_%d",co,ieta),ieta,ieta);
+    TH1D *hp = p2p->ProjectionY(Form("hp%s_%d",co,ieta),ieta,ieta);
+
+    TH1D *ham = p2am->ProjectionY(Form("ham%s_%d",co,ieta),ieta,ieta);
+    TH1D *htm = p2tm->ProjectionY(Form("htm%s_%d",co,ieta),ieta,ieta);
+    TH1D *hpm = p2pm->ProjectionY(Form("hpm%s_%d",co,ieta),ieta,ieta);
+
+    TH1D *hap = p2ap->ProjectionY(Form("hap%s_%d",co,ieta),ieta,ieta);
+    TH1D *htp = p2tp->ProjectionY(Form("htp%s_%d",co,ieta),ieta,ieta);
+    TH1D *hpp = p2pp->ProjectionY(Form("hpp%s_%d",co,ieta),ieta,ieta);
+    
+    tdrDraw(htp,"HIST",kNone,kBlue+1,kDotted,-1,kNone);
+    tdrDraw(hpp,"HIST",kNone,kRed+1,kDotted,-1,kNone);
+    tdrDraw(hap,"HIST",kNone,kGreen+3,kDotted,-1,kNone);
+
+    tdrDraw(htm,"HE",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(hpm,"HE",kNone,kRed,kSolid,-1,kNone);
+    tdrDraw(ham,"HE",kNone,kGreen+2,kSolid,-1,kNone);
+
+    tdrDraw(ht,"Pz",kFullDiamond,kBlue,kNone,-1,kNone);
+    tdrDraw(hp,"Pz",kFullDiamond,kRed,kNone,-1,kNone);
+    tdrDraw(ha,"Pz",kFullDiamond,kGreen+2,kNone,-1,kNone);
+    
+    //ht->SetMarkerSize(0.7);
+    //hp->SetMarkerSize(0.7);
+    //ha->SetMarkerSize(0.7);
+
+    tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (ieta==2 || ieta%6==0) {
+      TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(ht,"PtTag","PLE");
+      leg->AddEntry(ha,"PtAVP","PLE");
+      leg->AddEntry(hp,"PtProbe","PLE");
+    }
+    if (ieta==1 || ieta%6==5) {
+      TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(ha,"Data","PLE");
+      leg->AddEntry(ham,"MadGraph","PLE");
+      leg->AddEntry(hap,"Pythia8","PL");
+    }
+
+
+    c2->cd(ieta);
+    gPad->SetLogx();
+
+    TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),Form("Data-MC (%s)",co),-0.1,0.1);
+    /*
+    if (obs=="MPF")  h2->GetYaxis()->SetRangeUser(-0.05,0.10);
+    if (obs=="mpf2") h2->GetYaxis()->SetRangeUser(-0.15,0.15);
+    if (obs=="mpfN") h2->GetYaxis()->SetRangeUser(-0.15,0.15);
+    if (obs=="mpfU") h2->GetYaxis()->SetRangeUser(-0.05,0.05);
+    */
+    // Common range
+    h2->GetYaxis()->SetRangeUser(-0.15,0.15);
+    h2->Draw();
+
+    double ymin2 = h2->GetMaximum();
+    double ymax2 = h2->GetMinimum();
+    l->SetLineStyle(kDotted);
+    l->SetLineStyle(kGray+1);
+    l->DrawLine(59,ymin2,59,ymax2);
+    l->DrawLine(ptmax,ymin2,ptmax,ymax2);
+    l->SetLineStyle(kGray);
+    l->DrawLine(ptmax2,ymin2,ptmax2,ymax2);
+    l->SetLineStyle(kSolid);
+    l->SetLineColor(kBlack);
+    //l->DrawLine(15,0,3500,0);
+
+    TH1D *hapr = (TH1D*)ha->Clone(Form("hapr%s_%d",co,ieta));
+    TH1D *htpr = (TH1D*)ht->Clone(Form("htpr%s_%d",co,ieta));
+    TH1D *hppr = (TH1D*)hp->Clone(Form("hppr%s_%d",co,ieta));
+
+    hapr->Add(hap,-1);
+    htpr->Add(htp,-1);
+    hppr->Add(hpp,-1);
+
+    htpr->GetXaxis()->SetRangeUser(59,ptmax2);
+    hppr->GetXaxis()->SetRangeUser(59,ptmax2);
+    hapr->GetXaxis()->SetRangeUser(59,ptmax2);
+
+    // HISTP loses the histograms, so drwa HIST once at the back first
+    tdrDraw(htpr,"HIST",kOpenDiamond,kBlue+1,kDotted,-1,kNone);
+    tdrDraw(hppr,"HIST",kOpenDiamond,kRed+1,kDotted,-1,kNone);
+    tdrDraw(hapr,"HIST",kOpenDiamond,kGreen+3,kDotted,-1,kNone);
+
+    tdrDraw(htpr,"HISTP",kOpenDiamond,kBlue+1,kDotted,-1,kNone);
+    tdrDraw(hppr,"HISTP",kOpenDiamond,kRed+1,kDotted,-1,kNone);
+    tdrDraw(hapr,"HISTP",kOpenDiamond,kGreen+3,kDotted,-1,kNone);
+    
+    TH1D *har = (TH1D*)ha->Clone(Form("har%s_%d",co,ieta));
+    TH1D *htr = (TH1D*)ht->Clone(Form("htr%s_%d",co,ieta));
+    TH1D *hpr = (TH1D*)hp->Clone(Form("hpr%s_%d",co,ieta));
+
+    har->Add(ham,-1);
+    htr->Add(htm,-1);
+    hpr->Add(hpm,-1);
+
+    htr->GetXaxis()->SetRangeUser(59,ptmax2);
+    hpr->GetXaxis()->SetRangeUser(59,ptmax2);
+    har->GetXaxis()->SetRangeUser(59,ptmax2);
+
+    tdrDraw(htr,"HEPz",kFullDiamond,kBlue,kSolid,-1,kNone);
+    tdrDraw(hpr,"HEPz",kFullDiamond,kRed,kSolid,-1,kNone);
+    tdrDraw(har,"HEPz",kFullDiamond,kGreen+2,kSolid,-1,kNone);
+
+    tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (ieta==2 || ieta%6==0) {
+      TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(htr,"PtTag","PLE");
+      leg->AddEntry(har,"PtAVP","PLE");
+      leg->AddEntry(hpr,"PtProbe","PLE");
+    }
+    if (ieta==1 || ieta%6==5) {
+      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(har,"MadGraph","PLE");
+      leg->AddEntry(hapr,"Pythia8","PL");
+    }
+  } // for ieta
+
+  c1->SaveAs(Form("pdf/DijetHistosOverlayPtBins_%s_%s.pdf","2016GH",co));
+  c2->SaveAs(Form("pdf/DijetHistosOverlayPtBins_%s_%s_ratio.pdf","2016GH",co));
+} // DijetHistosOverLayPtBins
+
+void DijetHistosOverlayJER() {
+
+  setTDRStyle();
+  TDirectory *curdir = gDirectory;
+
+  TLatex *tex = new TLatex();
+  tex->SetNDC(); tex->SetTextSize(0.045*1.5);
+  TLine *l = new TLine();
+
+  const char *co = "";
+  
+  TFile *f1(0), *f1m(0), *f1p(0);
+  f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  assert(f1 && !f1->IsZombie());
+  f1m = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  assert(f1m && !f1m->IsZombie());  
+  f1p = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  assert(f1p && !f1p->IsZombie());
+
+  curdir->cd();
+
+  //TH1D *h1jer13(0), *h1jer13m(0), *h1jer13p(0);
+  TH2D *h2jer(0), *h2jerm(0), *h2jerp(0);
+  //h1jer13 = (TH1D*)f1->Get("Dijet2/h1jer13"); assert(h1jer13);
+  //h1jer13m = (TH1D*)f1m->Get("Dijet2/h1jer"); assert(h1jer13m);
+  //h1jer13p = (TH1D*)f1p->Get("Dijet2/h1jer"); assert(h1jer13p);
+  h2jer = (TH2D*)f1->Get("Dijet2/h2jer"); assert(h2jer);
+  h2jerm = (TH2D*)f1m->Get("Dijet2/h2jer"); assert(h2jerm);
+  h2jerp = (TH2D*)f1p->Get("Dijet2/h2jer"); assert(h2jerp);
+  
+  TCanvas *c1 = new TCanvas(Form("c1%s",co),Form("c1%s",co),1200,600);
+  c1->Divide(6,3,0,0);
+
+  TCanvas *c2 = new TCanvas(Form("c2%s",co),Form("c2%s",co),1200,600);
+  c2->Divide(6,3,0,0);
+
+  for (int ieta = 1; ieta != h2jer->GetNbinsX()+1; ++ieta) {
+    
+    c1->cd(ieta);
+    gPad->SetLogx();
+
+    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.,0.5);
+    h->Draw();
+
+    l->SetLineStyle(kDotted);
+    l->SetLineStyle(kGray+1);
+    double ymin = h->GetMaximum();
+    double ymax = h->GetMinimum();
+    l->DrawLine(59,ymin,59,ymax);
+    double etamin = h2jer->GetXaxis()->GetBinLowEdge(ieta);
+    double etamax = h2jer->GetXaxis()->GetBinLowEdge(ieta+1);
+    double ptmax = 0.5*6500/cosh(etamin);
+    l->DrawLine(ptmax,ymin,ptmax,ymax);
+
+    l->SetLineStyle(kDotted);
+    l->SetLineStyle(kGray);
+    double ptmax2 = 0.7*6500/cosh(etamin);
+    l->DrawLine(ptmax2,ymin,ptmax2,ymax);
+
+    l->SetLineStyle(kSolid);
+    l->SetLineColor(kBlack);
+    l->DrawLine(15,1,3500,1);
+    
+    TH1D *h1jer = h2jer->ProjectionY(Form("h1jer%s_%d",co,ieta),ieta,ieta);
+    TH1D *h1jerm = h2jerm->ProjectionY(Form("h1jerm%s_%d",co,ieta),ieta,ieta);
+    TH1D *h1jerp = h2jerp->ProjectionY(Form("h1jerp%s_%d",co,ieta),ieta,ieta);
+
+    h1jer->SetMarkerSize(0.7);
+    
+    tdrDraw(h1jerp,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jerm,"HEPz",kOpenCircle,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jer,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    
+    tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (ieta==1 || ieta%6==0) {
+      TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(h1jer,"Data","PLE");
+      leg->AddEntry(h1jerm,"MadGraph","PLE");
+      leg->AddEntry(h1jerp,"Pythia8","PLE");
+    }
+
+    // Add fits on top
+    double fitptmax = min(2000.,0.7*6500./cosh(etamin));
+    if (fabs(etamin)>=2.9)
+      fitptmax = 0.5*6500./cosh(etamin);
+    TF1 *fjer = new TF1(Form("fjer%d",ieta),
+			"sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])",
+			30,fitptmax);
+    TF1 *fjer2 = new TF1(Form("fjer2%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])",
+			 30,fitptmax);
+    TF1 *fjerm = new TF1(Form("fjerm%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])",
+			 30,fitptmax);
+    TF1 *fjerp = new TF1(Form("fjerp%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])",
+			 30,fitptmax);
+    
+    fjerm->SetParameters(0,1,0.04,-1);
+    fjerm->FixParameter(0,0);
+    fjerm->SetParLimits(1,0.5,1.5);
+    fjerm->SetParLimits(2,0.02,0.25);
+    fjerm->SetParLimits(3,-1.25,-0.75);
+    if (fabs(etamin)>2.6) {
+      fjerm->FixParameter(3,-1);
+    }    
+    h1jerm->Fit(fjerm,"QRN");
+    fjerm->SetRange(15,3500);
+
+    fjerp->SetParameters(0,1,0.04,-1);
+    fjerp->FixParameter(0,0);
+    fjerp->SetParLimits(1,0.5,1.5);
+    fjerp->SetParLimits(2,0.02,0.25);
+    fjerp->SetParLimits(3,-1.25,-0.75);
+    if (fabs(etamin)>2.6) {
+      fjerp->FixParameter(3,-1);
+    }    
+    h1jerp->Fit(fjerp,"QRN");
+    fjerp->SetRange(15,3500);
+
+    fjer->SetParameters(fjerm->GetParameter(0),fjerm->GetParameter(1),
+			fjerm->GetParameter(2),fjerm->GetParameter(3));
+    fjer->FixParameter(0,fjerm->GetParameter(0));
+    fjer->SetParLimits(1,fjerm->GetParameter(1),1.5);
+    fjer->SetParLimits(2,fjerm->GetParameter(2),0.25);
+    fjer->FixParameter(3,fjerm->GetParameter(3));
+    h1jer->Fit(fjer,"QRN");
+    fjer->SetRange(15,3500);
+
+    fjer2->SetParameters(fjerp->GetParameter(0),fjerp->GetParameter(1),
+			 fjerp->GetParameter(2),fjerp->GetParameter(3));
+    fjer2->FixParameter(0,fjerp->GetParameter(0));
+    fjer2->SetParLimits(1,fjerp->GetParameter(1),1.5);
+    fjer2->SetParLimits(2,fjerp->GetParameter(2),0.25);
+    fjer2->FixParameter(3,fjerp->GetParameter(3));
+    h1jer->Fit(fjer2,"QRN");
+    fjer2->SetRange(15,3500);
+
+    fjerp->SetLineColor(kBlue-9);
+    fjerp->Draw("SAME");
+    fjerm->SetLineColor(kBlue);
+    fjerm->Draw("SAME");
+    fjer2->SetLineColor(kGreen-9);
+    fjer2->Draw("SAME");
+    fjer->SetLineColor(kGreen+2);
+    fjer->Draw("SAME");
+    
+    c2->cd(ieta);
+    gPad->SetLogx();
+
+    TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.8,2.0);
+    h2->Draw();
+
+    double ymin2 = h2->GetMaximum();
+    double ymax2 = h2->GetMinimum();
+    l->SetLineStyle(kDotted);
+    l->SetLineStyle(kGray+1);
+    l->DrawLine(59,ymin2,59,ymax2);
+    l->DrawLine(ptmax,ymin2,ptmax,ymax2);
+    l->SetLineStyle(kGray);
+    l->DrawLine(ptmax2,ymin2,ptmax2,ymax2);
+    l->SetLineStyle(kSolid);
+    l->SetLineColor(kBlack);
+    l->DrawLine(15,1,3500,1);
+
+    TH1D *h1jerr = (TH1D*)h1jer->Clone(Form("h1jerr%s_%d",co,ieta));
+    TH1D *h1jerpr = (TH1D*)h1jer->Clone(Form("h1jerpr%s_%d",co,ieta));
+
+    h1jerr->Divide(h1jerm);
+    h1jerpr->Divide(h1jerp);
+
+    h1jerr->GetXaxis()->SetRangeUser(59,ptmax2);
+    h1jerpr->GetXaxis()->SetRangeUser(59,ptmax2);
+
+    h1jerpr->SetMarkerSize(0.7);
+    h1jerr->SetMarkerSize(0.7);
+    
+    // HISTP loses the histograms, so drwa HIST once at the back first
+    tdrDraw(h1jerpr,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jerr,"HEPz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+
+    tdrDraw(h1jerpr,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jerr,"HEPz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+
+    tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (ieta==1 || ieta%6==0) {
+      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(h1jerr,"MadGraph","PLE");
+      leg->AddEntry(h1jerpr,"Pythia8","PL");
+    }
+
+    TF1 *fjerpr= new TF1(Form("fjerpr%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])/"
+			 "sqrt([4]*fabs([4])/(x*x)+[5]*[5]*pow(x,[7])+[6]*[6])",
+			 15,3500);
+    fjerpr->SetParameters(fjer2->GetParameter(0),fjer2->GetParameter(1),
+			  fjer2->GetParameter(2),fjer2->GetParameter(3),
+			  fjerp->GetParameter(0),fjerp->GetParameter(1),
+			  fjerp->GetParameter(2),fjerp->GetParameter(3));
+    fjerpr->SetLineColor(kBlue);
+    fjerpr->Draw("SAME");
+
+    TF1 *fjerr = new TF1(Form("fjerr%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])/"
+			 "sqrt([4]*fabs([4])/(x*x)+[5]*[5]*pow(x,[7])+[6]*[6])",
+			 15,3500);
+    fjerr->SetParameters(fjer->GetParameter(0),fjer->GetParameter(1),
+			 fjer->GetParameter(2),fjer->GetParameter(3),
+			 fjerm->GetParameter(0),fjerm->GetParameter(1),
+			 fjerm->GetParameter(2),fjerm->GetParameter(3));
+    fjerr->SetLineColor(kGreen+2);
+    fjerr->SetLineWidth(2);
+    fjerr->Draw("SAME");
+    
+  } // for ieta
+
+  c1->SaveAs(Form("pdf/DijetHistosOverlayJER_%s.pdf","2016GH"));
+  c2->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_ratio.pdf","2016GH"));
+} // DijetHistosOverLayJER
 
 int findBin(TH2D *h2, double x, double *xnew) {
 
