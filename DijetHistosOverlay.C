@@ -554,6 +554,11 @@ void DijetHistosOverlayJER() {
   h2jer = (TH2D*)f1->Get("Dijet2/h2jer"); assert(h2jer);
   h2jerm = (TH2D*)f1m->Get("Dijet2/h2jer"); assert(h2jerm);
   h2jerp = (TH2D*)f1p->Get("Dijet2/h2jer"); assert(h2jerp);
+  TH2D *h2n(0), *h2nm(0), *h2np(0);
+  h2n = (TH2D*)f1->Get("Dijet2/h2n"); assert(h2n);
+  h2nm = (TH2D*)f1m->Get("Dijet2/h2n"); assert(h2nm);
+  h2np = (TH2D*)f1p->Get("Dijet2/h2n"); assert(h2np);
+
   
   TCanvas *c1 = new TCanvas(Form("c1%s",co),Form("c1%s",co),1200,600);
   c1->Divide(6,3,0,0);
@@ -561,6 +566,16 @@ void DijetHistosOverlayJER() {
   TCanvas *c2 = new TCanvas(Form("c2%s",co),Form("c2%s",co),1200,600);
   c2->Divide(6,3,0,0);
 
+  const double vy[] = {15, 30, 60, 120, 240, 480, 1000,  2000, 4000, 6500};
+  const int ny = sizeof(vy)/sizeof(vy[0])-1;
+  vector<double> vx(h2jer->GetNbinsX()+1);
+  for (int i = 1; i != h2jer->GetNbinsX()+2; ++i) {
+    vx[i-1] = h2jer->GetXaxis()->GetBinLowEdge(i);
+  }
+  int nx = vx.size()-1;
+  TH2D *h2jerf = new TH2D("h2jerf",";#eta;JER",nx,&vx[0],ny,vy);
+  TH2D *h2jersf = new TH2D("h2jersf",";#eta;JER SF",nx,&vx[0],ny,vy);
+  
   for (int ieta = 1; ieta != h2jer->GetNbinsX()+1; ++ieta) {
     
     c1->cd(ieta);
@@ -612,6 +627,8 @@ void DijetHistosOverlayJER() {
     double fitptmax = min(2000.,0.7*6500./cosh(etamin));
     if (fabs(etamin)>=2.9)
       fitptmax = 0.5*6500./cosh(etamin);
+    /*
+    // v1 without separating out PU and "UE" noise
     TF1 *fjer = new TF1(Form("fjer%d",ieta),
 			"sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])",
 			30,fitptmax);
@@ -624,7 +641,7 @@ void DijetHistosOverlayJER() {
     TF1 *fjerp = new TF1(Form("fjerp%d",ieta),
 			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])",
 			 30,fitptmax);
-    
+
     fjerm->SetParameters(0,1,0.04,-1);
     fjerm->FixParameter(0,0);
     fjerm->SetParLimits(1,0.5,1.5);
@@ -664,7 +681,95 @@ void DijetHistosOverlayJER() {
     fjer2->FixParameter(3,fjerp->GetParameter(3));
     h1jer->Fit(fjer2,"QRN");
     fjer2->SetRange(15,3500);
+    */
 
+    bool fixN0to0 = false;
+    double fitptmin = 15;
+    TF1 *fjer = new TF1(Form("fjer%d",ieta),
+			"sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+			"[1]*[1]*pow(x,[3])+[2]*[2])",
+			fitptmin,fitptmax);
+    TF1 *fjer2 = new TF1(Form("fjer2%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+			 "[1]*[1]*pow(x,[3])+[2]*[2])",
+			 fitptmin,fitptmax);
+    TF1 *fjerm = new TF1(Form("fjerm%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+			 "[1]*[1]*pow(x,[3])+[2]*[2])",
+			 fitptmin,fitptmax);
+    TF1 *fjerp = new TF1(Form("fjerp%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+			 "[1]*[1]*pow(x,[3])+[2]*[2])",
+			 fitptmin,fitptmax);
+    
+
+    double ptrcm = h2nm->GetYaxis()->GetBinCenter(1);
+    double rcm = h2nm->GetBinContent(ieta, 1) * ptrcm;
+    fjerm->SetParameters(0,1,0.04,-1,rcm);
+    //if (!fixN0to0) fjerm->SetParLimits(0,-5,0);
+    if (!fixN0to0) fjerm->SetParLimits(0,-2,+2);
+    if (fixN0to0)  fjerm->FixParameter(0,0);
+    fjerm->SetParLimits(1,0.5,1.5);
+    fjerm->SetParLimits(2,0.02,0.25);
+    fjerm->SetParLimits(3,-1.25,-0.75);
+    fjerm->FixParameter(4,rcm);
+    if (fabs(etamin)>2.6) {
+      fjerm->FixParameter(0,0.);
+      fjerm->FixParameter(3,-1);
+    }    
+    h1jerm->Fit(fjerm,"QRN");
+    fjerm->SetRange(15,3500);
+
+    double ptrc = h2n->GetYaxis()->GetBinCenter(1);
+    double rcdt = h2n->GetBinContent(ieta, 1) * ptrc;
+    fjer->SetParameters(fjerm->GetParameter(0),fjerm->GetParameter(1),
+			fjerm->GetParameter(2),fjerm->GetParameter(3),
+			rcdt);
+    fjer->FixParameter(0,fjerm->GetParameter(0));
+    fjer->SetParLimits(1,fjerm->GetParameter(1),1.5);
+    fjer->SetParLimits(2,fjerm->GetParameter(2),0.25);
+    fjer->SetParLimits(3,fjerm->GetParameter(3),-0.75);
+    fjer->FixParameter(4,rcdt);
+    if (fabs(etamin)>2.6) {
+      //fjer->FixParameter(0,0.);
+      //fjer->FixParameter(3,-1);
+      fjer->FixParameter(3,fjerm->GetParameter(3));
+    }    
+    h1jer->Fit(fjer,"QRN");
+    fjer->SetRange(15,3500);
+
+    // Repeat for Pythia
+    fjerp->SetParameters(0,1,0.04,-1,rcm);
+    //if (!fixN0to0) fjerp->SetParLimits(0,-5,0);
+    if (!fixN0to0) fjerp->SetParLimits(0,-2,+2);
+    if (fixN0to0)  fjerp->FixParameter(0,0);
+    fjerp->SetParLimits(1,0.5,1.5);
+    fjerp->SetParLimits(2,0.02,0.25);
+    fjerp->SetParLimits(3,-1.25,-0.75);
+    fjerp->FixParameter(4,rcm);
+    if (fabs(etamin)>2.6) {
+      fjerp->FixParameter(0,0.);
+      fjerp->FixParameter(3,-1);
+    }    
+    h1jerp->Fit(fjerp,"QRN");
+    fjerp->SetRange(15,3500);
+    //
+    fjer2->SetParameters(fjerp->GetParameter(0),fjerp->GetParameter(1),
+			 fjerp->GetParameter(2),fjerp->GetParameter(3),
+			 rcdt);
+    fjer2->FixParameter(0,fjerp->GetParameter(0));
+    fjer2->SetParLimits(1,fjerp->GetParameter(1),1.5);
+    fjer2->SetParLimits(2,fjerp->GetParameter(2),0.25);
+    fjer2->SetParLimits(3,fjerp->GetParameter(3),-0.75);
+    fjer2->FixParameter(4,rcdt);
+    if (fabs(etamin)>2.6) {
+      //fjer2->FixParameter(0,0.);
+      //fjer2->FixParameter(3,-1);
+      fjer2->FixParameter(3,fjerp->GetParameter(3));
+    }    
+    h1jer->Fit(fjer2,"QRN");
+    fjer2->SetRange(15,3500);
+    
     fjerp->SetLineColor(kBlue-9);
     fjerp->Draw("SAME");
     fjerm->SetLineColor(kBlue);
@@ -720,6 +825,7 @@ void DijetHistosOverlayJER() {
       leg->AddEntry(h1jerpr,"Pythia8","PL");
     }
 
+    /*
     TF1 *fjerpr= new TF1(Form("fjerpr%d",ieta),
 			 "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])/"
 			 "sqrt([4]*fabs([4])/(x*x)+[5]*[5]*pow(x,[7])+[6]*[6])",
@@ -742,11 +848,105 @@ void DijetHistosOverlayJER() {
     fjerr->SetLineColor(kGreen+2);
     fjerr->SetLineWidth(2);
     fjerr->Draw("SAME");
+    */
+
+    TF1 *fjerpr= new TF1(Form("fjerpr%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+			 "[1]*[1]*pow(x,[3])+[2]*[2])/"
+			 "sqrt([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
+			 "[6]*[6]*pow(x,[8])+[7]*[7])",
+			 15,3500);
+    fjerpr->SetParameters(fjer2->GetParameter(0),fjer2->GetParameter(1),
+			  fjer2->GetParameter(2),fjer2->GetParameter(3),
+			  fjer2->GetParameter(4),
+			  fjerp->GetParameter(0),fjerp->GetParameter(1),
+			  fjerp->GetParameter(2),fjerp->GetParameter(3),
+			  fjerp->GetParameter(4));
+    fjerpr->SetLineColor(kBlue);
+    fjerpr->Draw("SAME");
+
+    TF1 *fjerr = new TF1(Form("fjerr%d",ieta),
+			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+			 "[1]*[1]*pow(x,[3])+[2]*[2])/"
+			 "sqrt([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
+			 "[6]*[6]*pow(x,[8])+[7]*[7])",
+			 15,3500);
+    fjerr->SetParameters(fjer->GetParameter(0),fjer->GetParameter(1),
+			 fjer->GetParameter(2),fjer->GetParameter(3),
+			 fjer->GetParameter(4),
+			 fjerm->GetParameter(0),fjerm->GetParameter(1),
+			 fjerm->GetParameter(2),fjerm->GetParameter(3),
+			 fjerm->GetParameter(4));
+    fjerr->SetLineColor(kGreen+2);
+    fjerr->SetLineWidth(2);
+    fjerr->Draw("SAME");
     
+    for (int ipt = 1; ipt != h2jerf->GetNbinsY()+1; ++ipt) {
+      double etamin = h2jerf->GetXaxis()->GetBinLowEdge(ieta);
+      double etamax = h2jerf->GetXaxis()->GetBinLowEdge(ieta+1);
+      double absetamin = min(fabs(etamin),fabs(etamax));
+      double pt = h2jerf->GetYaxis()->GetBinLowEdge(ipt);
+      //if (pt<=240 || (absetamin<3.2 && pt<=480) ||
+      //  (absetamin<2.5 && pt<=1000) || (absetamin<1.5 && pt<=2000)) {
+      if (cosh(absetamin)*pt < 6500.) {
+	h2jerf->SetBinContent(ieta, ipt, fjer->Eval(pt));
+	h2jersf->SetBinContent(ieta, ipt, fjerr->Eval(pt));
+      }
+      
+      //int ietam = h2jerf->FindBin(-h2jerf->GetBinCenter(ieta));
+      //h2jerf->SetBinContent(ietam, ipt, fjer->Eval(pt));
+      //h2jersf->SetBinContent(ietam, ipt, fjerr->Eval(pt));
+    }
   } // for ieta
 
   c1->SaveAs(Form("pdf/DijetHistosOverlayJER_%s.pdf","2016GH"));
   c2->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_ratio.pdf","2016GH"));
+
+  if (true) { // JER and JERSF vs eta
+
+    int color[ny] = {kBlack, kMagenta+1, kBlue, kCyan+1, kGreen+2,
+		     kYellow+2, kOrange+1, kRed, kBlack};
+      
+    TH1D *h = tdrHist("h","JER in data",0,0.55,"|#eta|",0.0,5.191);
+    TH1D *hd = tdrHist("hd","Scale factor",0.9,1.6,"|#eta|",0.0,5.191);
+    lumi_13TeV = "RunGH, 16.8 fb^{-1}";
+    TCanvas *c3 = tdrDiCanvas("c3",h,hd,4,11);
+
+    c3->cd(1);
+
+    l->SetLineStyle(kDotted);
+    l->DrawLine(1.3,0,1.3,0.35);
+    l->DrawLine(2.5,0,2.5,0.40);
+    l->DrawLine(3.139,0,3.139,0.50);
+    
+    TLegend *leg = tdrLeg(0.70,0.89-ny*0.035,0.95,0.89);
+    leg->SetTextSize(0.04);
+
+    for (int ipt = 1; ipt != h2jerf->GetNbinsY()+1; ++ipt) {
+      TH1D *h1jerf = h2jerf->ProjectionX(Form("h1jerf_%d",ipt),ipt,ipt);
+      tdrDraw(h1jerf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
+
+      int pt = h2jerf->GetYaxis()->GetBinLowEdge(ipt);
+      leg->AddEntry(h1jerf,Form("%d GeV",pt),"L");
+    }
+    
+    c3->cd(2);
+    
+    l->SetLineStyle(kDashed);
+    l->DrawLine(0,1,5.191,1);
+    l->SetLineStyle(kDotted);
+    l->DrawLine(1.3,0.9,1.3,1.2);
+    l->DrawLine(2.5,0.9,2.5,1.45);
+    l->DrawLine(3.139,0.9,3.139,1.55);
+    
+    for (int ipt = 1; ipt != h2jersf->GetNbinsY()+1; ++ipt) {
+      TH1D *h1jersf = h2jersf->ProjectionX(Form("h1jersf_%d",ipt),ipt,ipt);
+      tdrDraw(h1jersf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
+    }
+
+    c3->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_JERvsEta.pdf","2016GH"));
+  } // JER+JERSF
+			      
 } // DijetHistosOverLayJER
 
 int findBin(TH2D *h2, double x, double *xnew) {

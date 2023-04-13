@@ -8,6 +8,8 @@
 
 TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
 	     double eta1, double eta2, TH1D **h1 = 0, TH1D **h1x = 0);
+TH1D *getJERZ(TH2D *h2, TH2D *h2x, const char *c = "",
+	      TH1D **h1 = 0, TH1D **h1x = 0);
 
 void DijetHistosJERs(string file, string dir);
 void drawDijetHistosJER();
@@ -21,11 +23,13 @@ void DijetHistosJER() {
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet/JER");
   */
+
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16mg.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","Dijet2");
+
   //drawDijetHistosJER();
-  drawDijetHistosJERtest();
+  //drawDijetHistosJERtest();
 }
 
 // Update cmb.root to add JER results
@@ -36,6 +40,12 @@ void DijetHistosJERs(string file, string dir) {
   TFile *f = new TFile(file.c_str(),"UPDATE");
   assert(f && !f->IsZombie());
 
+  // Determine if MC
+  TString s(file.c_str());
+  bool isMC = (s.Contains("_mc"));
+  if (isMC) cout << "DijetHistosJERs(\"" << file << "\") (MC)" << endl;
+  else      cout << "DijetHistosJERs(\"" << file << "\") (Data)" << endl;
+  
   f->cd(dir.c_str());
   TDirectory *d = gDirectory;
 
@@ -44,7 +54,7 @@ void DijetHistosJERs(string file, string dir) {
   TProfile2D *p2m0 = (TProfile2D*)d->Get("p2m0"); assert(p2m0);
   TProfile2D *p2m0x = (TProfile2D*)d->Get("p2m0x"); assert(p2m0x);
 
-  // Calculate reference JER
+  // Calculate MPFX JER (without PU+UE components yet)
   TH1D *h1jer13(0), *h1m0s13(0), *h1m0xs13(0);
   h1jer13 = getJER(p2m0,p2m0x,-1.3,1.3,&h1m0s13,&h1m0xs13);
   h1jer13->SetName("h1jer13");
@@ -92,12 +102,12 @@ void DijetHistosJERs(string file, string dir) {
 
   d->cd();
 
-  // Core results
-  h1jer13->Write(h1jer13->GetName(),TObject::kOverwrite);
-  h2jer->Write(h2jer->GetName(),TObject::kOverwrite);
+  // Store core results for MPFX only
+  h1jer13->Write("h1mpfx13",TObject::kOverwrite);
+  h2jer->Write("h2mpfx",TObject::kOverwrite);
   
-  // Extras
-  h2jer2->Write(h2jer2->GetName(),TObject::kOverwrite);
+  // Extras for MPFX only
+  h2jer2->Write("h2mpfx2",TObject::kOverwrite);
 
   h1m0s13->Write(h1m0s13->GetName(),TObject::kOverwrite);
   h1m0xs13->Write(h1m0xs13->GetName(),TObject::kOverwrite);
@@ -105,7 +115,93 @@ void DijetHistosJERs(string file, string dir) {
   h2m0xs->Write(h2m0xs->GetName(),TObject::kOverwrite);
 
   f->Write();
+  delete h2jer2;
   curdir->cd();
+
+  // Continue to add PU noise from random cone measurements
+  TH2D *h2n(0);
+  if (true) { // adding RC noise
+
+    // Only 2016 file for now, need to add others later
+    TFile *frc = new TFile("../JERCProtoLab/Summer20UL16/JER_noise/RC_noise_UL16nonAPV.root","READ");
+    assert(frc && !frc->IsZombie());
+    curdir->cd();
+
+    TGraphAsymmErrors *g(0);
+    if (isMC) g = (TGraphAsymmErrors*)frc->Get("rc_noiseterm_jer_MC_nominal");
+    else      g = (TGraphAsymmErrors*)frc->Get("rc_noiseterm_jer_Data_nominal");
+    assert(g);
+
+    // Add RC for |eta|<1.3 region
+    double sumrms2(0), sumeta(0);
+    for (int i = 0; i != 5; ++i) {
+      double deta = g->GetErrorXlow(i) + g->GetErrorXhigh(i);
+      sumrms2 += deta*pow(g->GetY()[i],2);
+      sumeta += deta;
+    }
+    double rms13 = (sumeta ? sqrt(sumrms2 / sumeta) : 0);
+
+    // Update JER for |eta|<1.3
+    TH1D *h1n13 = (TH1D*)h1jer13->Clone("h1n13"); h1n13->Reset();
+    for (int i = 1; i != h1jer13->GetNbinsX()+1; ++i) {
+
+      double pt = h1jer13->GetBinCenter(i);
+      double n = rms13 / pt;
+      double sc = h1jer13->GetBinContent(i);
+      double esc = h1jer13->GetBinError(i);
+      double jer = sqrt(n*n + sc*sc);
+      double ejer = (jer!=0 ? sc * esc / jer : 0); // en=0
+      h1n13->SetBinContent(i, n); 
+      if (sc!=0 && esc!=0) {
+	h1jer13->SetBinContent(i, jer);
+	h1jer13->SetBinError(i, ejer);
+      }
+    }
+
+    // Update JER for other eta bins
+    h2n = (TH2D*)h2jer->Clone("h2n"); h2n->Reset();
+    for (int i = 1; i != h2jer->GetNbinsX()+1; ++i) {
+      for (int j = 1; j != h2jer->GetNbinsY()+1; ++j) {
+
+	double etamin = h2jer->GetXaxis()->GetBinLowEdge(i);
+	double etamax = h2jer->GetXaxis()->GetBinLowEdge(i+1);
+	double absetamin = min(fabs(etamin),fabs(etamax));
+	double absetamax = max(fabs(etamin),fabs(etamax));
+	double sumrms2(0), sumeta(0);
+	for (int k = 0; k != g->GetN(); ++k) {
+	  if (absetamin <= g->GetX()[k] && g->GetX()[k] <= absetamax) {
+	    double deta = g->GetErrorXlow(k) + g->GetErrorXhigh(k);
+	    sumrms2 += deta*pow(g->GetY()[k],2);
+	    sumeta += deta;
+	  }
+	}
+	double rms = (sumeta ? sqrt(sumrms2 / sumeta) : 0.);
+
+	double pt = h2jer->GetYaxis()->GetBinCenter(j);
+	double n = rms / pt;
+	double sc = h2jer->GetBinContent(i, j);
+	double esc = h2jer->GetBinError(i, j);
+	double jer = sqrt(n*n + sc*sc);
+	double ejer = (jer!=0 ? sc * esc / jer : 0); // en=0
+	h2n->SetBinContent(i, n); 
+	if (sc!=0 && esc!=0) {
+	  h2jer->SetBinContent(i, j, jer);
+	  h2jer->SetBinError(i, j, ejer);
+	}
+      } // for j
+    } // for i
+  } // add RC noise
+
+  d->cd();
+
+  // Store core results for full JER
+  h1jer13->Write(h1jer13->GetName(),TObject::kOverwrite);
+  h2jer->Write(h2jer->GetName(),TObject::kOverwrite);
+  if (h2n) h2n->Write(h2n->GetName(),TObject::kOverwrite);
+  
+  f->Write();
+  curdir->cd();  
+
 } // DijetHistosJERs
 
 
@@ -549,7 +645,209 @@ void drawDijetHistosJERtest() {
   tdrDraw(h1jer2r,"PE",kFullSquare,kGreen+3); 
 
   c1->SaveAs("pdf/DijetHistosJER_JER13.pdf");
-}
+
+  // test with Z+jet
+  {
+    TFile *fz = new TFile("../jecsys2020/rootfiles/jme_ZplusJet_Muon_Run2016FGH_v8.root","READ");
+    assert(fz && !fz->IsZombie());
+
+    const char *cd = "Run2016F-H/2016/data/eta_00_13/";
+    const char *cm = "Run2016F-H/2016/mc/eta_00_13/";
+    TH2D *h2z(0), *h2zx(0), *h2zm(0), *h2zxm(0);
+    h2z = (TH2D*)fz->Get(Form("%s/zpt_mpf_zmmjet_a100",cd)); assert(h2z);
+    h2zx = (TH2D*)fz->Get(Form("%s/zpt_mpfx_zmmjet_a100",cd)); assert(h2zx);
+    h2zm = (TH2D*)fz->Get(Form("%s/zpt_mpf_zmmjet_a100",cm)); assert(h2zm);
+    h2zxm = (TH2D*)fz->Get(Form("%s/zpt_mpfx_zmmjet_a100",cm)); assert(h2zxm);
+
+    curdir->cd();
+    
+    //TProfile *pz = h2z->ProfileX("pz",1,-1,"S");
+    //TProfile *pzx = h2zx->ProfileX("pzx",1,-1,"S");
+    //TProfile *pzm = h2zm->ProfileX("pz",1,-1,"S");
+    //TProfile *pzxm = h2zxm->ProfileX("pzx",1,-1,"S");
+
+    TH1D *h1jerz(0), *h1m0zs(0), *h1m0xzs(0);
+    h1jerz = getJERZ(h2z,h2zx,"data",&h1m0zs,&h1m0xzs);
+    TH1D *h1jerzm(0), *h1m0zsm(0), *h1m0xzsm(0);
+    h1jerzm = getJERZ(h2zm,h2zxm,"mc",&h1m0zsm,&h1m0xzsm);
+
+    c1->cd(1);
+
+    tdrDraw(h1m0xzsm,"PE",kOpenDiamond,kRed-9);
+    tdrDraw(h1m0zsm,"PE",kOpenDiamond,kBlue-9);
+    tdrDraw(h1m0xzs,"PE",kFullDiamond,kRed-9);
+    tdrDraw(h1m0zs,"PE",kFullDiamond,kBlue-9);
+    
+    tdrDraw(h1jerz,"PE",kFullStar,kBlack);
+    tdrDraw(h1jerzm,"PE",kOpenStar,kBlack);
+
+    c1->cd(2);
+
+    TH1D *h1m0zsr = (TH1D*)h1m0zs->Clone("h1m0zsr");
+    h1m0zsr->Divide(h1m0zsm);
+    TH1D *h1m0xzsr = (TH1D*)h1m0xzs->Clone("h1m0xzsr");
+    h1m0xzsr->Divide(h1m0xzsm);
+    TH1D *h1jerzr = (TH1D*)h1jerz->Clone("h1jerzr");
+    h1jerzr->Divide(h1jerzm);
+
+    tdrDraw(h1m0xzsr,"PE",kOpenDiamond,kRed-9);
+    tdrDraw(h1m0zsr,"PE",kOpenDiamond,kBlue-9);
+    tdrDraw(h1jerzr,"PE",kFullStar,kBlack);
+
+    c1->SaveAs("pdf/DijetHistosJER_JER13_DijetAndZJet.pdf");
+  } // Z+jet
+
+  { // adding RC noise
+
+    // This is probably 2018 file. Would need to ask other years as well
+    //TFile *frc = new TFile("../jecsys2020/rootfiles/jerCombo/RC.root","READ");
+    TFile *frc = new TFile("../JERCProtoLab/Summer20UL16/JER_noise/RC_noise_UL16nonAPV.root","READ");
+    assert(frc && !frc->IsZombie());
+    curdir->cd();
+
+    //TGraphAsymmErrors *gd = (TGraphAsymmErrors*)frc->Get("Data/RMS");
+    TGraphAsymmErrors *gd = (TGraphAsymmErrors*)frc->Get("rc_noiseterm_jer_Data_nominal");
+    assert(gd);
+    //TGraphAsymmErrors *gm = (TGraphAsymmErrors*)frc->Get("MC/RMS");
+    TGraphAsymmErrors *gm = (TGraphAsymmErrors*)frc->Get("rc_noiseterm_jer_MC_nominal");
+    assert(gm);
+
+    double sumrmsdt2(0), sumrmsmc2(0), sumeta(0);
+    for (int i = 0; i != 5; ++i) {
+      double deta = 2.* gm->GetErrorXlow(i);
+      sumrmsdt2 += deta*pow(gd->GetY()[i],2);
+      sumrmsmc2 += deta*pow(gm->GetY()[i],2);
+      sumeta += deta;
+    }
+    double rmsdt = sqrt(sumrmsdt2 / sumeta);
+    double rmsmc = sqrt(sumrmsmc2 / sumeta);
+
+    TH1D *h1n = (TH1D*)h1jer->Clone("h1n"); h1n->Reset();
+    TH1D *h1nm = (TH1D*)h1jer->Clone("h1nm"); h1nm->Reset();
+    TH1D *h1nr = (TH1D*)h1jer->Clone("h1nr"); h1nr->Reset();
+    TH1D *h1jern = (TH1D*)h1jer->Clone("h1jern"); h1jern->Reset();
+    TH1D *h1jernm = (TH1D*)h1jer->Clone("h1jernm"); h1jernm->Reset();
+    TH1D *h1jernr = (TH1D*)h1jer->Clone("h1jernr"); h1jernr->Reset();
+    for (int i = 1; i != h1n->GetNbinsX()+1; ++i) {
+      double n = rmsdt / h1n->GetBinCenter(i);
+      double sc = h1jer->GetBinContent(i);
+      double esc = h1jer->GetBinError(i);
+      double jern = sqrt(n*n + sc*sc);
+      double ejern = sc * esc / jern; // en=0
+      h1n->SetBinContent(i, n); 
+      h1jern->SetBinContent(i, jern);
+      h1jern->SetBinError(i, ejern);
+
+      double nm = rmsmc / h1nm->GetBinCenter(i);
+      double scm = h1jerm->GetBinContent(i);
+      double escm = h1jerm->GetBinError(i);
+      double jernm = sqrt(nm*nm + scm*scm);
+      double ejernm = scm * escm / jernm; // enm=0
+      h1nm->SetBinContent(i, nm); 
+      h1jernm->SetBinContent(i, jernm);
+      h1jernm->SetBinError(i, ejernm);
+
+      h1nr->SetBinContent(i, nm ? n/nm : 0.); 
+      h1jernr->SetBinContent(i, jernm ? jern/jernm : 0.);
+      if (jern!=0 && jernm!=0) 
+	h1jernr->SetBinError(i, sqrt(pow(ejern/jern,2) + pow(ejernm/jernm,2))*
+			     jern / jernm);
+    }
+
+    //double neff = (2.*5.*TMath::TwoPi()) / (TMath::Pi()*0.4*0.4) / sqrt(2.);
+    //TH1D *h1m0xsn = (TH1D*)h1m0xs->Clone("h1m0xsn");
+    // undo 1./sqrt(2.) earlier, then scale detector resolution of energy
+    // fluctuations (58%?) to local energy fluctuations
+    //h1m0xsn->Scale(sqrt(2.)/sqrt(neff) / 0.58); 
+
+    // Separate out PF low PU behavior with N<0 and extra from PU
+    // TBD: add noise from UE, which is not there in ZeroBias and MPFX
+    double ptmax = min(2000.,6500.*0.7/cosh(0.));
+    TF1 *f1m = new TF1("f13m","sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+		       "[1]*[1]*pow(x,[3])+[2]*[2])",30,ptmax);
+    f1m->SetParameters(0,1,0.04,-1,rmsmc);
+    f1m->SetParLimits(0,-5.,0.);
+    f1m->FixParameter(4,rmsmc);
+    f1m->SetParLimits(1,0.5,1.5);
+    f1m->SetParLimits(2,0.02,0.25);
+    f1m->SetParLimits(3,-1.25,-0.75);
+    h1jernm->Fit(f1m,"QRN");
+
+    TF1 *f1 = new TF1("f13","sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+		      "[1]*[1]*pow(x,[3])+[2]*[2])",30,ptmax);
+    f1->SetParameters(f1m->GetParameter(0),f1m->GetParameter(1),
+		      f1m->GetParameter(2),f1m->GetParameter(3),rmsdt);
+    f1->FixParameter(0,f1m->GetParameter(0));
+    f1->FixParameter(4,rmsdt);
+    f1->SetParLimits(1,f1m->GetParameter(1),1.5);
+    f1->SetParLimits(2,f1m->GetParameter(2),0.25);
+    f1->FixParameter(3,f1m->GetParameter(3));
+    h1jern->Fit(f1,"QRN");
+
+    TF1 *f1r = new TF1("f13r",
+		       "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+		       "[1]*[1]*pow(x,[3])+[2]*[2])/"
+		       "sqrt([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
+		       "[6]*[6]*pow(x,[8])+[7]*[7])",
+		       30,ptmax);
+    f1r->SetParameters(f1->GetParameter(0),f1->GetParameter(1),
+		       f1->GetParameter(2),f1->GetParameter(3),
+		       f1->GetParameter(4),
+		       f1m->GetParameter(0),f1m->GetParameter(1),
+		       f1m->GetParameter(2),f1m->GetParameter(3),
+		       f1m->GetParameter(4));
+    
+    TH1D *h = tdrHist("h2","RMS",0,0.35,"p_{T,avb} (GeV)");
+    TH1D *hd = tdrHist("hd2","Data/MC",0.90,1.25,"p_{T,avb} (GeV)");
+    TCanvas *c2 = tdrDiCanvas("c2",h,hd,4,11);
+    c2->cd(1);
+    gPad->SetLogx();
+
+    //tdrDraw(h1m0xsn,"Pz",kFullDiamond,kRed-9,kSolid,-1,kNone);
+    tdrDraw(h1n,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
+    tdrDraw(h1jer,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    tdrDraw(h1jern,"Pz",kFullStar,kBlack,kSolid,-1,kNone);
+
+    f1->SetRange(15,3500);
+    f1->SetLineColor(kBlack);
+    f1->Draw("SAME");
+
+    TLegend *leg = tdrLeg(0.60,0.89-3*0.06,.90,0.89);
+    leg->AddEntry(h1jern,"Full JER","PLE");
+    leg->AddEntry(h1jer,"MPFX (N_{0}SCd)","PLE");
+    leg->AddEntry(h1n,"RC (N_{PU})","PLE");
+
+    tex->DrawLatex(0.45,0.60,Form("#chi^{2} / ndf (Data) = %1.1f / %d",
+				  f1->GetChisquare(), f1->GetNDF()));
+    tex->DrawLatex(0.45,0.54,Form("#chi^{2} / ndf (MC) = %1.1f / %d",
+				  f1m->GetChisquare(), f1m->GetNDF()));
+
+    f1r->SetRange(15,3500);
+    double chi2(0); int ndf(-2);
+    for (int i = 1; i != h1jernr->GetNbinsX()+1; ++i) {
+      if (h1jernr->GetBinError(i)!=0 && h1jernr->GetBinContent(i)!=0) {
+	double pt = h1jernr->GetBinCenter(i);
+	chi2 += pow(h1jernr->GetBinContent(i)-f1r->Eval(pt),2) /
+	  pow(h1jernr->GetBinError(i),2);
+	++ndf;
+      }
+    }
+    tex->DrawLatex(0.45,0.49,Form("#chi^{2} / ndf (Ratio) = %1.1f / %d",chi2,ndf));
+    tex->DrawLatex(0.42,0.80,"|#eta| < 1.3");
+
+    c2->cd(2);
+    gPad->SetLogx();
+
+    tdrDraw(h1nr,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
+    tdrDraw(h1jerr,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    tdrDraw(h1jernr,"Pz",kFullStar,kBlack,kSolid,-1,kNone);
+
+    f1r->SetLineColor(kBlack);
+    f1r->Draw("SAME");
+
+    c2->SaveAs("pdf/DijetHistosJER_JER13_JERwithRC.pdf");
+  } // RC noise
+} // drawDijetHistosJERtest
 
 // Calculate JER for one given eta slice at a time
 TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
@@ -602,4 +900,49 @@ TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
   delete p1xs;
   
   return h1jer;
-}
+} // getJER
+
+TH1D *getJERZ(TH2D *h2, TH2D *h2x, const char *c,
+	      TH1D **h1, TH1D **h1x) {
+
+  TProfile *p = h2->ProfileX(Form("pz_%s",c),1,-1,"");
+  TProfile *ps = h2->ProfileX(Form("pzs_%s",c),1,-1,"S");
+  TH1D *h1s = ps->ProjectionX(Form("h1zs_%s",c));
+  TProfile *px = h2x->ProfileX(Form("pzx_%s",c),1,-1,"");
+  TProfile *pxs = h2x->ProfileX(Form("pzxs_%s",c),1,-1,"S");
+  TH1D *h1xs = pxs->ProjectionX(Form("h1zxs_%s",c));
+  
+  // Extract JER (RMS)
+  double k = sqrt(2.); // 1./sqrt(2) to compare MPFX to dijet, 1 for JER
+  TH1D *h1jer = p->ProjectionX(Form("h1jer_%s",c));
+  for (int i = 1; i != p->GetNbinsX()+1; ++i) {
+    double rmsy = ps->GetBinError(i) /k;
+    double erry = p->GetBinError(i) /k;
+    h1s->SetBinContent(i, rmsy);
+    h1s->SetBinError(i, rmsy ? erry / rmsy : 0);
+    double rmsx = pxs->GetBinError(i) /k;
+    double errx = px->GetBinError(i) /k;
+    h1xs->SetBinContent(i, rmsx);
+    h1xs->SetBinError(i, rmsx ? errx / rmsx : 0);
+
+    double jer = sqrt(max(rmsy*rmsy - rmsx*rmsx,0.));
+    double err = (jer ? sqrt(pow(rmsy*erry/jer,2) + pow(rmsx*errx/jer,2)
+			     + pow(0.001,2)) : 0);
+    h1jer->SetBinContent(i, jer *k);
+    h1jer->SetBinError(i, err *k);
+  } // for i
+
+  assert(h1);
+  if (h1) *h1 = h1s;
+  else delete h1s;
+  assert(h1x);
+  if (h1x) *h1x = h1xs;
+  else delete h1xs;
+
+  delete p;
+  delete ps;
+  delete px;
+  delete pxs;
+  
+  return h1jer;
+} // getJERZ

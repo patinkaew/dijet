@@ -15,8 +15,17 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
 bool copyBin(string trg, string folder, string histo, double pt, double eta);
 
-void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
+void DijetHistosCombines(string file = "rootfiles/jmenano_data_out.root");
 
+void DijetHistosCombine() {
+  DijetHistosCombines("rootfiles/jmenano_data_out_v22ul16.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_v22ul16flatmc.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_v22ul16mg.root");
+} // DijetHistosCombine
+
+void DijetHistosCombines(string file) {
+
+  cout << "DijetHistosCombines(\"" << file << "\")" << endl;
   TDirectory *curdir = gDirectory;
   
   // Open input and output files
@@ -27,10 +36,12 @@ void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
   t.ReplaceAll("_out","_cmb");
   string file2 = t.Data();
   assert(file2!=file);
+  cout << "                 => \"" << file2 << endl;
 
   TFile *fout = new TFile(file2.c_str(),"RECREATE");
   assert(fout && !fout->IsZombie());
 
+  
   // Retrieve listing of available triggers from input file
   TH1D *htrg = (TH1D*)fin->Get("htrg");
   assert(htrg);
@@ -53,7 +64,7 @@ void DijetHistosCombine(string file = "rootfiles/jmenano_data_out.root") {
   //mergeDijet(fin, fout);
 
   fout->Write();
-} // DijetHistosCombine
+} // DijetHistosCombines
 
 
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
