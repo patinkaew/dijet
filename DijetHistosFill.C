@@ -15,9 +15,16 @@
 #include <set>
 #include <map>
 #include <string>
+//#include <utility>
+#include <random>
 
 // MC triggers (slow) or not (faster)
 bool doMCtrigOnly = true;
+bool smearJets = true;
+int smearNMax = 3;
+std::uint32_t _seed;
+std::mt19937 _mersennetwister;
+
 
 // Activate modules
 bool doJetveto = true;   // eta-phi maps
@@ -34,6 +41,7 @@ bool doDijetJER = true;
 bool doJetvetoVariants = false;
 bool doMultijetControl = true;
 bool doMultijet2Drecoil = true;
+bool doDijet2NM = true;
 
 bool debug = false; // general debug
 bool debugevent = false; // per-event debug
@@ -141,6 +149,9 @@ public:
   TH2D *h2ptetatc, *h2ptetapf;
   TProfile2D *p2restc, *p2m0tc, *p2m2tc, *p2mntc, *p2mutc; // pT,tag (central)
   TProfile2D *p2respf, *p2m0pf, *p2m2pf, *p2mnpf, *p2mupf; // pT,probe (forward)
+
+  // Smearing controls
+  TProfile2D *p2jsf, *p2jsftc, *p2jsfpf;
 };
 
 class multijetHistos {
@@ -216,7 +227,7 @@ FactorizedJetCorrector *getFJC(string l1="", string l2="", string res="",
   FactorizedJetCorrector *jec = new FactorizedJetCorrector(v);
 
   return jec;
-} // getJF
+} // getFJC
 
 void DijetHistosFill::Loop()
 {
@@ -263,6 +274,20 @@ void DijetHistosFill::Loop()
    if (isMC) fChain->SetBranchStatus("genWeight",1);
    if (isMC) fChain->SetBranchStatus("Generator_binvar",1); // pThat in Pythia8
    if (isMC) fChain->SetBranchStatus("Pileup_pthatmax",1);
+
+   if (isMC && smearJets) {
+     fChain->SetBranchStatus("Jet_genJetIdx",1);
+     fChain->SetBranchStatus("nGenJet",1);
+     fChain->SetBranchStatus("GenJet_pt",1);
+     fChain->SetBranchStatus("GenJet_eta",1);
+     fChain->SetBranchStatus("GenJet_phi",1);
+     fChain->SetBranchStatus("GenJet_mass",1);
+
+     // At the value of _seed: the old question - should the seed of a rng be random itself?
+     // Here we prefer stability, but the user can vary the seed if necessary. Moreover, https://xkcd.com/221/
+     _seed = 4;
+     _mersennetwister = std::mt19937(_seed);
+   }
 
    if (isMG) fChain->SetBranchStatus("LHE_HT",1); // HT in MadGraph
 
@@ -435,6 +460,7 @@ void DijetHistosFill::Loop()
    if (debug) cout << "Setting up JEC corrector" << endl << flush;
 
    // Redo JEC
+   // NB: could implement time dependence as in jetphys/IOV.h
    FactorizedJetCorrector *jec(0), *jecl1rc(0);
    //jec = getFJC("","Winter22Run3_V1_MC_L2Relative","","");
    if (isRun2==0) {
@@ -471,11 +497,21 @@ void DijetHistosFill::Loop()
    if (isRun2==4) {
      exit(0);
    }
+
+   if (debug) cout << "Setting up JER smearing" << endl << flush;
    
+   // Smear JER
+   // NB: could implement time dependence as in jetphys/IOV.h
+   JME::JetResolution *jer(0);
+   JME::JetResolutionScaleFactor *jersf(0);
+   string jerpath = "../JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
+   string jerpathsf = "../JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
+   jer = new JME::JetResolution(jerpath.c_str());
+   jersf = new JME::JetResolutionScaleFactor(jerpathsf.c_str());
    
    TLorentzVector p4rawmet, p4t1met, p4mht, p4l1rc, p4dj;
    //TLorentzVector p4, p4s, p4mht, p4mht2, p4mhtc, p4mhtc3, p4t, p4p;
-   TLorentzVector p4, p4raw, p4s, p4t, p4p;
+   TLorentzVector p4, /*p4raw,*/ p4g, p4s, p4t, p4p;
    TLorentzVector p4lead, p4recoil;//, p4other;
    TLorentzVector p4leadRES, p4recoilRES;
    TLorentzVector p4b3, p4b3r, p4b3l, p4m;
@@ -995,11 +1031,14 @@ void DijetHistosFill::Loop()
        h->absetamin = r.absetamin;
        h->absetamax = r.absetamax;
        
-       // Counting of events, and JEC L2L3Res for undoing
+       // Counting of events, and JEC L2L3Res+JERSF for undoing
        h->h2pteta = new TH2D("h2pteta",";#eta;p_{T,avp} (GeV);"
 			     "N_{events}",nxd,vxd, nptd, vptd);
        h->p2res = new TProfile2D("p2res",";#eta;p_{T,avp} (GeV);"
 				 "JES(probe)/JES(tag)",
+				 nxd,vxd, nptd, vptd);
+       h->p2jsf = new TProfile2D("p2jsf",";#eta;p_{T,avp} (GeV);"
+				 "JERSF(probe)/JERSF(tag)",
 				 nxd,vxd, nptd, vptd);
        
        // MPF decomposition for HDM method
@@ -1029,8 +1068,11 @@ void DijetHistosFill::Loop()
 
        h->h2ptetatc = new TH2D("h2ptetatc",";#eta;p_{T,tag} (GeV);"
 			       "N_{events}",nxd,vxd, nptd, vptd);
-       h->p2restc = new TProfile2D("p2rest ",";#eta;p_{T,tag} (GeV);"
+       h->p2restc = new TProfile2D("p2restc",";#eta;p_{T,tag} (GeV);"
 				   "JES(probe)/JES(tag)",
+				   nxd,vxd, nptd, vptd);
+       h->p2jsftc = new TProfile2D("p2jsftc ",";#eta;p_{T,tag} (GeV);"
+				   "JERSF(probe)/JERSF(tag)",
 				   nxd,vxd, nptd, vptd);
        h->p2m0tc = new TProfile2D("p2m0tc",";#eta;p_{T,tag} (GeV);MPF0",
 				  nxd,vxd, nptd, vptd);
@@ -1046,6 +1088,9 @@ void DijetHistosFill::Loop()
        h->p2respf = new TProfile2D("p2respf",";#eta;p_{T,probe} (GeV);"
 				   "JES(probe)/JES(tag)",
 				   nxd,vxd, nptd, vptd);
+       h->p2jsfpf = new TProfile2D("p2jsfpf",";#eta;p_{T,probe} (GeV);"
+				   "JERSF(probe)/JERSF(tag)",
+				   nxd,vxd, nptd, vptd);
        h->p2m0pf = new TProfile2D("p2m0pf",";#eta;p_{T,probe} (GeV);MPF0",
 				  nxd,vxd, nptd, vptd);
        h->p2m2pf = new TProfile2D("p2m2pf",";#eta;p_{T,probe} (GeV);MPF2",
@@ -1055,6 +1100,10 @@ void DijetHistosFill::Loop()
        h->p2mupf = new TProfile2D("p2mupf",";#eta;p_{T,probe} (GeV);MPFu",
 				  nxd,vxd, nptd, vptd);
 	      
+       if (doDijet2NM) {
+	 assert(false);
+	 // separate TProfile2D for NM=1, NM=2, NM=3+ (no JetID if has NM>1)
+       }
      } // doDijet2
 
      // Multijet per trigger
@@ -1221,7 +1270,9 @@ void DijetHistosFill::Loop()
    //Float_t Jet_hltPtMax[kMaxTrigJet];
    Float_t Jet_RES[nJetMax];
    Float_t Jet_deltaJES[nJetMax];
-   
+   Float_t Jet_CF[nJetMax];   
+   //Float_t Jet_smearFactor[nJetMax];
+
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -1365,6 +1416,82 @@ void DijetHistosFill::Loop()
 	  allJetsGood = false;
       } // for njet
 
+      // Apply JER smearing to MC immediately after JEC. Don't change order.
+      // Need after JEC to ensure mean is at 1, but ideally should recalculate
+      // JEC with smeared reco pT for consistency
+      //Jet_smearFactor[i] = 0.;
+      if (isMC && smearJets) { 
+	
+	for (int i  = 0; i != njet; ++i) {
+
+	  Jet_CF[i] = 1.;
+	  if (i<smearNMax) {
+
+	    // Retrieve genJet and calculate dR
+	    double dR(999);
+	    p4.SetPtEtaPhiM(Jet_pt[i],Jet_eta[i],Jet_phi[i],Jet_mass[i]);
+	    if (Jet_genJetIdx[i]>=0) {
+	      int j = Jet_genJetIdx[i];
+	      p4g.SetPtEtaPhiM(GenJet_pt[j],GenJet_eta[j],GenJet_phi[j],
+			       GenJet_mass[j]);
+	      dR = p4g.DeltaR(p4);
+	    }
+	    else
+	      p4g.SetPtEtaPhiM(0,0,0,0);
+	    
+	    // Rename variables to keep naming as in jetphys/IOV.h.
+	    double jPt = Jet_pt[i];
+	    double jEta = Jet_eta[i];
+	    double rho = Rho_fixedGridRhoFastjetAll;
+	    double jE = p4.E();
+	    double jPtGen = p4g.Pt();
+	    // Set constants
+	    double MIN_JET_ENERGY = 0.01; // TBD
+	    
+	    // Some problems with the code below:
+	    // 1) JER should us primarily genPt, secondary recoPt
+	    // 2) relDpt  should evaluate vs genPt to avoid <1/x> != 1/<x> bias
+	    // 3) For (JME)NANO, should also check DR of genJet
+	    // Probably small impact except for the last, which I add
+	    
+	    // The method presented here can be found in https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
+	    // and the corresponding code in https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_25/PhysicsTools/PatUtils/interface/SmearedJetProducerT.h
+	    double Reso = jer->getResolution({{JME::Binning::JetPt, jPt}, {JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}});
+	    double SF = jersf->getScaleFactor({{JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}}, Variation::NOMINAL);
+	    
+	    // Case 0: by default the JER correction factor is equal to 1
+	    double CF = 1.;
+	    // We see if the gen jet meets our requirements
+	    bool condPt = (jPtGen>MIN_JET_ENERGY && dR<0.2);
+	    double relDPt = condPt ? (jPt - jPtGen)/jPt : 0.0;
+	    bool condPtReso = fabs(relDPt) < 3*Reso;
+	    if (condPt and condPtReso) {
+	      // Case 1: we have a "good" gen jet matched to the reco jet (indicated by positive gen jet pt)
+	      CF += (SF - 1.)*relDPt;
+	    } else if (SF > 1) {
+	      // Case 2: we don't have a gen jet. Smear jet pt using a random gaussian variation
+	      double sigma = Reso*std::sqrt(SF*SF - 1);
+	      std::normal_distribution<> d(0, sigma);
+	      CF += d(_mersennetwister);
+	    }
+	  
+	    // Negative or too small smearFactor. Safety precautions.
+	    double CFLimit = MIN_JET_ENERGY / jE;
+	    if (CF < CFLimit) CF = CFLimit;
+	    
+	    double origPt = Jet_pt[i];
+	    double origJetMass = Jet_mass[i];
+	    Jet_pt[i] = CF * origPt;
+	    Jet_mass[i] = CF * origJetMass;
+	    Jet_CF[i] = CF;
+	    //Jet_smearFactor[i] = (1.0 - 1.0/CF);	
+	    
+	    // type-I calculation is done later and propagates JER SF
+	    // (needs to have unsmeard p4lr1c, fully smeared p4)
+	  } // i<smearNMax
+	} // for njet
+      } // JER smearing
+
       /*
       // Match leading jets to HLT objects
       for (int i  = 0; i != min(njet,kMaxTrigJet); ++i) {
@@ -1443,12 +1570,16 @@ void DijetHistosFill::Loop()
 
       for (int i = 0; i != njet; ++i) {
 
+	// p4 is fully corrected and smeared
 	p4.SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i], Jet_mass[i]);
-		p4.SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i], Jet_mass[i]);
-	p4raw.SetPtEtaPhiM(Jet_pt[i]*(1.0-Jet_rawFactor[i]), Jet_eta[i],
-			   Jet_phi[i], Jet_mass[i]*(1.0-Jet_rawFactor[i]));
-	p4l1rc.SetPtEtaPhiM(Jet_pt[i]*(1.0-Jet_l1rcFactor[i]), Jet_eta[i],
-			    Jet_phi[i], Jet_mass[i]*(1.0-Jet_l1rcFactor[i]));
+	//p4raw.SetPtEtaPhiM(Jet_pt[i]*(1.0-Jet_rawFactor[i]), Jet_eta[i],
+	//		   Jet_phi[i], Jet_mass[i]*(1.0-Jet_rawFactor[i]));
+	//p4l1rc.SetPtEtaPhiM(Jet_pt[i]*(1.0-Jet_l1rcFactor[i]), Jet_eta[i],
+	//		    Jet_phi[i], Jet_mass[i]*(1.0-Jet_l1rcFactor[i]));
+	// p4l1rc is before corrections and smearing
+	p4l1rc.SetPtEtaPhiM(Jet_pt[i]/Jet_CF[i]*(1.0-Jet_l1rcFactor[i]),
+			    Jet_eta[i], Jet_phi[i],
+			    Jet_mass[i]/Jet_CF[i]*(1.0-Jet_l1rcFactor[i]));
 
 	// Jet veto maps
 	if (doJetveto) {
@@ -1910,11 +2041,13 @@ void DijetHistosFill::Loop()
 
 	      dijetHistos2 *h = mhdj2[trg];
 	      double res = Jet_RES[iprobe] / Jet_RES[itag];
+	      double jsf = (Jet_CF[itag]>0 ? Jet_CF[iprobe] / Jet_CF[itag] : 1);
 		
 	      double abseta = fabs(eta);
 	      h->h2pteta->Fill(abseta, ptavp2, w);
 	      
 	      h->p2res->Fill(abseta, ptavp2, res, w);
+	      h->p2jsf->Fill(abseta, ptavp2, jsf, w);
 	      h->p2m0->Fill(abseta, ptavp2, m0b, w);
 	      h->p2m2->Fill(abseta, ptavp2, m2b, w);
 	      h->p2mn->Fill(abseta, ptavp2, mnb, w);
@@ -1931,6 +2064,7 @@ void DijetHistosFill::Loop()
 
 	      h->h2ptetatc->Fill(abseta, pttag, w);
 	      h->p2restc->Fill(abseta, pttag, res, w);
+	      h->p2jsftc->Fill(abseta, pttag, jsf, w);
 	      h->p2m0tc->Fill(abseta, pttag, m0c, w);
 	      h->p2m2tc->Fill(abseta, pttag, m2c, w);
 	      h->p2mntc->Fill(abseta, pttag, mnc, w);
@@ -1938,6 +2072,7 @@ void DijetHistosFill::Loop()
 
 	      h->h2ptetapf->Fill(abseta, ptprobe, w);
 	      h->p2respf->Fill(abseta, ptprobe, res, w);
+	      h->p2jsfpf->Fill(abseta, ptprobe, jsf, w);
 	      h->p2m0pf->Fill(abseta, ptprobe, m0f, w);
 	      h->p2m2pf->Fill(abseta, ptprobe, m2f, w);
 	      h->p2mnpf->Fill(abseta, ptprobe, mnf, w);
