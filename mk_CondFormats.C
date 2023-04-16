@@ -3,6 +3,7 @@
 // using R__LOAD_LIBRARY to load *.so
 {
 
+  // For JEC
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/Utilities.cc+");
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectorParameters.cc+");
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrector.cc+");
@@ -11,5 +12,10 @@
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+");
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+");
 
+  // For JER
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetResolutionObject.cc+");
+  gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
+
+  // For Dijet code
   gROOT->ProcessLine(".L DijetHistosFill.C+g");
 }

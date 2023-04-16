@@ -1,7 +1,7 @@
 // Purpose: Fill dijet analysis histograms
 // Author:  mikko.voutilainen@cern.ch
 // Created: June 6, 2021
-/*
+
 //#include "CondFormats/JetMETObjects/src/Utilities.cc"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
@@ -9,7 +9,10 @@
 
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-*/
+
+#include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 #include "DijetHistosFill.h"
 
 #include "TSystem.h"
@@ -20,7 +23,7 @@
 //#define GPU
 #define LOCAL
 
-//#ifdef LOCAL
+#ifdef LOCAL
 // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
 // (works for 6.18.04?)
 /*
@@ -32,10 +35,22 @@ R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+
 R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+)
 */
 //R__LOAD_LIBRARY(DijetHistosFill.C+g)
-//#else
+// As in jetphys/mk2_histosFill.C:
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectorParameters_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrector_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/FactorizedJetCorrector_cc)
+
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty_cc)
+//
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetResolutionObject_cc)
+R__LOAD_LIBRARY(JetMETCorrections/Modules/src/JetResolution_cc)
+//
+R__LOAD_LIBRARY(DijetHistosFill_C)
+#else
 // (works for 2.26/10)
 R__LOAD_LIBRARY(DijetHistosFill_C.so)
-//#endif
+#endif
 
 void mk_DijetHistosFill(string dataset = "X") {
 
@@ -86,6 +101,9 @@ void mk_DijetHistosFill(string dataset = "X") {
   
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+");
   gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+");
+
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetResolutionObject.cc+");
+  gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
 
   cout << "Load library in GPU mode" << endl << flush;
   gROOT->ProcessLine(".L DijetHistosFill.C+g");
