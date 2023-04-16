@@ -42,6 +42,7 @@ Bugs:
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
 
+// v23: Add flat JER SF
 // v22b: Add MadGraph capability (isMG).
 
 // v22: Add extra profiles to Dijet2 for FSR studies (p2mnu, p2mnux, p2m0tc, p2m0pf etc.)

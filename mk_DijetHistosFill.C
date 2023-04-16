@@ -20,8 +20,8 @@
 #include <fstream>
 #include <string>
 
-//#define GPU
-#define LOCAL
+#define GPU
+//#define LOCAL
 
 #ifdef LOCAL
 // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
@@ -48,7 +48,7 @@ R__LOAD_LIBRARY(JetMETCorrections/Modules/src/JetResolution_cc)
 //
 R__LOAD_LIBRARY(DijetHistosFill_C)
 #else
-// (works for 2.26/10)
+// (works for 6.26/10)
 R__LOAD_LIBRARY(DijetHistosFill_C.so)
 #endif
 

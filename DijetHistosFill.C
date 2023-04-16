@@ -41,7 +41,7 @@ bool doDijetJER = true;
 bool doJetvetoVariants = false;
 bool doMultijetControl = true;
 bool doMultijet2Drecoil = true;
-bool doDijet2NM = true;
+bool doDijet2NM = false;//true;
 
 bool debug = false; // general debug
 bool debugevent = false; // per-event debug
@@ -504,8 +504,8 @@ void DijetHistosFill::Loop()
    // NB: could implement time dependence as in jetphys/IOV.h
    JME::JetResolution *jer(0);
    JME::JetResolutionScaleFactor *jersf(0);
-   string jerpath = "../JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
-   string jerpathsf = "../JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
+   string jerpath = "JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
+   string jerpathsf = "JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
    jer = new JME::JetResolution(jerpath.c_str());
    jersf = new JME::JetResolutionScaleFactor(jerpathsf.c_str());
    
@@ -548,8 +548,8 @@ void DijetHistosFill::Loop()
      // TChain c("Events"); c.AddFile("<path to files>/*.root"); c.GetEntries();
      int vnevt[9] =
        {11197186 /*50to100*/, 23002929 /*100to200*/, 17512439 /*200to300*/,
-	16405924 /*300to500*/, 14359110 /*500to700*/, 13473185 /*700to1000*/,
-	4365993 /*1000to1500*/, 2944561 /*1500to2000*/, 1836165 /*2000toInf*/};
+     	16405924 /*300to500*/, 14359110 /*500to700*/, 13473185 /*700to1000*/,
+     	4365993 /*1000to1500*/, 2944561 /*1500to2000*/, 1836165 /*2000toInf*/};
      cout << "Loading Hefaistos MadGraph event numbers" << endl << flush;
      // Number of events in local folder
      //int vnevt[9] = {144239, 54785, 56653, 56952, 45937, 44868, 46093, 45831, 34787}; // local files
@@ -1260,7 +1260,10 @@ void DijetHistosFill::Loop()
    Long64_t nentries = fChain->GetEntries(); // Long startup time
    cout << "Loaded " << nentries << " entries" << endl << flush;
 
-   if (isMG && nentries!=nMG) assert(false);
+   if (isMG && nentries!=nMG) {
+     cout << "Nentries=  "<<nentries<<", expected nMG = "<<nMG<<endl << flush;
+     //assert(false);
+   }
 
    // For trigger matching studies
    //const int kMaxTrigJet = 3;
