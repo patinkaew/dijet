@@ -7,6 +7,8 @@
 #include "TLine.h"
 #include "TH2D.h"
 #include "TProfile2D.h"
+#include "TGraph.h"
+#include "TF1.h"
 #include <string>
 
 bool debug = false;
@@ -16,9 +18,9 @@ void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
 	     TH1D *h1count, TH2D *h2count);
 void rebin(TH1D *h1, TH1D *h1n, TH1D *h1old, TH1D *h1nold);
 
-//void DijetHistosOverlays(string obs, string data, string spt = "PtAVP",
+void DijetHistosOverlays(string obs, string data, string spt = "PtAVP",
 //void DijetHistosOverlays(string obs, string data, string spt = "PtTag",
-void DijetHistosOverlays(string obs, string data, string spt = "PtProbe",
+//void DijetHistosOverlays(string obs, string data, string spt = "PtProbe",
 //void DijetHistosOverlays(string obs, string data, string spt = "PtAve",
 			 bool data3=false);
 void DijetHistosOverlayPtBins(string obs);
@@ -26,8 +28,8 @@ void DijetHistosOverlayJER();
 
 void DijetHistosOverlay() {
 
-  /*
-  DjetHistosOverlays("MPF","data");
+
+  DijetHistosOverlays("MPF","data");
   DijetHistosOverlays("mpf2","data");
   DijetHistosOverlays("mpfN","data");
   DijetHistosOverlays("mpfU","data");
@@ -36,7 +38,7 @@ void DijetHistosOverlay() {
   DijetHistosOverlays("mpf2","mc");
   DijetHistosOverlays("mpfN","mc");
   DijetHistosOverlays("mpfU","mc");
-  */
+
   //DijetHistosOverlays("MPF","mc");
   //DijetHistosOverlays("mpf2","mc");
   //DijetHistosOverlays("MPF","data");
@@ -46,12 +48,10 @@ void DijetHistosOverlay() {
   //DijetHistosOverlays("MPF","data",true);
   //DijetHistosOverlays("mpfU","data",true);
 
-  /*
   DijetHistosOverlayPtBins("mpfU");
   DijetHistosOverlayPtBins("mpfN");
   DijetHistosOverlayPtBins("mpf2");
   DijetHistosOverlayPtBins("MPF");
-  */
 
   DijetHistosOverlayJER();
 } // DijetHistosOverlay
@@ -72,7 +72,8 @@ void DijetHistosOverlays(string obs, string data, string spt,
 
   TFile *f1(0), *f12(0), *f13(0);
   if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
-  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
   //if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
   //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
   //if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb.root","READ");
@@ -321,9 +322,9 @@ void DijetHistosOverlayPtBins(string obs) {
   TFile *f1(0), *f1m(0), *f1p(0);
   f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
   assert(f1 && !f1->IsZombie());
-  f1m = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  f1m = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   assert(f1m && !f1m->IsZombie());
-  f1p = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
   assert(f1p && !f1p->IsZombie());
 
   TProfile2D *p2a(0), *p2t(0), *p2p(0);
@@ -539,9 +540,9 @@ void DijetHistosOverlayJER() {
   TFile *f1(0), *f1m(0), *f1p(0);
   f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
   assert(f1 && !f1->IsZombie());
-  f1m = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  f1m = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   assert(f1m && !f1m->IsZombie());  
-  f1p = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
   assert(f1p && !f1p->IsZombie());
 
   curdir->cd();
@@ -803,8 +804,12 @@ void DijetHistosOverlayJER() {
     h1jerr->Divide(h1jerm);
     h1jerpr->Divide(h1jerp);
 
-    h1jerr->GetXaxis()->SetRangeUser(59,ptmax2);
-    h1jerpr->GetXaxis()->SetRangeUser(59,ptmax2);
+    h1jerr->GetXaxis()->SetRangeUser(59,fitptmax);
+    h1jerpr->GetXaxis()->SetRangeUser(59,fitptmax);
+    //h1jerr->GetXaxis()->SetRangeUser(59,ptmax2);
+    //h1jerpr->GetXaxis()->SetRangeUser(59,ptmax2);
+    //h1jerr->GetXaxis()->SetRangeUser(fitptmin,fitptmax);
+    //h1jerpr->GetXaxis()->SetRangeUser(fitptmin,fitptmax);
 
     h1jerpr->SetMarkerSize(0.7);
     h1jerr->SetMarkerSize(0.7);
@@ -904,7 +909,7 @@ void DijetHistosOverlayJER() {
 
   if (true) { // JER and JERSF vs eta
 
-    int color[ny] = {kBlack, kMagenta+1, kBlue, kCyan+1, kGreen+2,
+    int color[ny] = {kBlack, kMagenta+1, kBlue, kCyan+2, kGreen+2,
 		     kYellow+2, kOrange+1, kRed, kBlack};
       
     TH1D *h = tdrHist("h","JER in data",0,0.55,"|#eta|",0.0,5.191);

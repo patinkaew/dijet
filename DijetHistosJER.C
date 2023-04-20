@@ -3,6 +3,7 @@
 #include "TProfile2D.h"
 #include "TF1.h"
 #include "TLine.h"
+#include "TGraphAsymmErrors.h"
 
 #include "../jecsys2020/tdrstyle_mod15.C"
 
@@ -25,11 +26,11 @@ void DijetHistosJER() {
   */
 
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16mg.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v23ul16mg.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v23ul16flat.root","Dijet2");
 
-  //drawDijetHistosJER();
-  //drawDijetHistosJERtest();
+  drawDijetHistosJER();
+  drawDijetHistosJERtest();
 }
 
 // Update cmb.root to add JER results
@@ -210,10 +211,13 @@ void drawDijetHistosJER() {
   setTDRStyle();
   TDirectory *curdir = gDirectory;
 
-  TFile *f = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
+  //TFile *f = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
+  TFile *f = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
   assert(f && !f->IsZombie());
 
-  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   assert(fm && !fm->IsZombie());
 
   curdir->cd();
@@ -260,13 +264,15 @@ void drawDijetHistosJER() {
     h1xsm->Scale(1./sqrt(nmet));
     h1xs->SetLineWidth(2);
     h1xs->GetXaxis()->SetRangeUser(15,200);
-    tdrDraw(h1xs,"HIST",kNone,kRed,kSolid,-1,kNone);
+    //tdrDraw(h1xs,"HIST",kNone,kRed,kSolid,-1,kNone);
     h1xsm->GetXaxis()->SetRangeUser(15,200);
-    tdrDraw(h1xsm,"HIST",kNone,kRed,kSolid,-1,kNone);
+    //tdrDraw(h1xsm,"HIST",kNone,kRed,kSolid,-1,kNone);
     
-    h1jer13->SetLineWidth(2);
-    tdrDraw(h1jer13,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
-    tdrDraw(h1jer13m,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+    //h1jer13->SetLineWidth(2);
+    //tdrDraw(h1jer13,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+    //tdrDraw(h1jer13m,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+    tdrDraw(h1jer13,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jer13m,"HIST",kNone,kBlue-9,kSolid,-1,kNone);
 
     TH1D *h1jer = h2jer->ProjectionY(Form("h1jer%d%s",i,c),i,i);
     tdrDraw(h1jer,"Pz",kFullCircle,kGreen+2);
@@ -301,11 +307,12 @@ void drawDijetHistosJER() {
     f1->Draw("SAME");
 
     if (i%6==0 || i==1) {
-      TLegend *leg = tdrLeg(0.70,0.85-4*0.05,1.00,0.85);
+      //TLegend *leg = tdrLeg(0.70,0.85-4*0.05,1.00,0.85);
+      TLegend *leg = tdrLeg(0.70,0.85-3*0.05,1.00,0.85);
       leg->AddEntry(h1jer,"DATA","PLE");
       leg->AddEntry(h1jerm,"MC","PLE");
       leg->AddEntry(h1jer13,"|#eta|<1.3","L");
-      leg->AddEntry(h1xs,"Est. PU","L");
+      //leg->AddEntry(h1xs,"Est. PU","L");
     }
     
     c2->cd(min(i,18));
@@ -328,13 +335,14 @@ void drawDijetHistosJER() {
     TH1D *h1m0xsr = (TH1D*)h1m0xs->Clone(Form("h1m0xsr%d%s",i,c));
     h1m0xsr->Divide(h1m0xsm);
     h1m0xsr->GetXaxis()->SetRangeUser(15,200);
-    tdrDraw(h1m0xsr,"HIST",kNone,kRed,kSolid,-1,kNone);
+    //tdrDraw(h1m0xsr,"HIST",kNone,kRed,kSolid,-1,kNone);
 
     
     TH1D *h1jer13r = (TH1D*)h1jer13->Clone("h1jer13r");
     h1jer13r->Divide(h1jer13m);
-    h1jer13r->SetLineWidth(2);
-    tdrDraw(h1jer13r,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+    //h1jer13r->SetLineWidth(2);
+    //tdrDraw(h1jer13r,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+    tdrDraw(h1jer13r,"HIST",kNone,kBlue,kSolid,-1,kNone);
     
     TH1D *h1jerr = (TH1D*)h1jer->Clone("h1jerr");
     h1jerr->Divide(h1jerm);
@@ -382,11 +390,12 @@ void drawDijetHistosJER() {
     f2->Draw("SAME");
 
     if (i%6==0 || i==1) {
-      TLegend *leg = tdrLeg(0.70,0.85-4*0.05,1.00,0.85);
+      //TLegend *leg = tdrLeg(0.70,0.85-4*0.05,1.00,0.85);
+      TLegend *leg = tdrLeg(0.70,0.85-3*0.05,1.00,0.85);
       leg->AddEntry(h1jer,"DATA","PLE");
       leg->AddEntry(h1jerm,"MC","PLE");
       leg->AddEntry(h1jer13,"|#eta|<1.3","L");
-      leg->AddEntry(h1m0xsr,"Est. PU","L");
+      //leg->AddEntry(h1m0xsr,"Est. PU","L");
     }
   } // for i
 
@@ -404,12 +413,14 @@ void drawDijetHistosJERtest() {
   //TFile *f = new TFile("rootfiles/jmenano_data_cmb.root","READ");
   assert(f && !f->IsZombie());
 
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
   assert(fm && !fm->IsZombie());
 
+  //TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
   TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
   assert(fp && !fp->IsZombie());
 
@@ -845,6 +856,13 @@ void drawDijetHistosJERtest() {
     f1r->SetLineColor(kBlack);
     f1r->Draw("SAME");
 
+
+    TF1 *fc = new TF1("fc","[0]",15,3500);
+    h1jerr->Fit(fc,"QRN");
+    fc->Draw("SAME");
+    tex->DrawLatex(0.45,0.49,Form("#chi^{2} / ndf (const) = %1.1f / %d",
+				  fc->GetChisquare(), fc->GetNDF()));
+		      
     c2->SaveAs("pdf/DijetHistosJER_JER13_JERwithRC.pdf");
   } // RC noise
 } // drawDijetHistosJERtest

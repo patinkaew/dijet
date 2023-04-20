@@ -19,8 +19,8 @@ void DijetHistosCombines(string file = "rootfiles/jmenano_data_out.root");
 
 void DijetHistosCombine() {
   DijetHistosCombines("rootfiles/jmenano_data_out_v22ul16.root");
-  DijetHistosCombines("rootfiles/jmenano_mc_out_v22ul16flatmc.root");
-  DijetHistosCombines("rootfiles/jmenano_mc_out_v22ul16mg.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_v23ul16flat.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_v23ul16mg.root");
 } // DijetHistosCombine
 
 void DijetHistosCombines(string file) {
