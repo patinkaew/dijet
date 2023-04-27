@@ -3,6 +3,7 @@
 #include "TProfile2D.h"
 #include "TF1.h"
 #include "TLine.h"
+#include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
 
 #include "../jecsys2020/tdrstyle_mod15.C"
@@ -24,11 +25,14 @@ void DijetHistosJER() {
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet/JER");
   */
-
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16mg.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","Dijet2");
+  /*
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v23ul16mg.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v23ul16flat.root","Dijet2");
-
+  */
   drawDijetHistosJER();
   drawDijetHistosJERtest();
 }
@@ -54,7 +58,7 @@ void DijetHistosJERs(string file, string dir) {
   
   TProfile2D *p2m0 = (TProfile2D*)d->Get("p2m0"); assert(p2m0);
   TProfile2D *p2m0x = (TProfile2D*)d->Get("p2m0x"); assert(p2m0x);
-
+  
   // Calculate MPFX JER (without PU+UE components yet)
   TH1D *h1jer13(0), *h1m0s13(0), *h1m0xs13(0);
   h1jer13 = getJER(p2m0,p2m0x,-1.3,1.3,&h1m0s13,&h1m0xs13);
@@ -68,6 +72,47 @@ void DijetHistosJERs(string file, string dir) {
   TH2D *h2m0s = (TH2D*)h2jer2->Clone("h2m0s");
   TH2D *h2m0xs = (TH2D*)h2jer2->Clone("h2m0xs");
 
+  // Alternative longer calculation starting from MPF2X
+  TProfile2D *p2m2 = (TProfile2D*)d->Get("p2m2"); assert(p2m2);
+  TProfile2D *p2m2x = (TProfile2D*)d->Get("p2m2x"); assert(p2m2x);
+  TProfile2D *p2mo = (TProfile2D*)d->Get("p2mnu"); assert(p2mo);
+  TProfile2D *p2mox = (TProfile2D*)d->Get("p2mnux"); assert(p2mox);
+  //
+  TH1D *h1bal13(0), *h1m2s13(0), *h1m2xs13(0);
+  h1bal13 = getJER(p2m2,p2m2x,-1.3,1.3,&h1m2s13,&h1m2xs13);
+  h1bal13->SetName("h1bal13");
+  h1m2s13->SetName("h1m2s13");
+  h1m2xs13->SetName("h1m2xs13");
+  TH2D *h2bal2 = p2m2->ProjectionXY("h2bal2"); h2bal2->Reset();
+  TH2D *h2bal = (TH2D*)h2bal2->Clone("h2bal");
+  TH2D *h2m2s = (TH2D*)h2bal2->Clone("h2m2s");
+  TH2D *h2m2xs = (TH2D*)h2bal2->Clone("h2m2xs");
+  //
+  TH1D *h1fsr13(0), *h1mos13(0), *h1moxs13(0);
+  h1fsr13 = getJER(p2mo,p2mox,-1.3,1.3,&h1mos13,&h1moxs13);
+  h1fsr13->SetName("h1fsr13");
+  h1mos13->SetName("h1mos13");
+  h1moxs13->SetName("h1moxs13");
+  TH2D *h2fsr2 = p2mo->ProjectionXY("h2fsr2"); h2fsr2->Reset();
+  TH2D *h2fsr = (TH2D*)h2fsr2->Clone("h2fsr");
+  TH2D *h2mos = (TH2D*)h2fsr2->Clone("h2mos");
+  TH2D *h2moxs = (TH2D*)h2fsr2->Clone("h2moxs");
+  //
+  TH1D *h1jrb13 = (TH1D*)h1bal13->Clone("h1jrb13"); h1jrb13->Reset();
+  TH2D *h2jrb2 = p2mo->ProjectionXY("h2jrb2"); h2jrb2->Reset();
+  TH2D *h2jrb = (TH2D*)h2jrb2->Clone("h2jrb");
+  
+  for (int i = 1; i != h1jrb13->GetNbinsX()+1; ++i) {
+    double bal13 = h1bal13->GetBinContent(i);
+    double bal13e = h1bal13->GetBinError(i);
+    double fsr13 = h1fsr13->GetBinContent(i);
+    double fsr13e = h1fsr13->GetBinError(i);
+    double jrb13 = sqrt(max(bal13*bal13e - fsr13*fsr13,0.));
+    double jrb13e = (jrb13 ? sqrt(pow(bal13*bal13e,2)+pow(fsr13*fsr13e,2))/jrb13 : 0);
+    h1jrb13->SetBinContent(i, jrb13);
+    h1jrb13->SetBinError(i, jrb13e);    
+  } // for i
+  
   for (int i = 1; i != h2jer->GetNbinsX()+1; ++i) {
 
     // Calculate JER2 (average of tag and probe)
@@ -75,6 +120,12 @@ void DijetHistosJERs(string file, string dir) {
     TH1D *h1jer2(0), *h1m0s(0), *h1m0xs(0);
     h1jer2 = getJER(p2m0,p2m0x,eta,eta,&h1m0s,&h1m0xs);
 
+    // Alternative longer calculation
+    TH1D *h1bal2(0), *h1m2s(0), *h1m2xs(0);
+    h1bal2 = getJER(p2m2,p2m2x,eta,eta,&h1m2s,&h1m2xs);
+    TH1D *h1fsr2(0), *h1mos(0), *h1moxs(0);
+    h1fsr2 = getJER(p2mo,p2mox,eta,eta,&h1mos,&h1moxs);
+    
     for (int j = 1; j != h2jer->GetNbinsY()+1; ++j) {
 
       double jer2 = h1jer2->GetBinContent(j);
@@ -87,36 +138,124 @@ void DijetHistosJERs(string file, string dir) {
       h2m0xs->SetBinContent(i, j, h1m0xs->GetBinContent(j));
       h2m0xs->SetBinError(i, j, h1m0xs->GetBinError(j));
 
-      // Calculate probe JER by subtracting tag JER
+      // Calculate probe JER by subtracting tag JER (FE, forward extension)
       double jer13 = h1jer13->GetBinContent(j);
       double err13 = h1jer13->GetBinError(j);
       double jer = sqrt(max(2.*jer2*jer2 - jer13*jer13,0.));
       double err = (jer ? sqrt(2.*pow(jer2*err2,2)+pow(jer13*err13,2))/jer : 0);
       h2jer->SetBinContent(i, j, jer);
       h2jer->SetBinError(i, j, err);
+
+      //////////////////////////////////////////////////////////////////////
+      
+      // Alternative longer calculation
+      double bal2 = h1bal2->GetBinContent(j);
+      double bal2e = h1bal2->GetBinError(j);
+      h2bal2->SetBinContent(i, j, bal2);
+      h2bal2->SetBinError(i, j, bal2e);
+
+      h2m2s->SetBinContent(i, j, h1m2s->GetBinContent(j));
+      h2m2s->SetBinError(i, j, h1m2s->GetBinError(j));
+      h2m2xs->SetBinContent(i, j, h1m2xs->GetBinContent(j));
+      h2m2xs->SetBinError(i, j, h1m2xs->GetBinError(j));
+
+      double fsr2 = h1fsr2->GetBinContent(j);
+      double fsr2e = h1fsr2->GetBinError(j);
+      h2fsr2->SetBinContent(i, j, fsr2);
+      h2fsr2->SetBinError(i, j, fsr2e);
+
+      h2mos->SetBinContent(i, j, h1mos->GetBinContent(j));
+      h2mos->SetBinError(i, j, h1mos->GetBinError(j));
+      h2moxs->SetBinContent(i, j, h1moxs->GetBinContent(j));
+      h2moxs->SetBinError(i, j, h1moxs->GetBinError(j));
+
+      //double jrb13 = h1jrb13->GetBinContent(j);
+      //double jrbe13 = h1jrb13->GetBinError(j);
+      double jrb2 = sqrt(max(bal2*bal2 - fsr2*fsr2,0.));
+      double jrb2e = (jrb2 ? sqrt(pow(bal2*bal2e,2)+pow(fsr2*fsr2e,2))/jrb2 : 0);
+      h2jrb2->SetBinContent(i, j, jrb2);
+      h2jrb2->SetBinError(i, j, jrb2e);
+
+      // Calculate B, F and JERB with forward extension
+      double bal13 = h1bal13->GetBinContent(j);
+      double bal13e = h1bal13->GetBinError(j);
+      double bal = sqrt(max(2.*bal2*bal2 - bal13*bal13,0.));
+      double bale = (bal ? sqrt(2.*pow(bal2*bal2e,2)+pow(bal13*bal13e,2))/bal : 0);
+      h2bal->SetBinContent(i, j, bal);
+      h2bal->SetBinError(i, j, bale);
+      
+      double fsr13 = h1fsr13->GetBinContent(j);
+      double fsr13e = h1fsr13->GetBinError(j);
+      double fsr = sqrt(max(2.*fsr2*fsr2 - fsr13*fsr13,0.));
+      double fsre = (fsr ? sqrt(2.*pow(fsr2*fsr2e,2)+pow(fsr13*fsr13e,2))/fsr : 0);
+      h2fsr->SetBinContent(i, j, fsr);
+      h2fsr->SetBinError(i, j, fsre);
+      
+      //double jrb13 = h1jrb13->GetBinContent(j);
+      //double jrb13e = h1jrb13->GetBinError(j);
+      //double jrb = sqrt(max(1.*jrb2*jrb2 - jrb13*jrb13,0.));
+      //double jrbe = (jrb ? sqrt(2.*pow(jrb2*jrb2e,2)+pow(jrb13*jrb13e,2))/jrb : 0);
+      double jrb = sqrt(max(bal*bal - fsr*fsr,0.));
+      double jrbe = (jrb ? sqrt(pow(bal*bale,2)+pow(fsr*fsre,2))/jrb : 0); 
+      h2jrb->SetBinContent(i, j, jrb);
+      h2jrb->SetBinError(i, j, jrbe);
+
     } // for j
     
     delete h1jer2;
     delete h1m0s;
     delete h1m0xs;
+
+    delete h1bal2;
+    delete h1m2s;
+    delete h1m2xs;
+
+    delete h1fsr2;
+    delete h1mos;
+    delete h1moxs;
   } // for i
 
   d->cd();
 
   // Store core results for MPFX only
-  h1jer13->Write("h1mpfx13",TObject::kOverwrite);
-  h2jer->Write("h2mpfx",TObject::kOverwrite);
+  TH1D *h1mpfx13 = (TH1D*)h1jer13->Clone("h1mpfx13");
+  TH2D *h2mpfx = (TH2D*)h2jer->Clone("h2mpfx");
+  h1mpfx13->Write("h1mpfx13",TObject::kOverwrite);
+  h2mpfx->Write("h2mpfx",TObject::kOverwrite);
   
   // Extras for MPFX only
+  h1bal13->Write("h1bal13",TObject::kOverwrite);
+  h1fsr13->Write("h1fsr13",TObject::kOverwrite);
+  h1jrb13->Write("h1jrb13",TObject::kOverwrite);
+
+  h2bal->Write("h2bal",TObject::kOverwrite);
+  h2fsr->Write("h2fsr",TObject::kOverwrite);
+  h2jrb->Write("h2jrb",TObject::kOverwrite);
+  
   h2jer2->Write("h2mpfx2",TObject::kOverwrite);
+  h2bal2->Write("h2bal2",TObject::kOverwrite);
+  h2fsr2->Write("h2fsr2",TObject::kOverwrite);
+  h2jrb2->Write("h2jrb2",TObject::kOverwrite);
 
   h1m0s13->Write(h1m0s13->GetName(),TObject::kOverwrite);
   h1m0xs13->Write(h1m0xs13->GetName(),TObject::kOverwrite);
+  h1m2s13->Write(h1m2s13->GetName(),TObject::kOverwrite);
+  h1m2xs13->Write(h1m2xs13->GetName(),TObject::kOverwrite);
+  h1mos13->Write(h1mos13->GetName(),TObject::kOverwrite);
+  h1moxs13->Write(h1moxs13->GetName(),TObject::kOverwrite);
+
   h2m0s->Write(h2m0s->GetName(),TObject::kOverwrite);
   h2m0xs->Write(h2m0xs->GetName(),TObject::kOverwrite);
+  h2m2s->Write(h2m2s->GetName(),TObject::kOverwrite);
+  h2m2xs->Write(h2m2xs->GetName(),TObject::kOverwrite);
+  h2mos->Write(h2mos->GetName(),TObject::kOverwrite);
+  h2moxs->Write(h2moxs->GetName(),TObject::kOverwrite);
 
   f->Write();
   delete h2jer2;
+  delete h2bal2;
+  delete h2fsr2;
+  delete h2jrb2;
   curdir->cd();
 
   // Continue to add PU noise from random cone measurements
@@ -184,7 +323,7 @@ void DijetHistosJERs(string file, string dir) {
 	double esc = h2jer->GetBinError(i, j);
 	double jer = sqrt(n*n + sc*sc);
 	double ejer = (jer!=0 ? sc * esc / jer : 0); // en=0
-	h2n->SetBinContent(i, n); 
+	h2n->SetBinContent(i, j, n); 
 	if (sc!=0 && esc!=0) {
 	  h2jer->SetBinContent(i, j, jer);
 	  h2jer->SetBinError(i, j, ejer);
@@ -216,8 +355,8 @@ void drawDijetHistosJER() {
   assert(f && !f->IsZombie());
 
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
-  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
-  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   assert(fm && !fm->IsZombie());
 
   curdir->cd();
@@ -413,15 +552,15 @@ void drawDijetHistosJERtest() {
   //TFile *f = new TFile("rootfiles/jmenano_data_cmb.root","READ");
   assert(f && !f->IsZombie());
 
-  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
-  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ"); // with sF
+  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");// no SF
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
   assert(fm && !fm->IsZombie());
 
-  //TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
-  TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ");
+  //TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ"); // with SF
+  TFile *fp = new TFile("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","READ"); // no SF
   assert(fp && !fp->IsZombie());
 
 
@@ -461,32 +600,34 @@ void drawDijetHistosJERtest() {
   c1->cd(1);
   gPad->SetLogx();
 
+  //double etamin(0.), etamax(1.3);
+  double etamin(0.261), etamax(0.522);
   TH1D *h1jer(0), *h1m0s(0), *h1m0xs(0);
-  h1jer = getJER(p2m0,p2m0x,0,1.3,&h1m0s,&h1m0xs);
+  h1jer = getJER(p2m0,p2m0x,etamin,etamax,&h1m0s,&h1m0xs);
   TH1D *h1jerm(0), *h1m0sm(0), *h1m0xsm(0);
   p2m0m->SetName("p2m0m");
-  h1jerm = getJER(p2m0m,p2m0xm,0,1.3,&h1m0sm,&h1m0xsm);
+  h1jerm = getJER(p2m0m,p2m0xm,etamin,etamax,&h1m0sm,&h1m0xsm);
   TH1D *h1jerp(0), *h1m0sp(0), *h1m0xsp(0);
   p2m0p->SetName("p2m0p");
-  h1jerp = getJER(p2m0p,p2m0xp,0,1.3,&h1m0sp,&h1m0xsp);
+  h1jerp = getJER(p2m0p,p2m0xp,etamin,etamax,&h1m0sp,&h1m0xsp);
 
   TH1D *h1bal(0), *h1m2s(0), *h1m2xs(0);
-  h1bal = getJER(p2m2,p2m2x,0,1.3,&h1m2s,&h1m2xs);
+  h1bal = getJER(p2m2,p2m2x,etamin,etamax,&h1m2s,&h1m2xs);
   TH1D *h1balm(0), *h1m2sm(0), *h1m2xsm(0);
   p2m2m->SetName("p2m2m");
-  h1balm = getJER(p2m2m,p2m2xm,0,1.3,&h1m2sm,&h1m2xsm);
+  h1balm = getJER(p2m2m,p2m2xm,etamin,etamax,&h1m2sm,&h1m2xsm);
   TH1D *h1balp(0), *h1m2sp(0), *h1m2xsp(0);
   p2m2p->SetName("p2m2p");
-  h1balp = getJER(p2m2p,p2m2xp,0,1.3,&h1m2sp,&h1m2xsp);
+  h1balp = getJER(p2m2p,p2m2xp,etamin,etamax,&h1m2sp,&h1m2xsp);
 
   TH1D *h1fsr(0), *h1mnus(0), *h1mnuxs(0);
-  h1fsr = getJER(p2mnu,p2mnux,0,1.3,&h1mnus,&h1mnuxs);
+  h1fsr = getJER(p2mnu,p2mnux,etamin,etamax,&h1mnus,&h1mnuxs);
   TH1D *h1fsrm(0), *h1mnusm(0), *h1mnuxsm(0);
   p2mnum->SetName("p2mnum");
-  h1fsrm = getJER(p2mnum,p2mnuxm,0,1.3,&h1mnusm,&h1mnuxsm);
+  h1fsrm = getJER(p2mnum,p2mnuxm,etamin,etamax,&h1mnusm,&h1mnuxsm);
   TH1D *h1fsrp(0), *h1mnusp(0), *h1mnuxsp(0);
   p2mnup->SetName("p2mnup");
-  h1fsrp = getJER(p2mnup,p2mnuxp,0,1.3,&h1mnusp,&h1mnuxsp);
+  h1fsrp = getJER(p2mnup,p2mnuxp,etamin,etamax,&h1mnusp,&h1mnuxsp);
 
   // Extract JER from MPF2 by subtracting FSR = MPFNU-MPFNUX
   TH1D *h1jer2 = (TH1D*)h1m2s->Clone("h1jer2");
@@ -657,57 +798,7 @@ void drawDijetHistosJERtest() {
 
   c1->SaveAs("pdf/DijetHistosJER_JER13.pdf");
 
-  // test with Z+jet
-  {
-    TFile *fz = new TFile("../jecsys2020/rootfiles/jme_ZplusJet_Muon_Run2016FGH_v8.root","READ");
-    assert(fz && !fz->IsZombie());
-
-    const char *cd = "Run2016F-H/2016/data/eta_00_13/";
-    const char *cm = "Run2016F-H/2016/mc/eta_00_13/";
-    TH2D *h2z(0), *h2zx(0), *h2zm(0), *h2zxm(0);
-    h2z = (TH2D*)fz->Get(Form("%s/zpt_mpf_zmmjet_a100",cd)); assert(h2z);
-    h2zx = (TH2D*)fz->Get(Form("%s/zpt_mpfx_zmmjet_a100",cd)); assert(h2zx);
-    h2zm = (TH2D*)fz->Get(Form("%s/zpt_mpf_zmmjet_a100",cm)); assert(h2zm);
-    h2zxm = (TH2D*)fz->Get(Form("%s/zpt_mpfx_zmmjet_a100",cm)); assert(h2zxm);
-
-    curdir->cd();
-    
-    //TProfile *pz = h2z->ProfileX("pz",1,-1,"S");
-    //TProfile *pzx = h2zx->ProfileX("pzx",1,-1,"S");
-    //TProfile *pzm = h2zm->ProfileX("pz",1,-1,"S");
-    //TProfile *pzxm = h2zxm->ProfileX("pzx",1,-1,"S");
-
-    TH1D *h1jerz(0), *h1m0zs(0), *h1m0xzs(0);
-    h1jerz = getJERZ(h2z,h2zx,"data",&h1m0zs,&h1m0xzs);
-    TH1D *h1jerzm(0), *h1m0zsm(0), *h1m0xzsm(0);
-    h1jerzm = getJERZ(h2zm,h2zxm,"mc",&h1m0zsm,&h1m0xzsm);
-
-    c1->cd(1);
-
-    tdrDraw(h1m0xzsm,"PE",kOpenDiamond,kRed-9);
-    tdrDraw(h1m0zsm,"PE",kOpenDiamond,kBlue-9);
-    tdrDraw(h1m0xzs,"PE",kFullDiamond,kRed-9);
-    tdrDraw(h1m0zs,"PE",kFullDiamond,kBlue-9);
-    
-    tdrDraw(h1jerz,"PE",kFullStar,kBlack);
-    tdrDraw(h1jerzm,"PE",kOpenStar,kBlack);
-
-    c1->cd(2);
-
-    TH1D *h1m0zsr = (TH1D*)h1m0zs->Clone("h1m0zsr");
-    h1m0zsr->Divide(h1m0zsm);
-    TH1D *h1m0xzsr = (TH1D*)h1m0xzs->Clone("h1m0xzsr");
-    h1m0xzsr->Divide(h1m0xzsm);
-    TH1D *h1jerzr = (TH1D*)h1jerz->Clone("h1jerzr");
-    h1jerzr->Divide(h1jerzm);
-
-    tdrDraw(h1m0xzsr,"PE",kOpenDiamond,kRed-9);
-    tdrDraw(h1m0zsr,"PE",kOpenDiamond,kBlue-9);
-    tdrDraw(h1jerzr,"PE",kFullStar,kBlack);
-
-    c1->SaveAs("pdf/DijetHistosJER_JER13_DijetAndZJet.pdf");
-  } // Z+jet
-
+  TH1D *_h1jern(0), *_h1jernm(0), *_h1jernr(0);
   { // adding RC noise
 
     // This is probably 2018 file. Would need to ask other years as well
@@ -818,7 +909,9 @@ void drawDijetHistosJERtest() {
     tdrDraw(h1n,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
     tdrDraw(h1jer,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
     tdrDraw(h1jern,"Pz",kFullStar,kBlack,kSolid,-1,kNone);
-
+    _h1jern = h1jern;
+    _h1jernm = h1jernm;
+    
     f1->SetRange(15,3500);
     f1->SetLineColor(kBlack);
     f1->Draw("SAME");
@@ -852,7 +945,8 @@ void drawDijetHistosJERtest() {
     tdrDraw(h1nr,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
     tdrDraw(h1jerr,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
     tdrDraw(h1jernr,"Pz",kFullStar,kBlack,kSolid,-1,kNone);
-
+    _h1jernr = h1jernr;
+    
     f1r->SetLineColor(kBlack);
     f1r->Draw("SAME");
 
@@ -865,6 +959,179 @@ void drawDijetHistosJERtest() {
 		      
     c2->SaveAs("pdf/DijetHistosJER_JER13_JERwithRC.pdf");
   } // RC noise
+  
+  // test with Z+jet and dijet traditional
+  {
+    TFile *fdj = new TFile("rootfiles/dijet_balance_UL18_Summer19UL18_V5_AK4CHS.root","READ");
+    assert(fdj && !fdj->IsZombie());
+    // older dijet files
+    //TH1F *h1dj = (TH1F*)fdj->Get("Data_jer_dijet_SM_1_nominal"); assert(h1dj);
+    //TH1F *h1djm = (TH1F*)fdj->Get("MC_jer_dijet_SM_1_nominal"); assert(h1djm);
+    //TH1F *h1djr = (TH1F*)h1dj->Clone("h1djr");
+    //h1djr->Divide(h1djm);
+    TGraphAsymmErrors *gdj(0), *gdjm(0);
+    gdj = (TGraphAsymmErrors*)fdj->Get("dijet_balance_jer_Data_0p261_0p522_SM_nominal"); assert(gdj);
+    gdjm = (TGraphAsymmErrors*)fdj->Get("dijet_balance_jer_MC_0p261_0p522_SM_nominal"); assert(gdjm);
+    TGraphErrors *gdjr = new TGraphErrors(gdj->GetN());
+    for (int i = 0; i != gdjr->GetN(); ++i) {
+      gdjr->SetPoint(i, gdj->GetX()[i], gdj->GetY()[i]/gdjm->GetY()[i]);
+      gdjr->SetPointError(i, gdj->GetErrorXlow(i),
+			  sqrt(pow(gdj->GetErrorYlow(i)/gdj->GetY()[i],2)+
+			       pow(gdjm->GetErrorYlow(i)/gdjm->GetY()[i],2))
+			  * gdjr->GetY()[i]);
+    }
+
+    TFile *fzj = new TFile("rootfiles/zjet_balance_UL2018_jetpt_nominal_small.root","READ");
+    assert(fzj && !fzj->IsZombie());
+    TGraphErrors *gz(0), *gzm(0), *gzr(0);
+    gz = (TGraphErrors*)fzj->Get("data"); assert(gz);
+    gzm = (TGraphErrors*)fzj->Get("mc"); assert(gzm);
+    gzr = (TGraphErrors*)fzj->Get("ratio"); assert(gzr);
+    
+    
+    //TFile *fz = new TFile("../jecsys2020/rootfiles/jme_ZplusJet_Muon_Run2016FGH_v8.root","READ");
+    TFile *fz = new TFile("../jecsys2020/rootfiles/jme_bplusZ_2016FGH_Zmm_sync_v11.root","READ");
+    assert(fz && !fz->IsZombie());
+
+    TH2D *h2z(0), *h2zx(0), *h2zm(0), *h2zxm(0);
+    //const char *cd = "Run2016F-H/2016/data/eta_00_13/";
+    //const char *cm = "Run2016F-H/2016/mc/eta_00_13/";
+    //h2z = (TH2D*)fz->Get(Form("%s/zpt_mpf_zmmjet_a100",cd)); assert(h2z);
+    //h2zx = (TH2D*)fz->Get(Form("%s/zpt_mpfx_zmmjet_a100",cd)); assert(h2zx);
+    //h2zm = (TH2D*)fz->Get(Form("%s/zpt_mpf_zmmjet_a100",cm)); assert(h2zm);
+    //h2zxm = (TH2D*)fz->Get(Form("%s/zpt_mpfx_zmmjet_a100",cm)); assert(h2zxm);
+    const char *cd = "data/eta_00_13/";
+    const char *cm = "mc/eta_00_13/";
+    h2z = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPF_alpha100",cd)); assert(h2z);
+    h2zx = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPFx_alpha100",cd)); assert(h2zx);
+    h2zm = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPF_alpha100",cm)); assert(h2zm);
+    h2zxm = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPFx_alpha100",cm)); assert(h2zxm);
+    //
+    TH2D *h2z2(0), *h2z2x(0), *h2z2m(0), *h2z2xm(0);
+    // NB: some bug with RMPFJet1 cutting of at 0.5? pT1/pTZ>0.5?
+    h2z2 = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPFjet1_alpha100",cd)); assert(h2z2);
+    h2z2x = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPFjet1x_alpha100",cd)); assert(h2z2x);
+    h2z2m = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPFjet1_alpha100",cm)); assert(h2z2m);
+    h2z2xm = (TH2D*)fz->Get(Form("%s/h_Zpt_RMPFjet1x_alpha100",cm)); assert(h2z2xm);
+    curdir->cd();
+    
+    //TProfile *pz = h2z->ProfileX("pz",1,-1,"S");
+    //TProfile *pzx = h2zx->ProfileX("pzx",1,-1,"S");
+    //TProfile *pzm = h2zm->ProfileX("pz",1,-1,"S");
+    //TProfile *pzxm = h2zxm->ProfileX("pzx",1,-1,"S");
+
+    TH1D *h1jerz(0), *h1m0zs(0), *h1m0xzs(0);
+    h1jerz = getJERZ(h2z,h2zx,"data",&h1m0zs,&h1m0xzs);
+    TH1D *h1jerzm(0), *h1m0zsm(0), *h1m0xzsm(0);
+    h1jerzm = getJERZ(h2zm,h2zxm,"mc",&h1m0zsm,&h1m0xzsm);
+
+    TH1D *h1balz(0), *h1m2zs(0), *h1m2xzs(0);
+    h1balz = getJERZ(h2z2,h2z2x,"data",&h1m2zs,&h1m2xzs);
+    TH1D *h1balzm(0), *h1m2zsm(0), *h1m2xzsm(0);
+    h1balzm = getJERZ(h2z2m,h2z2xm,"mc",&h1m2zsm,&h1m2xzsm);
+
+    c1->cd(1);
+
+    tdrDraw(h1m0xzsm,"PE",kOpenDiamond,kRed-9);
+    tdrDraw(h1m0zsm,"PE",kOpenDiamond,kBlue-9);
+    tdrDraw(h1m0xzs,"PE",kFullDiamond,kRed-9);
+    tdrDraw(h1m0zs,"PE",kFullDiamond,kBlue-9);
+    
+    tdrDraw(h1jerz,"PE",kFullStar,kBlack);
+    tdrDraw(h1jerzm,"PE",kOpenStar,kBlack);
+
+    c1->cd(2);
+
+    TH1D *h1m0zsr = (TH1D*)h1m0zs->Clone("h1m0zsr");
+    h1m0zsr->Divide(h1m0zsm);
+    TH1D *h1m0xzsr = (TH1D*)h1m0xzs->Clone("h1m0xzsr");
+    h1m0xzsr->Divide(h1m0xzsm);
+    TH1D *h1jerzr = (TH1D*)h1jerz->Clone("h1jerzr");
+    h1jerzr->Divide(h1jerzm);
+    //
+    TH1D *h1m2zsr = (TH1D*)h1m2zs->Clone("h1m2zsr");
+    h1m2zsr->Divide(h1m2zsm);
+    TH1D *h1m2xzsr = (TH1D*)h1m2xzs->Clone("h1m2xzsr");
+    h1m2xzsr->Divide(h1m2xzsm);
+    TH1D *h1balzr = (TH1D*)h1balz->Clone("h1balzr");
+    h1balzr->Divide(h1balzm);
+    //
+    TH1D *h1m2sr = (TH1D*)h1m2s->Clone("h1m2sr");
+    h1m2sr->Divide(h1m2sm);
+    TH1D *h1m2xsr = (TH1D*)h1m2xs->Clone("h1m2xsr");
+    h1m2xsr->Divide(h1m2xsm);
+    TH1D *h1balr = (TH1D*)h1bal->Clone("h1balr");
+    h1balr->Divide(h1balm);
+
+    tdrDraw(h1m0xzsr,"PE",kOpenDiamond,kRed-9);
+    tdrDraw(h1m0zsr,"PE",kOpenDiamond,kBlue-9);
+    tdrDraw(h1jerzr,"PE",kFullStar,kBlack);
+
+    c1->SaveAs("pdf/DijetHistosJER_JER13_DijetAndZJet.pdf");
+
+
+    TH1D *hz = tdrHist("hz","RMS",0,0.35);//0.8);
+    TH1D *hdz = tdrHist("hdz","Data/MC",0.85,1.5);
+    TCanvas *c2z = tdrDiCanvas("c2z",hz,hdz,4,11);
+
+    TH1D *h1balb = (TH1D*)h1m2s->Clone("h1balb");
+    h1balb->Scale(1./sqrt(2.));
+    TH1D *h1isrb = (TH1D*)h1m2xs->Clone("h1isrb");
+    h1isrb->Scale(1./sqrt(2.));
+    TH1D *h1jerb = (TH1D*)h1bal->Clone("h1jerb");
+    h1jerb->Scale(1./sqrt(2.));
+    
+    c2z->cd(1);
+    gPad->SetLogx();
+    //tdrDraw(h1m2s,"PE",kFullCircle,kRed);
+    //    tdrDraw(h1balb,"PE",kFullCircle,kRed);
+    //tdrDraw(h1m2xs,"PE",kFullCircle,kBlue);
+    //    tdrDraw(h1isrb,"PE",kFullCircle,kBlue);
+    //tdrDraw(h1bal,"PE",kFullCircle,kMagenta+2);
+    //    tdrDraw(h1jerb,"PE",kFullCircle,kMagenta+2);
+    //tdrDraw(h1m2zs,"PE",kFullDiamond,kRed-9);
+    //tdrDraw(h1m2xzs,"PE",kFullDiamond,kBlue-9);
+    //tdrDraw(h1balz,"PE",kFullDiamond,kMagenta-7);//9);
+    //tdrDraw(h1balzm,"PE",kOpenDiamond,kMagenta-7);//9);
+    tdrDraw(h1jerz,"PE",kFullDiamond,kMagenta+1);
+    h1jerz->GetXaxis()->SetRangeUser(15,400);
+    //tdrDraw(h1jerzm,"PE",kOpenDiamond,kMagenta+1);
+    
+    tdrDraw(gz,"PEz",kFullStar,kRed);
+    tdrDraw(gzm,"PEz",kOpenStar,kRed);
+    //tdrDraw(h1dj,"PE",kFullStar,kBlack);
+    tdrDraw(gdj,"PEz",kFullStar,kBlack);
+    tdrDraw(gdjm,"PEz",kOpenStar,kBlack);
+    //tdrDraw(h1jer,"PE",kFullCircle,kGreen+2);
+    tdrDraw(_h1jern,"PE",kFullDiamond,kGreen+2);//3);
+    tdrDraw(_h1jernm,"PE",kOpenDiamond,kGreen+2);//3);
+    
+    c2z->cd(2);
+    gPad->SetLogx();
+    l->DrawLine(15,1,3500,1);
+
+    //    tdrDraw(h1m2sr,"PE",kFullCircle,kRed);
+    //    tdrDraw(h1m2xsr,"PE",kFullCircle,kBlue);
+    //    tdrDraw(h1balr,"PE",kFullCircle,kMagenta+2);
+    //tdrDraw(h1m2zsr,"PE",kFullDiamond,kRed-9);
+    //tdrDraw(h1m2xzsr,"PE",kFullDiamond,kBlue-9);
+    //tdrDraw(h1balzr,"PE",kFullDiamond,kMagenta-7);//-9);
+    tdrDraw(h1jerzr,"PE",kFullDiamond,kMagenta+1);
+    h1jerzr->Scale(1./0.929586); // h1jer13 ratio for v22/v23
+    h1jerzr->GetXaxis()->SetRangeUser(15,400);
+    
+    tdrDraw(gzr,"PEz",kFullStar,kRed);
+    //tdrDraw(h1djr,"PE",kFullStar,kBlack);
+    tdrDraw(gdjr,"PEz",kFullStar,kBlack);
+    //tdrDraw(h1jerr,"PE",kFullCircle,kGreen+2);
+    tdrDraw(_h1jernr,"PE",kFullDiamond,kGreen+2);//3);
+    //tdrDraw(h1jerzr,"PE",kFullDiamond,kGreen+2);
+
+    //c2z->SaveAs("pdf/DijetHistosJER_Bal13_DijetAndZJet.pdf");
+    c2z->SaveAs("pdf/DijetHistosJER_Bal13_vsDijetJER.pdf");
+  } // Z+jet
+
+
 } // drawDijetHistosJERtest
 
 // Calculate JER for one given eta slice at a time
