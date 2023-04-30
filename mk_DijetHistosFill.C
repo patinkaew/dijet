@@ -52,34 +52,46 @@ R__LOAD_LIBRARY(DijetHistosFill_C)
 R__LOAD_LIBRARY(DijetHistosFill_C.so)
 #endif
 
-void mk_DijetHistosFill(string dataset = "X") {
+void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
 
   // Get JMENANO from either location:
   // - lxplus:/eos/cms/store/group/phys_jetmet/JMENanoRun3/v2p1/JetMET
   // - Hefaistos:/media/DATA/JME_NANO_DATA
   
-  if (!(dataset=="RunCearly" || dataset=="RunC" ||
-	dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
-	dataset=="FlatQCD" || dataset=="Flat2018QCD" || dataset=="QCDFlats" ||
-	dataset=="UL2018A" || dataset=="UL2018Flat" ||
-	dataset=="UL2016GH" || dataset=="UL2016Flat" || dataset=="UL2016MG")) {
+  if (!(dataset=="UL2016BCD" || dataset=="UL2016EF" || 
+	dataset=="UL2016APVMG" ||
+        dataset=="UL2016GH" || dataset=="UL2016MG" || dataset=="UL2016Flat" || 
+	dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
+	dataset=="UL2017E" || dataset=="UL2017F" ||
+	dataset=="UL2017MG" ||
+	dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
+	dataset=="UL2018D" ||
+	dataset=="UL2018MG"
+	  )) {
     cout << "Dataset not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
-	 << "RunCearly, RunC, RunCD, RunE, RunF "
-	 << "FlatQCD, Flat2018QCD, QCDFlats" << endl
-	 << "UL2018A, UL2018Flat" << endl
-    	 << "UL2016GH, UL2016Flat, UL2016MG" << endl;
+	 << "UL2016BCD, UL2016EF, UL2016APVMG" << endl
+	 << "UL2016GH, UL2016MG, UL2016Flat," << endl
+	 << "UL2017B, UL2017C, UL2017D, UL2017E, UL2017F" << endl
+	 << "UL2017MG" << endl
+	 << "UL2018A, UL2018B, UL2018C, UL2018D" << endl
+	 << "UL2018MG" << endl;
   }
   
   // Settings
-  bool addData = (dataset=="RunCearly" || dataset=="RunC" ||
-		  dataset=="RunCD" || dataset=="RunE" || dataset=="RunF" ||
-		  dataset=="UL2018A" ||
-		  dataset=="UL2016GH");
-  bool addMC = (dataset=="FlatQCD" || dataset=="Flat2018QCD" ||
-		dataset=="QCDFlats" ||
-		dataset=="UL2018Flat" ||
-		dataset=="UL2016Flat" || dataset=="UL2016MG"); 
+  bool addData =
+    (dataset=="UL2016BCD" || dataset=="UL2016EF" ||
+     dataset=="UL2016GH" ||
+     dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
+     dataset=="UL2017E" || dataset=="UL2017F" ||
+     dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
+     dataset=="UL2018D"
+     );
+  bool addMC =
+    (dataset=="UL2016APVMG" ||
+     dataset=="UL2016MG"  || dataset=="UL2016Flat" ||
+     dataset=="UL2017MG"  || dataset=="UL2018MG"
+     ); 
 
   //cout << "Clean old shared objects and link files" << endl << flush;
   //gSystem->Exec("rm *.d");
@@ -146,7 +158,8 @@ void mk_DijetHistosFill(string dataset = "X") {
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
 
-    bool isMG = (dataset=="UL2016MG");
+    bool isMG = (dataset=="UL2016APVMG" || dataset=="UL2016MG" ||
+		 dataset=="UL2017MG" || dataset=="UL2018MG");
     
     DijetHistosFill filler(c, isMG ? 2 : 1, dataset);
     filler.Loop();
