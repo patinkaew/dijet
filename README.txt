@@ -7,10 +7,10 @@ How to RUN on Hefaistos:
 - (rm *.d *.so *.pcm)
 - root -l -b -q mk_CondFormats.C
 - #define GPU in mk_DijetHistosFill.C
-=> edit (version, IOV_list) and execute 'python runAllIOVs.py'
-[- nohup root -l -b -q mk_DijetHistosFill.C\(\"X\"\) > log.txt & ]
+[=> edit (version, IOV_list) and execute 'python runAllIOVs.py' [not yet]]
+- nohup root -l -b -q mk_DijetHistosFill.C\(\"X\"\) > log.txt & [until above]
 + runtime about X
-=> edit (version, IOV_list) and execute 'python renameAllIOVs.py'
+[=> edit (version, IOV_list) and execute 'python renameAllIOVs.py']
 
 + tail -f log.txt
 + starting up takes quite a bit (~X sec) due to GetEntries() call
@@ -41,6 +41,9 @@ Bugs:
 - mpfu in multijet large compared to mpfn. Why? => sign error
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
+
+// v24: Add ability to run over 2016APV, 2016, 2017, 2018. Add IOV and version to output file name. Switch off smearing (to derive JER SF first). Revert to public JEC+JER versions (V7/V3*2, V6/V3, V5/V2) until new Summer20 files verified. Add runAllIOVs.py. Add automatic HT bin event counting. Add MC truth folder.
+=> need MadGraph samples for UL2017
 
 // v23: Add flat JER SF
 // v22b: Add MadGraph capability (isMG).
