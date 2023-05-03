@@ -590,7 +590,8 @@ void DijetHistosFill::Loop()
 		  "Summer19UL18_RunC_V5_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL18_RunC_V5_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2018D") {
+   if (dataset=="UL2018D" ||
+       dataset=="UL2018D1" || dataset=="UL2018D2") {
      jec = getFJC("Summer19UL18_RunD_V5_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL18_RunD_V5_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL18_RunD_V5_DATA_L2L3Residual_AK4PFchs");
@@ -602,22 +603,24 @@ void DijetHistosFill::Loop()
    assert(jec);
    assert(jecl1rc);
 
-   if ((isMC && smearJets) && (jerpath=="" || jerpathsf==""))
-     cout << "Missing JER files for " << dataset << endl << flush;
-   assert(!(isMC && smearJets) || jerpath!="");
-   assert(!(isMC && smearJets) || jerpathsf!="");
-   
    if (debug) cout << "Setting up JER smearing" << endl << flush;
    
    // Smear JER
    // NB: could implement time dependence as in jetphys/IOV.h
    JME::JetResolution *jer(0);
    JME::JetResolutionScaleFactor *jersf(0);
-   jer = (isMC ? new JME::JetResolution(jerpath.c_str()) : 0);
-   jersf = (isMC ? new JME::JetResolutionScaleFactor(jerpathsf.c_str()) : 0);
-   
-   if ((isMC && smearJets) && (!jer || !jersf))
-     cout << "Missing JER files for " << dataset << endl << flush;
+   if (isMC && smearJets) {
+     cout << jerpath << endl << flush;
+     cout << jerpathsf << endl << flush;
+     if (jerpath=="" || jerpathsf=="")
+       cout << "Missing JER file paths for " << dataset << endl << flush;
+     assert(jerpath!="");
+     assert(jerpathsf!="");
+     jer = new JME::JetResolution(jerpath.c_str());
+     jersf = new JME::JetResolutionScaleFactor(jerpathsf.c_str());
+     if (!jer || !jersf)
+       cout << "Missing JER files for " << dataset << endl << flush;
+   }
 
    TLorentzVector p4rawmet, p4t1met, p4mht, p4l1rc, p4dj;
    //TLorentzVector p4, p4s, p4mht, p4mht2, p4mhtc, p4mhtc3, p4t, p4p;

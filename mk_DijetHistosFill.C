@@ -52,7 +52,7 @@ R__LOAD_LIBRARY(DijetHistosFill_C)
 R__LOAD_LIBRARY(DijetHistosFill_C.so)
 #endif
 
-void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
+void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
   // Get JMENANO from either location:
   // - lxplus:/eos/cms/store/group/phys_jetmet/JMENanoRun3/v2p1/JetMET
@@ -65,7 +65,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
 	dataset=="UL2017E" || dataset=="UL2017F" ||
 	dataset=="UL2017MG" ||
 	dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
-	dataset=="UL2018D" ||
+	//dataset=="UL2018D" ||
+	dataset=="UL2018D1" || dataset=="UL2018D2" ||
 	dataset=="UL2018MG"
 	  )) {
     cout << "Dataset not supported" << endl << flush;
@@ -74,7 +75,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
 	 << "UL2016GH, UL2016MG, UL2016Flat," << endl
 	 << "UL2017B, UL2017C, UL2017D, UL2017E, UL2017F" << endl
 	 << "UL2017MG" << endl
-	 << "UL2018A, UL2018B, UL2018C, UL2018D" << endl
+      //<< "UL2018A, UL2018B, UL2018C, UL2018D" << endl
+	 << "UL2018A, UL2018B, UL2018C, UL2018D1, UL2018D2" << endl
 	 << "UL2018MG" << endl;
   }
   
@@ -85,7 +87,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
      dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
      dataset=="UL2017E" || dataset=="UL2017F" ||
      dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
-     dataset=="UL2018D"
+     //dataset=="UL2018D"
+     dataset=="UL2018D1" || dataset=="UL2018D2"
      );
   bool addMC =
     (dataset=="UL2016APVMG" ||
@@ -142,7 +145,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
     
-    DijetHistosFill filler(c,0,dataset);
+    DijetHistosFill filler(c,0,dataset,version);
     filler.Loop();
   }
   
@@ -161,7 +164,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "v24") {
     bool isMG = (dataset=="UL2016APVMG" || dataset=="UL2016MG" ||
 		 dataset=="UL2017MG" || dataset=="UL2018MG");
     
-    DijetHistosFill filler(c, isMG ? 2 : 1, dataset);
+    DijetHistosFill filler(c, isMG ? 2 : 1, dataset,version);
     filler.Loop();
   }
 

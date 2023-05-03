@@ -37,6 +37,7 @@ public :
    int             isRun2;   // 2016apv=1, 2016gh=2, 2017=3, 2018=4
    string          dataset;
    string          version;
+   static const bool debugFiles = true;
    string          _filename; // file name for debugging purposes
 
    map<int, map<int, int> > _json;
@@ -225,12 +226,13 @@ public :
    Float_t         GenJetAK8_phi[9];   //[nGenJetAK8]
    Float_t         GenJetAK8_pt[9];   //[nGenJetAK8]
    UChar_t         GenJetAK8_nConstituents[9];   //[nGenJetAK8]
+  static const int nGenJetMax = 100; // was 76
    UInt_t          nGenJet;
-   Float_t         GenJet_eta[76];   //[nGenJet]
-   Float_t         GenJet_mass[76];   //[nGenJet]
-   Float_t         GenJet_phi[76];   //[nGenJet]
-   Float_t         GenJet_pt[76];   //[nGenJet]
-   UChar_t         GenJet_nConstituents[76];   //[nGenJet]
+   Float_t         GenJet_eta[nGenJetMax];   //[nGenJet]
+   Float_t         GenJet_mass[nGenJetMax];   //[nGenJet]
+   Float_t         GenJet_phi[nGenJetMax];   //[nGenJet]
+   Float_t         GenJet_pt[nGenJetMax];   //[nGenJet]
+   UChar_t         GenJet_nConstituents[nGenJetMax];   //[nGenJet]
    UInt_t          nGenPart;
    Float_t         GenPart_eta[245];   //[nGenPart]
    Float_t         GenPart_mass[245];   //[nGenPart]
@@ -812,8 +814,8 @@ public :
    UChar_t         GenJetAK8_hadronFlavour[9];   //[nGenJetAK8]
    Int_t           GenJetAK8ForJEC_partonFlavour[45];   //[nGenJetAK8ForJEC]
    UChar_t         GenJetAK8ForJEC_hadronFlavour[45];   //[nGenJetAK8ForJEC]
-   Int_t           GenJet_partonFlavour[76];   //[nGenJet]
-   UChar_t         GenJet_hadronFlavour[76];   //[nGenJet]
+   Int_t           GenJet_partonFlavour[nGenJetMax];   //[nGenJet]
+   UChar_t         GenJet_hadronFlavour[nGenJetMax];   //[nGenJet]
    Float_t         GenVtx_t0;
    Int_t           JetCalo_genJetIdx[80];   //[nJetCalo]
    Int_t           JetCalo_hadronFlavour[80];   //[nJetCalo]
@@ -3770,8 +3772,8 @@ public :
    TBranch        *b_HLT_PPSMaxTracksPerRP4;   //!
    TBranch        *b_HLTriggerFinalPath;   //!
 
-   DijetHistosFill(TTree *tree=0, int itype=1, string datasetname="",
-		   string versionname="v24");
+   DijetHistosFill(TTree *tree=0, int itype=1, string datasetname="X",
+		   string versionname="vX");
    virtual ~DijetHistosFill();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -6247,6 +6249,13 @@ Bool_t DijetHistosFill::Notify()
    // to the generated code, but the routine can be extended by the
    // user if needed. The return value is currently not used.
 
+  if (debugFiles && fChain) {
+    if (fChain->GetCurrentFile()) {
+      _filename = fChain->GetCurrentFile()->GetName();
+      cout << endl << "Opened file: " << _filename << endl << flush;
+    }
+  }
+  
    return kTRUE;
 }
 
