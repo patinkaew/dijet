@@ -1,35 +1,34 @@
 How to RUN on Hefaistos:
 ------------------------
 (try mosh to not drop connection)
-- from local: 'rsync -rutP DijetHistosFill.C DijetHistosFill.h Hefaistos:/media/storage/dijet/'
+- from local: 'rsync -rutP DijetHistosFill.C DijetHistosFill.h mk_DijetHistosFill.C runAllIOVs.py Hefaistos:/media/storage/dijet/'
 - source /work/data/rootbinaries/root/bin/thisroot.sh [6.26.10]
   [was: source /work/data/root/bin/thisroot.sh]
 - (rm *.d *.so *.pcm)
 - root -l -b -q mk_CondFormats.C
 - #define GPU in mk_DijetHistosFill.C
-[=> edit (version, IOV_list) and execute 'python runAllIOVs.py' [not yet]]
-- nohup root -l -b -q mk_DijetHistosFill.C\(\"X\"\) > log.txt & [until above]
-+ runtime about X
-[=> edit (version, IOV_list) and execute 'python renameAllIOVs.py']
+=> edit (version, IOV_list) and execute 'python runAllIOVs.py'
+[- nohup root -l -b -q mk_DijetHistosFill.C\(\"X\"\) > log.txt & [alternative]]
++ runtime about 10-20h for most files
+[=> edit (version, IOV_list) and execute 'python renameAllIOVs.py' [not yet]]
 
-+ tail -f log.txt
++ tail -f log.txt [for individual files]
++ tail -n3 logs/log_*v[X].txt [for overall run status]
 + starting up takes quite a bit (~X sec) due to GetEntries() call
    => code TStopWatch to ignore this startup time, or skip GetEntries
 
 - rsync -rutP files from Hefaistos
 
 To-do:
-- add proper MET for MPF => done
-- add Crecoil for multijets +more advanced 2D version => done 1D+2D
-- add PF composition folder => done
 - add trigger turn-on folder
-- add jet veto maps => done
 - add MET filters => done: Flag_METFilter; also need others?
 - multijet: improve high pT efficiency (relative jet veto around leading jet?)
   - also figure out O(5-10%) mpfu even at highest pT
-- add smeared collection of jets for MC
+- add smeared collection of jets for MC => done
 - option: add monitoring of <rho> for each analysis? => add to PFComposition
-- check JetID and METFilters
+- check JetID and METFilters => done?
+- figure out segfault for 2018D. Could be array overflow?
+- update to Summer20 L1+L2L3 when available
 
 From Fikri, 31 March 2023:
 I don't thinkFlag_METFilters is defined at Nano production level. Its defined at Mini production level [1]
@@ -41,6 +40,10 @@ Bugs:
 - mpfu in multijet large compared to mpfn. Why? => sign error
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
+
+// v26: Fix division by zero bug for Jet_CF[i] that made MPF0 and MPFu corrupted.
+
+// v25: Improve handling of JER files. Default data set and versioning to "X" and "vX", set version in runAllIOVs.py". Split UL2018D to UL2018D1, UL2018D2 for more balanced running. Set nGenJetMax=100 (was 76 from 2016GH). Add debugFiles option to print out file names.
 
 // v24: Add ability to run over 2016APV, 2016, 2017, 2018. Add IOV and version to output file name. Switch off smearing (to derive JER SF first). Revert to public JEC+JER versions (V7/V3*2, V6/V3, V5/V2) until new Summer20 files verified. Add runAllIOVs.py. Add automatic HT bin event counting. Add MC truth folder.
 => need MadGraph samples for UL2017

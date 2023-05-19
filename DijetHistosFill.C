@@ -44,6 +44,7 @@ bool doJetvetoVariants = false;
 bool doMultijetControl = true;
 bool doMultijet2Drecoil = true;
 bool doDijet2NM = false;//true;
+bool doJetID = false; // add JetID class
 
 bool debug = false; // general debug
 bool debugevent = false; // per-event debug
@@ -1599,6 +1600,9 @@ void DijetHistosFill::Loop()
       // Need after JEC to ensure mean is at 1, but ideally should recalculate
       // JEC with smeared reco pT for consistency
       //Jet_smearFactor[i] = 0.;
+      // Safety reset that works for data as well
+      for (int i = 0; i != njet; ++i) { Jet_CF[i] = 1.; }
+
       if (isMC && smearJets) { 
 	
 	for (int i  = 0; i != njet; ++i) {
@@ -1813,9 +1817,13 @@ void DijetHistosFill::Loop()
 	//p4l1rc.SetPtEtaPhiM(Jet_pt[i]*(1.0-Jet_l1rcFactor[i]), Jet_eta[i],
 	//		    Jet_phi[i], Jet_mass[i]*(1.0-Jet_l1rcFactor[i]));
 	// p4l1rc is before corrections and smearing
-	p4l1rc.SetPtEtaPhiM(Jet_pt[i]/Jet_CF[i]*(1.0-Jet_l1rcFactor[i]),
+	p4l1rc.SetPtEtaPhiM(Jet_pt[i]
+			    / (smearJets && Jet_CF[i] ? Jet_CF[i] : 1)
+			    * (1.0-Jet_l1rcFactor[i]),
 			    Jet_eta[i], Jet_phi[i],
-			    Jet_mass[i]/Jet_CF[i]*(1.0-Jet_l1rcFactor[i]));
+			    Jet_mass[i]
+			    / (smearJets && Jet_CF[i] ? Jet_CF[i] : 1)
+			    * (1.0-Jet_l1rcFactor[i]));
 
 	// Jet veto maps
 	if (doJetveto) {
@@ -2277,7 +2285,8 @@ void DijetHistosFill::Loop()
 
 	      dijetHistos2 *h = mhdj2[trg];
 	      double res = Jet_RES[iprobe] / Jet_RES[itag];
-	      double jsf = (Jet_CF[itag]>0 ? Jet_CF[iprobe] / Jet_CF[itag] : 1);
+	      double jsf = (smearJets && Jet_CF[itag]>0 ?
+			    Jet_CF[iprobe] / Jet_CF[itag] : 1);
 		
 	      double abseta = fabs(eta);
 	      h->h2pteta->Fill(abseta, ptavp2, w);
