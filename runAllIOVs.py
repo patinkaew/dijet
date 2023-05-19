@@ -11,9 +11,9 @@ IOV_list= [
     'UL2017B','UL2017C','UL2017D','UL2017E','UL2017F',
     'UL2018A','UL2018B','UL2018C',#'UL2018D',
     'UL2018D1','UL2018D2',
-    'UL2016APVMG','UL2016MG','UL2018MG', #'UL2017MG'
+    'UL2016APVMG','UL2016MG','UL2017MG', 'UL2018MG'
 ]
-version = 'v25'
+version = 'v26'
 
 #os.system("rm *.so *.d *.pcm")
 os.system("root -l -b -q mk_CondFormats.C")
