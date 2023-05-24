@@ -10,6 +10,7 @@
 #include "TGraph.h"
 #include "TF1.h"
 #include <string>
+#include <fstream>
 
 bool debug = false;
 
@@ -24,11 +25,17 @@ void DijetHistosOverlays(string obs, string data, string spt = "PtAVP",
 //void DijetHistosOverlays(string obs, string data, string spt = "PtAve",
 			 bool data3=false);
 void DijetHistosOverlayPtBins(string obs);
-void DijetHistosOverlayJER();
+void DijetHistosOverlayJER(string sdt, string smc, string era);
+
+struct JER {
+  double eta, deta;
+  double n0_dt, s_dt, c_dt, d_dt, npu_dt;
+  double n0_mc, s_mc, c_mc, d_mc, npu_mc;
+};
 
 void DijetHistosOverlay() {
 
-
+  /*
   DijetHistosOverlays("MPF","data");
   DijetHistosOverlays("mpf2","data");
   DijetHistosOverlays("mpfN","data");
@@ -52,8 +59,24 @@ void DijetHistosOverlay() {
   DijetHistosOverlayPtBins("mpfN");
   DijetHistosOverlayPtBins("mpf2");
   DijetHistosOverlayPtBins("MPF");
+  */
 
-  DijetHistosOverlayJER();
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_Run2_v26.root",
+  			"haddfiles/jmenano_mc_cmb_Run2_v26.root",
+  			"Run2_v26");
+
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2018_v26.root",
+  			"rootfiles/jmenano_mc_cmb_UL2018MG_v26.root",
+  			"UL2018_v26");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  			"rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
+  			"UL2017_v26");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016GH_v26.root",
+  			"rootfiles/jmenano_mc_cmb_UL2016MG_v26.root",
+  			"UL2016GH_v26");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016APV_v26.root",
+  			"rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root",
+  			"UL2016APV_v26");
 } // DijetHistosOverlay
 
 void DijetHistosOverlays(string obs, string data, string spt,
@@ -318,18 +341,19 @@ void DijetHistosOverlayPtBins(string obs) {
   TLine *l = new TLine();
 
   const char *co = obs.c_str();
+  const char *cera = "2016GH";
 
   TFile *f1(0), *f1m(0), *f1p(0);
   f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
   assert(f1 && !f1->IsZombie());
   f1m = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   assert(f1m && !f1m->IsZombie());
-  f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
-  assert(f1p && !f1p->IsZombie());
+  //f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
+  //assert(f1p && !f1p->IsZombie());
 
   TProfile2D *p2a(0), *p2t(0), *p2p(0);
   TProfile2D *p2am(0), *p2tm(0), *p2pm(0);
-  TProfile2D *p2ap(0), *p2tp(0), *p2pp(0);
+  //TProfile2D *p2ap(0), *p2tp(0), *p2pp(0);
   //TH2D *h2na(0), *h2nt(0), *h2np(0);
 
   map<string,string> mh;
@@ -347,9 +371,9 @@ void DijetHistosOverlayPtBins(string obs) {
   p2tm = (TProfile2D*)f1m->Get(Form("%stc",ch)); assert(p2tm);
   p2pm = (TProfile2D*)f1m->Get(Form("%spf",ch)); assert(p2pm);
 
-  p2ap = (TProfile2D*)f1p->Get(Form("%s",ch));   assert(p2ap);
-  p2tp = (TProfile2D*)f1p->Get(Form("%stc",ch)); assert(p2tp);
-  p2pp = (TProfile2D*)f1p->Get(Form("%spf",ch)); assert(p2pp);
+  //p2ap = (TProfile2D*)f1p->Get(Form("%s",ch));   assert(p2ap);
+  //p2tp = (TProfile2D*)f1p->Get(Form("%stc",ch)); assert(p2tp);
+  //p2pp = (TProfile2D*)f1p->Get(Form("%spf",ch)); assert(p2pp);
 
   curdir->cd();
 
@@ -404,13 +428,13 @@ void DijetHistosOverlayPtBins(string obs) {
     TH1D *htm = p2tm->ProjectionY(Form("htm%s_%d",co,ieta),ieta,ieta);
     TH1D *hpm = p2pm->ProjectionY(Form("hpm%s_%d",co,ieta),ieta,ieta);
 
-    TH1D *hap = p2ap->ProjectionY(Form("hap%s_%d",co,ieta),ieta,ieta);
-    TH1D *htp = p2tp->ProjectionY(Form("htp%s_%d",co,ieta),ieta,ieta);
-    TH1D *hpp = p2pp->ProjectionY(Form("hpp%s_%d",co,ieta),ieta,ieta);
+    //TH1D *hap = p2ap->ProjectionY(Form("hap%s_%d",co,ieta),ieta,ieta);
+    //TH1D *htp = p2tp->ProjectionY(Form("htp%s_%d",co,ieta),ieta,ieta);
+    //TH1D *hpp = p2pp->ProjectionY(Form("hpp%s_%d",co,ieta),ieta,ieta);
     
-    tdrDraw(htp,"HIST",kNone,kBlue+1,kDotted,-1,kNone);
-    tdrDraw(hpp,"HIST",kNone,kRed+1,kDotted,-1,kNone);
-    tdrDraw(hap,"HIST",kNone,kGreen+3,kDotted,-1,kNone);
+    //tdrDraw(htp,"HIST",kNone,kBlue+1,kDotted,-1,kNone);
+    //tdrDraw(hpp,"HIST",kNone,kRed+1,kDotted,-1,kNone);
+    //tdrDraw(hap,"HIST",kNone,kGreen+3,kDotted,-1,kNone);
 
     tdrDraw(htm,"HE",kNone,kBlue,kSolid,-1,kNone);
     tdrDraw(hpm,"HE",kNone,kRed,kSolid,-1,kNone);
@@ -434,11 +458,12 @@ void DijetHistosOverlayPtBins(string obs) {
       leg->AddEntry(hp,"PtProbe","PLE");
     }
     if (ieta==1 || ieta%6==5) {
-      TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      //TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
       leg->SetTextSize(0.045*1.5);
       leg->AddEntry(ha,"Data","PLE");
       leg->AddEntry(ham,"MadGraph","PLE");
-      leg->AddEntry(hap,"Pythia8","PL");
+      //leg->AddEntry(hap,"Pythia8","PL");
     }
 
 
@@ -464,30 +489,30 @@ void DijetHistosOverlayPtBins(string obs) {
     l->DrawLine(ptmax,ymin2,ptmax,ymax2);
     l->SetLineStyle(kGray);
     l->DrawLine(ptmax2,ymin2,ptmax2,ymax2);
-    l->SetLineStyle(kSolid);
-    l->SetLineColor(kBlack);
+    //l->SetLineStyle(kSolid);
+    //l->SetLineColor(kBlack);
     //l->DrawLine(15,0,3500,0);
 
-    TH1D *hapr = (TH1D*)ha->Clone(Form("hapr%s_%d",co,ieta));
-    TH1D *htpr = (TH1D*)ht->Clone(Form("htpr%s_%d",co,ieta));
-    TH1D *hppr = (TH1D*)hp->Clone(Form("hppr%s_%d",co,ieta));
+    //TH1D *hapr = (TH1D*)ha->Clone(Form("hapr%s_%d",co,ieta));
+    //TH1D *htpr = (TH1D*)ht->Clone(Form("htpr%s_%d",co,ieta));
+    //TH1D *hppr = (TH1D*)hp->Clone(Form("hppr%s_%d",co,ieta));
 
-    hapr->Add(hap,-1);
-    htpr->Add(htp,-1);
-    hppr->Add(hpp,-1);
+    //hapr->Add(hap,-1);
+    //htpr->Add(htp,-1);
+    //hppr->Add(hpp,-1);
 
-    htpr->GetXaxis()->SetRangeUser(59,ptmax2);
-    hppr->GetXaxis()->SetRangeUser(59,ptmax2);
-    hapr->GetXaxis()->SetRangeUser(59,ptmax2);
+    //htpr->GetXaxis()->SetRangeUser(59,ptmax2);
+    //hppr->GetXaxis()->SetRangeUser(59,ptmax2);
+    //hapr->GetXaxis()->SetRangeUser(59,ptmax2);
 
     // HISTP loses the histograms, so drwa HIST once at the back first
-    tdrDraw(htpr,"HIST",kOpenDiamond,kBlue+1,kDotted,-1,kNone);
-    tdrDraw(hppr,"HIST",kOpenDiamond,kRed+1,kDotted,-1,kNone);
-    tdrDraw(hapr,"HIST",kOpenDiamond,kGreen+3,kDotted,-1,kNone);
+    //tdrDraw(htpr,"HIST",kOpenDiamond,kBlue+1,kDotted,-1,kNone);
+    //tdrDraw(hppr,"HIST",kOpenDiamond,kRed+1,kDotted,-1,kNone);
+    //tdrDraw(hapr,"HIST",kOpenDiamond,kGreen+3,kDotted,-1,kNone);
 
-    tdrDraw(htpr,"HISTP",kOpenDiamond,kBlue+1,kDotted,-1,kNone);
-    tdrDraw(hppr,"HISTP",kOpenDiamond,kRed+1,kDotted,-1,kNone);
-    tdrDraw(hapr,"HISTP",kOpenDiamond,kGreen+3,kDotted,-1,kNone);
+    //tdrDraw(htpr,"HISTP",kOpenDiamond,kBlue+1,kDotted,-1,kNone);
+    //tdrDraw(hppr,"HISTP",kOpenDiamond,kRed+1,kDotted,-1,kNone);
+    //tdrDraw(hapr,"HISTP",kOpenDiamond,kGreen+3,kDotted,-1,kNone);
     
     TH1D *har = (TH1D*)ha->Clone(Form("har%s_%d",co,ieta));
     TH1D *htr = (TH1D*)ht->Clone(Form("htr%s_%d",co,ieta));
@@ -515,18 +540,19 @@ void DijetHistosOverlayPtBins(string obs) {
       leg->AddEntry(hpr,"PtProbe","PLE");
     }
     if (ieta==1 || ieta%6==5) {
-      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      //TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      TLegend *leg = tdrLeg(0.55,0.90-1*0.075,0.85,0.90);
       leg->SetTextSize(0.045*1.5);
       leg->AddEntry(har,"MadGraph","PLE");
-      leg->AddEntry(hapr,"Pythia8","PL");
+      //leg->AddEntry(hapr,"Pythia8","PL");
     }
   } // for ieta
 
-  c1->SaveAs(Form("pdf/DijetHistosOverlayPtBins_%s_%s.pdf","2016GH",co));
-  c2->SaveAs(Form("pdf/DijetHistosOverlayPtBins_%s_%s_ratio.pdf","2016GH",co));
+  c1->SaveAs(Form("pdf/DijetHistosOverlayPtBins_%s_%s.pdf",cera,co));
+  c2->SaveAs(Form("pdf/DijetHistosOverlayPtBins_%s_%s_ratio.pdf",cera,co));
 } // DijetHistosOverLayPtBins
 
-void DijetHistosOverlayJER() {
+void DijetHistosOverlayJER(string fdt, string fmc, string era) {
 
   setTDRStyle();
   TDirectory *curdir = gDirectory;
@@ -536,14 +562,17 @@ void DijetHistosOverlayJER() {
   TLine *l = new TLine();
 
   const char *co = "";
+  const char *cera = era.c_str();
   
   TFile *f1(0), *f1m(0), *f1p(0);
-  f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  //f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  f1 = new TFile(fdt.c_str(),"READ");
   assert(f1 && !f1->IsZombie());
-  f1m = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  //f1m = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  f1m = new TFile(fmc.c_str(),"READ");
   assert(f1m && !f1m->IsZombie());  
-  f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
-  assert(f1p && !f1p->IsZombie());
+  //f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
+  //assert(f1p && !f1p->IsZombie());
 
   curdir->cd();
 
@@ -554,11 +583,11 @@ void DijetHistosOverlayJER() {
   //h1jer13p = (TH1D*)f1p->Get("Dijet2/h1jer"); assert(h1jer13p);
   h2jer = (TH2D*)f1->Get("Dijet2/h2jer"); assert(h2jer);
   h2jerm = (TH2D*)f1m->Get("Dijet2/h2jer"); assert(h2jerm);
-  h2jerp = (TH2D*)f1p->Get("Dijet2/h2jer"); assert(h2jerp);
+  //h2jerp = (TH2D*)f1p->Get("Dijet2/h2jer"); assert(h2jerp);
   TH2D *h2n(0), *h2nm(0), *h2np(0);
   h2n = (TH2D*)f1->Get("Dijet2/h2n"); assert(h2n);
   h2nm = (TH2D*)f1m->Get("Dijet2/h2n"); assert(h2nm);
-  h2np = (TH2D*)f1p->Get("Dijet2/h2n"); assert(h2np);
+  //h2np = (TH2D*)f1p->Get("Dijet2/h2n"); assert(h2np);
 
   
   TCanvas *c1 = new TCanvas(Form("c1%s",co),Form("c1%s",co),1200,600);
@@ -577,27 +606,45 @@ void DijetHistosOverlayJER() {
   TH2D *h2jerf = new TH2D("h2jerf",";#eta;JER",nx,&vx[0],ny,vy);
   TH2D *h2jersf = new TH2D("h2jersf",";#eta;JER SF",nx,&vx[0],ny,vy);
   
+  const int neta = h2jer->GetNbinsX();
+  vector<JER> vjer(neta);
+
   for (int ieta = 1; ieta != h2jer->GetNbinsX()+1; ++ieta) {
     
     c1->cd(ieta);
     gPad->SetLogx();
 
-    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.,0.5);
+    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.,0.3);//0.5);
     h->Draw();
 
+    // Add fits on top
+    double etamin = h2jer->GetXaxis()->GetBinLowEdge(ieta);
+    double etamax = h2jer->GetXaxis()->GetBinLowEdge(ieta+1);
+    //double fitptmax2 = min(2000.,0.7*6500./cosh(etamin));
+    //double fitptmax2 = min(1784.,0.7*6500./cosh(etamin));
+    double fitptmax2 = min(1784.,0.55*6500./cosh(etamin));
+    int jmax2 = h2jer->GetYaxis()->FindBin(fitptmax2);
+    fitptmax2 = h2jer->GetYaxis()->GetBinLowEdge(jmax2);
+    //double fitptmax1 = 0.5*6500./cosh(etamin);
+    double fitptmax1 = max(132.,0.45*6500./cosh(etamin));
+    int jmax1 = h2jer->GetYaxis()->FindBin(fitptmax1);
+    fitptmax1 = h2jer->GetYaxis()->GetBinLowEdge(jmax1);
+    double fitptmax =  (fabs(etamin)>=2.9 ? fitptmax1 : fitptmax2);
+    //int jmax = h2jerf->GetYaxis()->FindBin(fitptmax);
+    //fitptmax = h2jerf->GetYaxis()->GetBinLowEdge(jmax);
+
     l->SetLineStyle(kDotted);
-    l->SetLineStyle(kGray+1);
+    //l->SetLineStyle(kGray+1);
     double ymin = h->GetMaximum();
     double ymax = h->GetMinimum();
     l->DrawLine(59,ymin,59,ymax);
-    double etamin = h2jer->GetXaxis()->GetBinLowEdge(ieta);
-    double etamax = h2jer->GetXaxis()->GetBinLowEdge(ieta+1);
-    double ptmax = 0.5*6500/cosh(etamin);
+    double ptmax = fitptmax;
+    double ptmax1 = fitptmax1;//0.5*6500/cosh(etamin);
+    //l->DrawLine(ptmax1,ymin,ptmax1,ymax);
     l->DrawLine(ptmax,ymin,ptmax,ymax);
-
-    l->SetLineStyle(kDotted);
-    l->SetLineStyle(kGray);
-    double ptmax2 = 0.7*6500/cosh(etamin);
+    //l->SetLineStyle(kDotted);
+    //l->SetLineStyle(kGray);
+    double ptmax2 = fitptmax2;//0.7*6500/cosh(etamin);
     l->DrawLine(ptmax2,ymin,ptmax2,ymax);
 
     l->SetLineStyle(kSolid);
@@ -606,28 +653,26 @@ void DijetHistosOverlayJER() {
     
     TH1D *h1jer = h2jer->ProjectionY(Form("h1jer%s_%d",co,ieta),ieta,ieta);
     TH1D *h1jerm = h2jerm->ProjectionY(Form("h1jerm%s_%d",co,ieta),ieta,ieta);
-    TH1D *h1jerp = h2jerp->ProjectionY(Form("h1jerp%s_%d",co,ieta),ieta,ieta);
+    //TH1D *h1jerp = h2jerp->ProjectionY(Form("h1jerp%s_%d",co,ieta),ieta,ieta);
 
     h1jer->SetMarkerSize(0.7);
+    h1jerm->SetMarkerSize(0.7);
     
-    tdrDraw(h1jerp,"HIST",kNone,kBlue,kSolid,-1,kNone);
-    tdrDraw(h1jerm,"HEPz",kOpenCircle,kBlue,kSolid,-1,kNone);
+    //tdrDraw(h1jerp,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jerm,"Pz",kOpenCircle,kBlue,kSolid,-1,kNone);
     tdrDraw(h1jer,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
     
     tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
 
     if (ieta==1 || ieta%6==0) {
-      TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      //TLegend *leg = tdrLeg(0.55,0.90-3*0.075,0.85,0.90);
+      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
       leg->SetTextSize(0.045*1.5);
       leg->AddEntry(h1jer,"Data","PLE");
       leg->AddEntry(h1jerm,"MadGraph","PLE");
-      leg->AddEntry(h1jerp,"Pythia8","PLE");
+      //leg->AddEntry(h1jerp,"Pythia8","PLE");
     }
 
-    // Add fits on top
-    double fitptmax = min(2000.,0.7*6500./cosh(etamin));
-    if (fabs(etamin)>=2.9)
-      fitptmax = 0.5*6500./cosh(etamin);
     /*
     // v1 without separating out PU and "UE" noise
     TF1 *fjer = new TF1(Form("fjer%d",ieta),
@@ -690,18 +735,18 @@ void DijetHistosOverlayJER() {
 			"sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
 			"[1]*[1]*pow(x,[3])+[2]*[2])",
 			fitptmin,fitptmax);
-    TF1 *fjer2 = new TF1(Form("fjer2%d",ieta),
-			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
-			 "[1]*[1]*pow(x,[3])+[2]*[2])",
-			 fitptmin,fitptmax);
+    //TF1 *fjer2 = new TF1(Form("fjer2%d",ieta),
+    //			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+    //			 "[1]*[1]*pow(x,[3])+[2]*[2])",
+    //			 fitptmin,fitptmax);
     TF1 *fjerm = new TF1(Form("fjerm%d",ieta),
 			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
 			 "[1]*[1]*pow(x,[3])+[2]*[2])",
 			 fitptmin,fitptmax);
-    TF1 *fjerp = new TF1(Form("fjerp%d",ieta),
-			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
-			 "[1]*[1]*pow(x,[3])+[2]*[2])",
-			 fitptmin,fitptmax);
+    //TF1 *fjerp = new TF1(Form("fjerp%d",ieta),
+    //			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+    //			 "[1]*[1]*pow(x,[3])+[2]*[2])",
+    //			 fitptmin,fitptmax);
     
 
     double ptrcm = h2nm->GetYaxis()->GetBinCenter(1);
@@ -725,58 +770,61 @@ void DijetHistosOverlayJER() {
     double rcdt = h2n->GetBinContent(ieta, 1) * ptrc;
     fjer->SetParameters(fjerm->GetParameter(0),fjerm->GetParameter(1),
 			fjerm->GetParameter(2),fjerm->GetParameter(3),
-			rcdt);
+			max(rcdt,rcm));
     fjer->FixParameter(0,fjerm->GetParameter(0));
     fjer->SetParLimits(1,fjerm->GetParameter(1),1.5);
     fjer->SetParLimits(2,fjerm->GetParameter(2),0.25);
     fjer->SetParLimits(3,fjerm->GetParameter(3),-0.75);
-    fjer->FixParameter(4,rcdt);
+    fjer->FixParameter(4,max(rcdt,rcm));
     if (fabs(etamin)>2.6) {
       //fjer->FixParameter(0,0.);
       //fjer->FixParameter(3,-1);
       fjer->FixParameter(3,fjerm->GetParameter(3));
-    }    
+    }
+    if (fabs(etamin)>3.4) {
+      fjer->FixParameter(2, fjerm->GetParameter(2));
+    }
     h1jer->Fit(fjer,"QRN");
     fjer->SetRange(15,3500);
 
     // Repeat for Pythia
-    fjerp->SetParameters(0,1,0.04,-1,rcm);
-    //if (!fixN0to0) fjerp->SetParLimits(0,-5,0);
-    if (!fixN0to0) fjerp->SetParLimits(0,-2,+2);
-    if (fixN0to0)  fjerp->FixParameter(0,0);
-    fjerp->SetParLimits(1,0.5,1.5);
-    fjerp->SetParLimits(2,0.02,0.25);
-    fjerp->SetParLimits(3,-1.25,-0.75);
-    fjerp->FixParameter(4,rcm);
-    if (fabs(etamin)>2.6) {
-      fjerp->FixParameter(0,0.);
-      fjerp->FixParameter(3,-1);
-    }    
-    h1jerp->Fit(fjerp,"QRN");
-    fjerp->SetRange(15,3500);
+    //fjerp->SetParameters(0,1,0.04,-1,rcm);
+    // //if (!fixN0to0) fjerp->SetParLimits(0,-5,0);
+    //if (!fixN0to0) fjerp->SetParLimits(0,-2,+2);
+    //if (fixN0to0)  fjerp->FixParameter(0,0);
+    //fjerp->SetParLimits(1,0.5,1.5);
+    //fjerp->SetParLimits(2,0.02,0.25);
+    //fjerp->SetParLimits(3,-1.25,-0.75);
+    //fjerp->FixParameter(4,rcm);
+    //if (fabs(etamin)>2.6) {
+    //fjerp->FixParameter(0,0.);
+    //fjerp->FixParameter(3,-1);
+    //}    
+    //h1jerp->Fit(fjerp,"QRN");
+    //fjerp->SetRange(15,3500);
     //
-    fjer2->SetParameters(fjerp->GetParameter(0),fjerp->GetParameter(1),
-			 fjerp->GetParameter(2),fjerp->GetParameter(3),
-			 rcdt);
-    fjer2->FixParameter(0,fjerp->GetParameter(0));
-    fjer2->SetParLimits(1,fjerp->GetParameter(1),1.5);
-    fjer2->SetParLimits(2,fjerp->GetParameter(2),0.25);
-    fjer2->SetParLimits(3,fjerp->GetParameter(3),-0.75);
-    fjer2->FixParameter(4,rcdt);
-    if (fabs(etamin)>2.6) {
-      //fjer2->FixParameter(0,0.);
-      //fjer2->FixParameter(3,-1);
-      fjer2->FixParameter(3,fjerp->GetParameter(3));
-    }    
-    h1jer->Fit(fjer2,"QRN");
-    fjer2->SetRange(15,3500);
+    //fjer2->SetParameters(fjerp->GetParameter(0),fjerp->GetParameter(1),
+    //			 fjerp->GetParameter(2),fjerp->GetParameter(3),
+    //			 rcdt);
+    //fjer2->FixParameter(0,fjerp->GetParameter(0));
+    //fjer2->SetParLimits(1,fjerp->GetParameter(1),1.5);
+    //fjer2->SetParLimits(2,fjerp->GetParameter(2),0.25);
+    //fjer2->SetParLimits(3,fjerp->GetParameter(3),-0.75);
+    //fjer2->FixParameter(4,rcdt);
+    //if (fabs(etamin)>2.6) {
+    // //fjer2->FixParameter(0,0.);
+    // //fjer2->FixParameter(3,-1);
+    //fjer2->FixParameter(3,fjerp->GetParameter(3));
+    //}    
+    //h1jer->Fit(fjer2,"QRN");
+    //fjer2->SetRange(15,3500);
     
-    fjerp->SetLineColor(kBlue-9);
-    fjerp->Draw("SAME");
+    //fjerp->SetLineColor(kBlue-9);
+    //fjerp->Draw("SAME");
     fjerm->SetLineColor(kBlue);
     fjerm->Draw("SAME");
-    fjer2->SetLineColor(kGreen-9);
-    fjer2->Draw("SAME");
+    //fjer2->SetLineColor(kGreen-9);
+    //fjer2->Draw("SAME");
     fjer->SetLineColor(kGreen+2);
     fjer->Draw("SAME");
     
@@ -786,48 +834,50 @@ void DijetHistosOverlayJER() {
     TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.8,2.0);
     h2->Draw();
 
-    double ymin2 = h2->GetMaximum();
-    double ymax2 = h2->GetMinimum();
+    double ymin2 = h2->GetMinimum();
+    double ymax2 = h2->GetMaximum()-0.25;
     l->SetLineStyle(kDotted);
-    l->SetLineStyle(kGray+1);
+    l->SetLineColor(kBlack);
+    //l->SetLineStyle(kGray+1);
     l->DrawLine(59,ymin2,59,ymax2);
     l->DrawLine(ptmax,ymin2,ptmax,ymax2);
-    l->SetLineStyle(kGray);
+    //l->SetLineStyle(kGray);
     l->DrawLine(ptmax2,ymin2,ptmax2,ymax2);
     l->SetLineStyle(kSolid);
-    l->SetLineColor(kBlack);
+    //l->SetLineColor(kBlack);
     l->DrawLine(15,1,3500,1);
 
     TH1D *h1jerr = (TH1D*)h1jer->Clone(Form("h1jerr%s_%d",co,ieta));
-    TH1D *h1jerpr = (TH1D*)h1jer->Clone(Form("h1jerpr%s_%d",co,ieta));
+    //TH1D *h1jerpr = (TH1D*)h1jer->Clone(Form("h1jerpr%s_%d",co,ieta));
 
     h1jerr->Divide(h1jerm);
-    h1jerpr->Divide(h1jerp);
+    //h1jerpr->Divide(h1jerp);
 
     h1jerr->GetXaxis()->SetRangeUser(59,fitptmax);
-    h1jerpr->GetXaxis()->SetRangeUser(59,fitptmax);
+    //h1jerpr->GetXaxis()->SetRangeUser(59,fitptmax);
     //h1jerr->GetXaxis()->SetRangeUser(59,ptmax2);
     //h1jerpr->GetXaxis()->SetRangeUser(59,ptmax2);
     //h1jerr->GetXaxis()->SetRangeUser(fitptmin,fitptmax);
     //h1jerpr->GetXaxis()->SetRangeUser(fitptmin,fitptmax);
 
-    h1jerpr->SetMarkerSize(0.7);
+    //h1jerpr->SetMarkerSize(0.7);
     h1jerr->SetMarkerSize(0.7);
     
     // HISTP loses the histograms, so drwa HIST once at the back first
-    tdrDraw(h1jerpr,"HIST",kNone,kBlue,kSolid,-1,kNone);
-    tdrDraw(h1jerr,"HEPz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    //tdrDraw(h1jerpr,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    //tdrDraw(h1jerr,"HEPz",kFullCircle,kGreen+2,kSolid,-1,kNone);
 
-    tdrDraw(h1jerpr,"HIST",kNone,kBlue,kSolid,-1,kNone);
-    tdrDraw(h1jerr,"HEPz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    //tdrDraw(h1jerpr,"HIST",kNone,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jerr,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
 
     tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
 
     if (ieta==1 || ieta%6==0) {
-      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      //TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      TLegend *leg = tdrLeg(0.55,0.90-1*0.075,0.85,0.90);
       leg->SetTextSize(0.045*1.5);
       leg->AddEntry(h1jerr,"MadGraph","PLE");
-      leg->AddEntry(h1jerpr,"Pythia8","PL");
+      //leg->AddEntry(h1jerpr,"Pythia8","PL");
     }
 
     /*
@@ -855,20 +905,20 @@ void DijetHistosOverlayJER() {
     fjerr->Draw("SAME");
     */
 
-    TF1 *fjerpr= new TF1(Form("fjerpr%d",ieta),
-			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
-			 "[1]*[1]*pow(x,[3])+[2]*[2])/"
-			 "sqrt([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
-			 "[6]*[6]*pow(x,[8])+[7]*[7])",
-			 15,3500);
-    fjerpr->SetParameters(fjer2->GetParameter(0),fjer2->GetParameter(1),
-			  fjer2->GetParameter(2),fjer2->GetParameter(3),
-			  fjer2->GetParameter(4),
-			  fjerp->GetParameter(0),fjerp->GetParameter(1),
-			  fjerp->GetParameter(2),fjerp->GetParameter(3),
-			  fjerp->GetParameter(4));
-    fjerpr->SetLineColor(kBlue);
-    fjerpr->Draw("SAME");
+    //TF1 *fjerpr= new TF1(Form("fjerpr%d",ieta),
+    //			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+    //			 "[1]*[1]*pow(x,[3])+[2]*[2])/"
+    //			 "sqrt([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
+    //			 "[6]*[6]*pow(x,[8])+[7]*[7])",
+    //			 15,3500);
+    //fjerpr->SetParameters(fjer2->GetParameter(0),fjer2->GetParameter(1),
+    //			  fjer2->GetParameter(2),fjer2->GetParameter(3),
+    //			  fjer2->GetParameter(4),
+    //			  fjerp->GetParameter(0),fjerp->GetParameter(1),
+    //			  fjerp->GetParameter(2),fjerp->GetParameter(3),
+    //			  fjerp->GetParameter(4));
+    //fjerpr->SetLineColor(kBlue);
+    //fjerpr->Draw("SAME");
 
     TF1 *fjerr = new TF1(Form("fjerr%d",ieta),
 			 "sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
@@ -882,7 +932,7 @@ void DijetHistosOverlayJER() {
 			 fjerm->GetParameter(0),fjerm->GetParameter(1),
 			 fjerm->GetParameter(2),fjerm->GetParameter(3),
 			 fjerm->GetParameter(4));
-    fjerr->SetLineColor(kGreen+2);
+    fjerr->SetLineColor(kBlack);//kGreen+2);
     fjerr->SetLineWidth(2);
     fjerr->Draw("SAME");
     
@@ -901,28 +951,56 @@ void DijetHistosOverlayJER() {
       //int ietam = h2jerf->FindBin(-h2jerf->GetBinCenter(ieta));
       //h2jerf->SetBinContent(ietam, ipt, fjer->Eval(pt));
       //h2jersf->SetBinContent(ietam, ipt, fjerr->Eval(pt));
-    }
+    } // for ipt
+
+    // Copy results for text file
+    JER jer;
+    jer.eta = h2jerf->GetXaxis()->GetBinCenter(ieta);
+    jer.deta = 0.5*h2jerf->GetXaxis()->GetBinWidth(ieta);
+    //"sqrt([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])/"
+    //"sqrt([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+[6]*[6]*pow(x,[8])+[7]*[7])",
+    jer.n0_dt  = fjerr->GetParameter(0);
+    jer.s_dt   = fjerr->GetParameter(1);
+    jer.c_dt   = fjerr->GetParameter(2);
+    jer.d_dt   = fjerr->GetParameter(3);
+    jer.npu_dt = fjerr->GetParameter(4);
+    //
+    jer.n0_mc  = fjerr->GetParameter(5);
+    jer.s_mc   = fjerr->GetParameter(6);
+    jer.c_mc   = fjerr->GetParameter(7);
+    jer.d_mc   = fjerr->GetParameter(8);
+    jer.npu_mc = fjerr->GetParameter(9);
+    //
+    vjer[ieta-1] = jer;
   } // for ieta
 
-  c1->SaveAs(Form("pdf/DijetHistosOverlayJER_%s.pdf","2016GH"));
-  c2->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_ratio.pdf","2016GH"));
+  c1->SaveAs(Form("pdf/DijetHistosOverlayJER_%s.pdf",cera));
+  c2->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_ratio.pdf",cera));
 
   if (true) { // JER and JERSF vs eta
 
     int color[ny] = {kBlack, kMagenta+1, kBlue, kCyan+2, kGreen+2,
 		     kYellow+2, kOrange+1, kRed, kBlack};
       
-    TH1D *h = tdrHist("h","JER in data",0,0.55,"|#eta|",0.0,5.191);
-    TH1D *hd = tdrHist("hd","Scale factor",0.9,1.6,"|#eta|",0.0,5.191);
-    lumi_13TeV = "RunGH, 16.8 fb^{-1}";
+    TH1D *h = tdrHist("h","JER in data",0,0.60,"|#eta|",0.0,5.191);
+    TH1D *hd = tdrHist("hd","Scale factor",0.95,1.75,"|#eta|",0.0,5.191);
+
+    TString tera = era.c_str();
+    if (tera.Contains("UL2016APV")) lumi_13TeV = "2016early, 19.7 fb^{-1}";
+    if (tera.Contains("UL2016BCDEF")) lumi_13TeV = "2016BCDEF, 19.7 fb^{-1}";
+    if (tera.Contains("UL2016GH")) lumi_13TeV = "2016late, 16.8 fb^{-1}";
+    if (tera.Contains("UL2017")) lumi_13TeV = "2017, 41.5 fb^{-1}";
+    if (tera.Contains("UL2018")) lumi_13TeV = "2018, 59.9 fb^{-1}";
+    if (tera.Contains("Run2")) lumi_13TeV = "Run2, 137.9 fb^{-1}";
+
     TCanvas *c3 = tdrDiCanvas("c3",h,hd,4,11);
 
     c3->cd(1);
 
     l->SetLineStyle(kDotted);
-    l->DrawLine(1.3,0,1.3,0.35);
-    l->DrawLine(2.5,0,2.5,0.40);
-    l->DrawLine(3.139,0,3.139,0.50);
+    l->DrawLine(1.3,0,1.3,0.45);
+    l->DrawLine(2.5,0,2.5,0.50);
+    l->DrawLine(3.139,0,3.139,0.58);
     
     TLegend *leg = tdrLeg(0.70,0.89-ny*0.035,0.95,0.89);
     leg->SetTextSize(0.04);
@@ -940,17 +1018,66 @@ void DijetHistosOverlayJER() {
     l->SetLineStyle(kDashed);
     l->DrawLine(0,1,5.191,1);
     l->SetLineStyle(kDotted);
-    l->DrawLine(1.3,0.9,1.3,1.2);
-    l->DrawLine(2.5,0.9,2.5,1.45);
-    l->DrawLine(3.139,0.9,3.139,1.55);
+    l->DrawLine(1.3,0.95,1.3,1.55);
+    l->DrawLine(2.5,0.95,2.5,1.55);
+    l->DrawLine(3.139,0.95,3.139,1.55);
     
     for (int ipt = 1; ipt != h2jersf->GetNbinsY()+1; ++ipt) {
       TH1D *h1jersf = h2jersf->ProjectionX(Form("h1jersf_%d",ipt),ipt,ipt);
       tdrDraw(h1jersf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
     }
 
-    c3->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_JERvsEta.pdf","2016GH"));
+    c3->SaveAs(Form("pdf/DijetHistosOverlayJER_%s_JERvsEta.pdf",cera));
   } // JER+JERSF
+
+  if (true) {
+
+    // Produce output text file (FactorizedJetCorrecter Style
+    ofstream txt(Form("pdf/jerSF/Summer20%s_JRV3_MC_SF_AK4PFchs.txt",cera));
+    txt << "{1 JetEta 2 JetPt Rho "
+      // Z+jet original
+      //<< "sqrt(([0]*[0]*[3]*[3]*y/[6])/(x*x)+"
+      //<<       "[1]*[1]*[4]*[4]/x+[2]*[2]*[5]*[5])/"
+      //<< "sqrt(([0]*[0]*y/[6])/(x*x)+[1]*[1]/x+[2]*[2])"
+      // fjerr here
+      //<< "sqrt([0]*fabs([0])*(x*x)+[4]*[4]*y/[10]/(x*x)+"
+	<< "sqrt(max([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+	<< "[1]*[1]*pow(x,[3])+[2]*[2],0.))/"
+      //<< "sqrt([5]*fabs([5])/(x*x)+[9]*[9]*y/[10]/(x*x)+"
+	<< "sqrt(max([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
+	<< "[6]*[6]*pow(x,[8])+[7]*[7],0.))"
+	<< " Correction L2Relative}" << endl; // test: runs
+    //<< " Correction JERScaleFactor}" << endl; // test: fails
+
+    // Rho from HLT_PFJet500,550/Incjet/PFComposition/prho13->at(1000 GeV)
+    double rho = 19.59; // Run2
+    TString tera = era.c_str();
+    if (tera.Contains("UL2016APV")) rho = 14.06;
+    if (tera.Contains("UL2016BCDEF")) rho = 14.06;
+    if (tera.Contains("UL2016GH")) rho = 16.55;
+    if (tera.Contains("UL2017")) rho = 21.72;
+    if (tera.Contains("UL2018")) rho = 20.68;
+    if (tera.Contains("Run2")) rho = 19.59;
+
+    for (int i = neta-1; i != -1; --i) {
+      JER &jer = vjer[i];
+      txt << Form("%6.3f %6.3f %2d %2d %4d %2d %2d"
+		  " %6.2f %5.3f %6.4f %5.3f %4.2f"
+		  " %6.2f %5.3f %6.4f %5.3f %4.2f\n",//  %5.2f\n",
+		  -jer.eta-jer.deta, -jer.eta+jer.deta, 14, 8, 6500, 0, 120,
+		  jer.n0_dt, jer.s_dt, jer.c_dt, jer.d_dt, jer.npu_dt,
+		  jer.n0_mc, jer.s_mc, jer.c_mc, jer.d_mc, jer.npu_mc);//, rho);
+    } // for i in -neta
+    for (int i = 0; i != neta; ++i) {
+      JER &jer = vjer[i];
+      txt << Form("%6.3f %6.3f %2d %2d %4d %2d %2d"
+		  " %6.2f %5.3f %6.4f %5.3f %4.2f"
+		  " %6.2f %5.3f %6.4f %5.3f %4.2f\n",//  %5.2f\n",
+		  +jer.eta-jer.deta, +jer.eta+jer.deta, 14, 8, 6500, 0, 120,
+		  jer.n0_dt, jer.s_dt, jer.c_dt, jer.d_dt, jer.npu_dt,
+		  jer.n0_mc, jer.s_mc, jer.c_mc, jer.d_mc, jer.npu_mc);//, rho);
+    } // for i in +neta
+  } // produce text file
 			      
 } // DijetHistosOverLayJER
 

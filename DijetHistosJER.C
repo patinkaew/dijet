@@ -14,7 +14,7 @@ TH1D *getJERZ(TH2D *h2, TH2D *h2x, const char *c = "",
 	      TH1D **h1 = 0, TH1D **h1x = 0);
 
 void DijetHistosJERs(string file, string dir);
-void drawDijetHistosJER();
+void drawDijetHistosJER(string sd="",string sm="",string era="");
 void drawDijetHistosJERtest();
 
 // Process several directories in a uniform way
@@ -25,16 +25,48 @@ void DijetHistosJER() {
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","Dijet/JER");
   */
+  /*
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16mg.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v22ul16flatmc.root","Dijet2");
+  */
   /*
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v22ul16.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v23ul16mg.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_v23ul16flat.root","Dijet2");
   */
-  drawDijetHistosJER();
-  drawDijetHistosJERtest();
+  //drawDijetHistosJER();
+  //drawDijetHistosJERtest();
+
+  /*
+  DijetHistosJERs("haddfiles/jmenano_data_cmb_UL2016APV_v26.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root","Dijet2");
+  DijetHistosJERs("haddfiles/jmenano_data_cmb_UL2016GH_v26.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016MG_v26.root","Dijet2");
+  DijetHistosJERs("haddfiles/jmenano_data_cmb_UL2017_v26.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2017MG_v26.root","Dijet2");
+  DijetHistosJERs("haddfiles/jmenano_data_cmb_UL2018_v26.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2");
+
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2016APV_v26.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root",
+  		     "UL2016APV_v26");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2016GH_v26.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2016MG_v26.root",
+  		     "UL2016GH_v26");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
+  		     "UL2017_v26");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2018_v26.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2018MG_v26.root",
+  		     "UL2018_v26");
+  */
+
+  DijetHistosJERs("haddfiles/jmenano_data_cmb_Run2_v26.root","Dijet2");
+  DijetHistosJERs("haddfiles/jmenano_mc_cmb_Run2_v26.root","Dijet2");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_Run2_v26.root",
+  		     "haddfiles/jmenano_mc_cmb_Run2_v26.root",
+  		     "Run2_v26");
 }
 
 // Update cmb.root to add JER results
@@ -251,7 +283,7 @@ void DijetHistosJERs(string file, string dir) {
   h2mos->Write(h2mos->GetName(),TObject::kOverwrite);
   h2moxs->Write(h2moxs->GetName(),TObject::kOverwrite);
 
-  f->Write();
+  //f->Write()
   delete h2jer2;
   delete h2bal2;
   delete h2fsr2;
@@ -263,7 +295,25 @@ void DijetHistosJERs(string file, string dir) {
   if (true) { // adding RC noise
 
     // Only 2016 file for now, need to add others later
-    TFile *frc = new TFile("../JERCProtoLab/Summer20UL16/JER_noise/RC_noise_UL16nonAPV.root","READ");
+    TFile *frc(0);
+    if (s.Contains("UL2016BCDEF") || s.Contains("UL2016APV")) {
+      frc = new TFile("../JERCProtoLab/Summer20UL16APV/JER_noise/RC_noise_UL16APV.root","READ");
+    }
+    if (s.Contains("UL2016GH") || s.Contains("UL2016MG")) {
+      frc = new TFile("../JERCProtoLab/Summer20UL16/JER_noise/RC_noise_UL16nonAPV.root","READ");
+    }
+    if (s.Contains("UL2017")) {
+      frc = new TFile("../JERCProtoLab/Summer20UL17/JER_noise/RC_noise_UL17.root","READ");
+    }
+    if (s.Contains("UL2018")) {
+      frc = new TFile("../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
+    }
+    if (s.Contains("Run2")) {
+      // Use UL2018 until proper Run2 combo available
+      frc = new TFile("../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
+    }
+
+
     assert(frc && !frc->IsZombie());
     curdir->cd();
 
@@ -339,29 +389,38 @@ void DijetHistosJERs(string file, string dir) {
   h2jer->Write(h2jer->GetName(),TObject::kOverwrite);
   if (h2n) h2n->Write(h2n->GetName(),TObject::kOverwrite);
   
-  f->Write();
+  f->Write(nullptr,TObject::kOverwrite);
   curdir->cd();  
 
 } // DijetHistosJERs
 
 
-void drawDijetHistosJER() {
+void drawDijetHistosJER(string sd, string sm, string era) {
 
   setTDRStyle();
   TDirectory *curdir = gDirectory;
 
   //TFile *f = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
-  TFile *f = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  //TFile *f = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  TFile *f = new TFile(sd.c_str(),"READ");
   assert(f && !f->IsZombie());
 
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
-  TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
+  //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v22ul16mg.root","READ");
   //TFile *fm = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  TFile *fm = new TFile(sm.c_str(),"READ");
   assert(fm && !fm->IsZombie());
 
   curdir->cd();
 
-  lumi_13TeV = "2016GH, 16.8 fb^{-1}";
+  TString tera = era.c_str();
+  if (tera.Contains("UL2016APV")) lumi_13TeV = "2016early, 19.7 fb^{-1}";
+  if (tera.Contains("UL2016BCDEF")) lumi_13TeV = "2016BCDEF, 19.7 fb^{-1}";
+  if (tera.Contains("UL2016GH")) lumi_13TeV = "2016late, 16.8 fb^{-1}";
+  if (tera.Contains("UL2017")) lumi_13TeV = "2017, 41.5 fb^{-1}";
+  if (tera.Contains("UL2018")) lumi_13TeV = "2018, 59.9 fb^{-1}";
+  if (tera.Contains("Run2")) lumi_13TeV = "2018, 137.9 fb^{-1}";
+
   const char *c = "_Dijet2";
   TCanvas *c1 = new TCanvas(Form("c1%s",c),Form("c1%s",c),1200,600);
   c1->Divide(6,3,0,0);
@@ -457,7 +516,7 @@ void drawDijetHistosJER() {
     c2->cd(min(i,18));
     gPad->SetLogx();
     
-    TH1D *h2 = tdrHist(Form("h2%d%s",i,c),"Data/MC",0.5,2.0);
+    TH1D *h2 = tdrHist(Form("h2%d%s",i,c),"Data/MC",0.8,2.0);////0.5,2.0);
     tdrDraw(h2,"",kNone);
     l->DrawLine(15,1,3500,1);
 
@@ -538,8 +597,8 @@ void drawDijetHistosJER() {
     }
   } // for i
 
-  c1->SaveAs("pdf/DijetHistosJER_JERMC.pdf");
-  c2->SaveAs("pdf/DijetHistosJER_JERSF.pdf");
+  c1->SaveAs(Form("pdf/DijetHistosJER_JERMC_%s.pdf",era.c_str()));
+  c2->SaveAs(Form("pdf/DijetHistosJER_JERSF_%s.pdf",era.c_str()));
 } // drawDijetHistosJER
 
 void drawDijetHistosJERtest() {
@@ -835,7 +894,7 @@ void drawDijetHistosJERtest() {
       double sc = h1jer->GetBinContent(i);
       double esc = h1jer->GetBinError(i);
       double jern = sqrt(n*n + sc*sc);
-      double ejern = sc * esc / jern; // en=0
+      double ejern = (jern ? sc * esc / jern : 0); // en=0
       h1n->SetBinContent(i, n); 
       h1jern->SetBinContent(i, jern);
       h1jern->SetBinError(i, ejern);
@@ -844,7 +903,7 @@ void drawDijetHistosJERtest() {
       double scm = h1jerm->GetBinContent(i);
       double escm = h1jerm->GetBinError(i);
       double jernm = sqrt(nm*nm + scm*scm);
-      double ejernm = scm * escm / jernm; // enm=0
+      double ejernm = (jernm ? scm * escm / jernm : 0); // enm=0
       h1nm->SetBinContent(i, nm); 
       h1jernm->SetBinContent(i, jernm);
       h1jernm->SetBinError(i, ejernm);
@@ -1068,6 +1127,7 @@ void drawDijetHistosJERtest() {
     tdrDraw(h1jerzr,"PE",kFullStar,kBlack);
 
     c1->SaveAs("pdf/DijetHistosJER_JER13_DijetAndZJet.pdf");
+    c1->SaveAs("pdf/DijetHistosJER_JER13_DijetAndZJet.root");
 
 
     TH1D *hz = tdrHist("hz","RMS",0,0.35);//0.8);
