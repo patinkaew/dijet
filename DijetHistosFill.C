@@ -277,7 +277,7 @@ void DijetHistosFill::Loop()
 
    //if (debug) 
    cout << "Setting branch status for "
-	<< (isMC ? (isMG ? "MC (MG)" : "MC (Flat)") : "DATA") 
+	<< (isMC ? (isMG ? "MC (MG)" : "MC (Flat)") : (isZB ? "DATA (ZB)" : "DATA"))
 	<< (isRun2 ? " and Run2 (" : " and Run3 (") << isRun2 << ")"
 	<< endl << flush;
    
@@ -315,7 +315,7 @@ void DijetHistosFill::Loop()
    // Listing of available triggers
    vector<string> vtrg;
 
-   vtrg.push_back("HLT_ZeroBias");
+   vtrg.push_back("HLT_ZeroBias"); // biased for JetHT, but keep as placeholder
    
    vtrg.push_back("HLT_PFJet40");
    vtrg.push_back("HLT_PFJet60");
@@ -367,6 +367,10 @@ void DijetHistosFill::Loop()
    if (doMCtrigOnly && isMC) {
      vtrg.clear();
      vtrg.push_back("HLT_MC");
+   }
+   if (isZB && !isMC) {
+     vtrg.clear(); // no jet triggers from ZeroBias PD
+     vtrg.push_back("HLT_ZeroBias");
    }
 
    int ntrg = vtrg.size();
@@ -535,31 +539,31 @@ void DijetHistosFill::Loop()
      jerpath = "JRDatabase/textFiles/Summer19UL17_JRV3_MC/Summer19UL17_JRV3_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer19UL17_JRV3_MC/Summer19UL17_JRV3_MC_SF_AK4PFchs.txt";
    }
-   if (dataset=="UL2017B") {
+   if (dataset=="UL2017B" || dataset=="UL2017B_ZB") {
      jec = getFJC("Summer19UL17_RunB_V6_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL17_RunB_V6_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL17_RunB_V6_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL17_RunB_V6_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2017C") {
+   if (dataset=="UL2017C" || dataset=="UL2017C_ZB") {
      jec = getFJC("Summer19UL17_RunC_V6_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL17_RunC_V6_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL17_RunC_V6_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL17_RunC_V6_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2017D") {
+   if (dataset=="UL2017D" || dataset=="UL2017D_ZB") {
      jec = getFJC("Summer19UL17_RunD_V6_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL17_RunD_V6_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL17_RunD_V6_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL17_RunD_V6_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2017E") {
+   if (dataset=="UL2017E" || dataset=="UL2017E_ZB") {
      jec = getFJC("Summer19UL17_RunE_V6_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL17_RunE_V6_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL17_RunE_V6_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL17_RunE_V6_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2017F") {
+   if (dataset=="UL2017F" || dataset=="UL2017F_ZB") {
      jec = getFJC("Summer19UL17_RunF_V6_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL17_RunF_V6_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL17_RunF_V6_DATA_L2L3Residual_AK4PFchs");

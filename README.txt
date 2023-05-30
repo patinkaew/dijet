@@ -18,6 +18,8 @@ How to RUN on Hefaistos:
    => code TStopWatch to ignore this startup time, or skip GetEntries
 
 - rsync -rutP files from Hefaistos
+- root -l -b -q DijetHistosCombine.C+g
+- root -l -b -q DijetHistosJER.C+g
 
 To-do:
 - add trigger turn-on folder
@@ -41,6 +43,9 @@ Bugs:
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
 
+// v27: Filter out corrupt files from 2018D2 and 2018MG (log files >1MB). => To be done
+
+// v26(ZB): Add UL2017*_ZB eras for Zero Bias primary data set
 // v26: Fix division by zero bug for Jet_CF[i] that made MPF0 and MPFu corrupted. Add UL2017MG files.
 
 // v25: Improve handling of JER files. Default data set and versioning to "X" and "vX", set version in runAllIOVs.py". Split UL2018D to UL2018D1, UL2018D2 for more balanced running. Set nGenJetMax=100 (was 76 from 2016GH). Add debugFiles option to print out file names.

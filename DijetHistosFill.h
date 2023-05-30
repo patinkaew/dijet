@@ -34,6 +34,7 @@ public :
 
    int             isMC;     // data=0, PythiaPtFlat=1, MadGraphHT=2
    bool            isMG;     // isMC==2
+   bool            isZB;
    int             isRun2;   // 2016apv=1, 2016gh=2, 2017=3, 2018=4
    string          dataset;
    string          version;
@@ -3802,6 +3803,7 @@ DijetHistosFill::DijetHistosFill(TTree *tree, int itype, string datasetname, str
 	       (TString(datasetname.c_str()).Contains("UL2016EF") ? 1 :
 		(TString(datasetname.c_str()).Contains("UL2016") ? 2 :
 		 0))))));
+  isZB = (TString(datasetname.c_str()).Contains("_ZB"));
   isMG = (isMC==2);
   
 // if parameter tree is not specified (or zero), connect the file
@@ -5643,81 +5645,85 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_DiPFJet15_FBEta3_NoCaloMatched", &HLT_DiPFJet15_FBEta3_NoCaloMatched, &b_HLT_DiPFJet15_FBEta3_NoCaloMatched);
    fChain->SetBranchAddress("HLT_DiPFJet25_FBEta3_NoCaloMatched", &HLT_DiPFJet25_FBEta3_NoCaloMatched, &b_HLT_DiPFJet25_FBEta3_NoCaloMatched);
    */
-   fChain->SetBranchAddress("HLT_DiPFJetAve40", &HLT_DiPFJetAve40, &b_HLT_DiPFJetAve40);
-   fChain->SetBranchAddress("HLT_DiPFJetAve60", &HLT_DiPFJetAve60, &b_HLT_DiPFJetAve60);
-   fChain->SetBranchAddress("HLT_DiPFJetAve80", &HLT_DiPFJetAve80, &b_HLT_DiPFJetAve80);
-   fChain->SetBranchAddress("HLT_DiPFJetAve140", &HLT_DiPFJetAve140, &b_HLT_DiPFJetAve140);
-   fChain->SetBranchAddress("HLT_DiPFJetAve200", &HLT_DiPFJetAve200, &b_HLT_DiPFJetAve200);
-   fChain->SetBranchAddress("HLT_DiPFJetAve260", &HLT_DiPFJetAve260, &b_HLT_DiPFJetAve260);
-   fChain->SetBranchAddress("HLT_DiPFJetAve320", &HLT_DiPFJetAve320, &b_HLT_DiPFJetAve320);
-   fChain->SetBranchAddress("HLT_DiPFJetAve400", &HLT_DiPFJetAve400, &b_HLT_DiPFJetAve400);
-   fChain->SetBranchAddress("HLT_DiPFJetAve500", &HLT_DiPFJetAve500, &b_HLT_DiPFJetAve500);
+   if (!isZB) {
+     fChain->SetBranchAddress("HLT_DiPFJetAve40", &HLT_DiPFJetAve40, &b_HLT_DiPFJetAve40);
+     fChain->SetBranchAddress("HLT_DiPFJetAve60", &HLT_DiPFJetAve60, &b_HLT_DiPFJetAve60);
+     fChain->SetBranchAddress("HLT_DiPFJetAve80", &HLT_DiPFJetAve80, &b_HLT_DiPFJetAve80);
+     fChain->SetBranchAddress("HLT_DiPFJetAve140", &HLT_DiPFJetAve140, &b_HLT_DiPFJetAve140);
+     fChain->SetBranchAddress("HLT_DiPFJetAve200", &HLT_DiPFJetAve200, &b_HLT_DiPFJetAve200);
+     fChain->SetBranchAddress("HLT_DiPFJetAve260", &HLT_DiPFJetAve260, &b_HLT_DiPFJetAve260);
+     fChain->SetBranchAddress("HLT_DiPFJetAve320", &HLT_DiPFJetAve320, &b_HLT_DiPFJetAve320);
+     fChain->SetBranchAddress("HLT_DiPFJetAve400", &HLT_DiPFJetAve400, &b_HLT_DiPFJetAve400);
+     fChain->SetBranchAddress("HLT_DiPFJetAve500", &HLT_DiPFJetAve500, &b_HLT_DiPFJetAve500);
+   }
    /*
    fChain->SetBranchAddress("HLT_DiPFJetAve15_HFJEC", &HLT_DiPFJetAve15_HFJEC, &b_HLT_DiPFJetAve15_HFJEC);
    fChain->SetBranchAddress("HLT_DiPFJetAve25_HFJEC", &HLT_DiPFJetAve25_HFJEC, &b_HLT_DiPFJetAve25_HFJEC);
    fChain->SetBranchAddress("HLT_DiPFJetAve35_HFJEC", &HLT_DiPFJetAve35_HFJEC, &b_HLT_DiPFJetAve35_HFJEC);
    */
    //if (dataset!="UL2017B") {
-   fChain->SetBranchAddress("HLT_DiPFJetAve60_HFJEC", &HLT_DiPFJetAve60_HFJEC, &b_HLT_DiPFJetAve60_HFJEC);
-   fChain->SetBranchAddress("HLT_DiPFJetAve80_HFJEC", &HLT_DiPFJetAve80_HFJEC, &b_HLT_DiPFJetAve80_HFJEC);
-   fChain->SetBranchAddress("HLT_DiPFJetAve100_HFJEC", &HLT_DiPFJetAve100_HFJEC, &b_HLT_DiPFJetAve100_HFJEC);
-   fChain->SetBranchAddress("HLT_DiPFJetAve160_HFJEC", &HLT_DiPFJetAve160_HFJEC, &b_HLT_DiPFJetAve160_HFJEC);
-   fChain->SetBranchAddress("HLT_DiPFJetAve220_HFJEC", &HLT_DiPFJetAve220_HFJEC, &b_HLT_DiPFJetAve220_HFJEC);
-   fChain->SetBranchAddress("HLT_DiPFJetAve300_HFJEC", &HLT_DiPFJetAve300_HFJEC, &b_HLT_DiPFJetAve300_HFJEC);
-   //}
-   //fChain->SetBranchAddress("HLT_AK8PFJet15", &HLT_AK8PFJet15, &b_HLT_AK8PFJet15);
-   //fChain->SetBranchAddress("HLT_AK8PFJet25", &HLT_AK8PFJet25, &b_HLT_AK8PFJet25);
-   fChain->SetBranchAddress("HLT_AK8PFJet40", &HLT_AK8PFJet40, &b_HLT_AK8PFJet40);
-   fChain->SetBranchAddress("HLT_AK8PFJet60", &HLT_AK8PFJet60, &b_HLT_AK8PFJet60);
-   fChain->SetBranchAddress("HLT_AK8PFJet80", &HLT_AK8PFJet80, &b_HLT_AK8PFJet80);
-   fChain->SetBranchAddress("HLT_AK8PFJet140", &HLT_AK8PFJet140, &b_HLT_AK8PFJet140);
-   fChain->SetBranchAddress("HLT_AK8PFJet200", &HLT_AK8PFJet200, &b_HLT_AK8PFJet200);
-   fChain->SetBranchAddress("HLT_AK8PFJet260", &HLT_AK8PFJet260, &b_HLT_AK8PFJet260);
-   fChain->SetBranchAddress("HLT_AK8PFJet320", &HLT_AK8PFJet320, &b_HLT_AK8PFJet320);
-   fChain->SetBranchAddress("HLT_AK8PFJet400", &HLT_AK8PFJet400, &b_HLT_AK8PFJet400);
-   fChain->SetBranchAddress("HLT_AK8PFJet450", &HLT_AK8PFJet450, &b_HLT_AK8PFJet450);
-   fChain->SetBranchAddress("HLT_AK8PFJet500", &HLT_AK8PFJet500, &b_HLT_AK8PFJet500);
-   if (isRun2>2) 
-     fChain->SetBranchAddress("HLT_AK8PFJet550", &HLT_AK8PFJet550, &b_HLT_AK8PFJet550);
-   //fChain->SetBranchAddress("HLT_PFJet15", &HLT_PFJet15, &b_HLT_PFJet15);
-   //fChain->SetBranchAddress("HLT_PFJet25", &HLT_PFJet25, &b_HLT_PFJet25);
-   fChain->SetBranchAddress("HLT_PFJet40", &HLT_PFJet40, &b_HLT_PFJet40);
-   fChain->SetBranchAddress("HLT_PFJet60", &HLT_PFJet60, &b_HLT_PFJet60);
-   fChain->SetBranchAddress("HLT_PFJet80", &HLT_PFJet80, &b_HLT_PFJet80);
-   fChain->SetBranchAddress("HLT_PFJet140", &HLT_PFJet140, &b_HLT_PFJet140);
-   fChain->SetBranchAddress("HLT_PFJet200", &HLT_PFJet200, &b_HLT_PFJet200);
-   fChain->SetBranchAddress("HLT_PFJet260", &HLT_PFJet260, &b_HLT_PFJet260);
-   fChain->SetBranchAddress("HLT_PFJet320", &HLT_PFJet320, &b_HLT_PFJet320);
-   fChain->SetBranchAddress("HLT_PFJet400", &HLT_PFJet400, &b_HLT_PFJet400);
-   fChain->SetBranchAddress("HLT_PFJet450", &HLT_PFJet450, &b_HLT_PFJet450);
-   fChain->SetBranchAddress("HLT_PFJet500", &HLT_PFJet500, &b_HLT_PFJet500);
-   if (isRun2>2) {// && dataset!="UL2017B") {
-     fChain->SetBranchAddress("HLT_PFJet550", &HLT_PFJet550, &b_HLT_PFJet550);
-     //fChain->SetBranchAddress("HLT_PFJetFwd15", &HLT_PFJetFwd15, &b_HLT_PFJetFwd15);
-     //fChain->SetBranchAddress("HLT_PFJetFwd25", &HLT_PFJetFwd25, &b_HLT_PFJetFwd25);
-     fChain->SetBranchAddress("HLT_PFJetFwd40", &HLT_PFJetFwd40, &b_HLT_PFJetFwd40);
-     fChain->SetBranchAddress("HLT_PFJetFwd60", &HLT_PFJetFwd60, &b_HLT_PFJetFwd60);
-     fChain->SetBranchAddress("HLT_PFJetFwd80", &HLT_PFJetFwd80, &b_HLT_PFJetFwd80);
-     fChain->SetBranchAddress("HLT_PFJetFwd140", &HLT_PFJetFwd140, &b_HLT_PFJetFwd140);
-     fChain->SetBranchAddress("HLT_PFJetFwd200", &HLT_PFJetFwd200, &b_HLT_PFJetFwd200);
-     fChain->SetBranchAddress("HLT_PFJetFwd260", &HLT_PFJetFwd260, &b_HLT_PFJetFwd260);
-     fChain->SetBranchAddress("HLT_PFJetFwd320", &HLT_PFJetFwd320, &b_HLT_PFJetFwd320);
-     fChain->SetBranchAddress("HLT_PFJetFwd400", &HLT_PFJetFwd400, &b_HLT_PFJetFwd400);
-     fChain->SetBranchAddress("HLT_PFJetFwd450", &HLT_PFJetFwd450, &b_HLT_PFJetFwd450);
-     fChain->SetBranchAddress("HLT_PFJetFwd500", &HLT_PFJetFwd500, &b_HLT_PFJetFwd500);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd15", &HLT_AK8PFJetFwd15, &b_HLT_AK8PFJetFwd15);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd25", &HLT_AK8PFJetFwd25, &b_HLT_AK8PFJetFwd25);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd40", &HLT_AK8PFJetFwd40, &b_HLT_AK8PFJetFwd40);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd60", &HLT_AK8PFJetFwd60, &b_HLT_AK8PFJetFwd60);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd80", &HLT_AK8PFJetFwd80, &b_HLT_AK8PFJetFwd80);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd140", &HLT_AK8PFJetFwd140, &b_HLT_AK8PFJetFwd140);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd200", &HLT_AK8PFJetFwd200, &b_HLT_AK8PFJetFwd200);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd260", &HLT_AK8PFJetFwd260, &b_HLT_AK8PFJetFwd260);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd320", &HLT_AK8PFJetFwd320, &b_HLT_AK8PFJetFwd320);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd400", &HLT_AK8PFJetFwd400, &b_HLT_AK8PFJetFwd400);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd450", &HLT_AK8PFJetFwd450, &b_HLT_AK8PFJetFwd450);
-     //fChain->SetBranchAddress("HLT_AK8PFJetFwd500", &HLT_AK8PFJetFwd500, &b_HLT_AK8PFJetFwd500);
-   }
+   if (!isZB) {
+     fChain->SetBranchAddress("HLT_DiPFJetAve60_HFJEC", &HLT_DiPFJetAve60_HFJEC, &b_HLT_DiPFJetAve60_HFJEC);
+     fChain->SetBranchAddress("HLT_DiPFJetAve80_HFJEC", &HLT_DiPFJetAve80_HFJEC, &b_HLT_DiPFJetAve80_HFJEC);
+     fChain->SetBranchAddress("HLT_DiPFJetAve100_HFJEC", &HLT_DiPFJetAve100_HFJEC, &b_HLT_DiPFJetAve100_HFJEC);
+     fChain->SetBranchAddress("HLT_DiPFJetAve160_HFJEC", &HLT_DiPFJetAve160_HFJEC, &b_HLT_DiPFJetAve160_HFJEC);
+     fChain->SetBranchAddress("HLT_DiPFJetAve220_HFJEC", &HLT_DiPFJetAve220_HFJEC, &b_HLT_DiPFJetAve220_HFJEC);
+     fChain->SetBranchAddress("HLT_DiPFJetAve300_HFJEC", &HLT_DiPFJetAve300_HFJEC, &b_HLT_DiPFJetAve300_HFJEC);
+     //}
+     //fChain->SetBranchAddress("HLT_AK8PFJet15", &HLT_AK8PFJet15, &b_HLT_AK8PFJet15);
+     //fChain->SetBranchAddress("HLT_AK8PFJet25", &HLT_AK8PFJet25, &b_HLT_AK8PFJet25);
+     fChain->SetBranchAddress("HLT_AK8PFJet40", &HLT_AK8PFJet40, &b_HLT_AK8PFJet40);
+     fChain->SetBranchAddress("HLT_AK8PFJet60", &HLT_AK8PFJet60, &b_HLT_AK8PFJet60);
+     fChain->SetBranchAddress("HLT_AK8PFJet80", &HLT_AK8PFJet80, &b_HLT_AK8PFJet80);
+     fChain->SetBranchAddress("HLT_AK8PFJet140", &HLT_AK8PFJet140, &b_HLT_AK8PFJet140);
+     fChain->SetBranchAddress("HLT_AK8PFJet200", &HLT_AK8PFJet200, &b_HLT_AK8PFJet200);
+     fChain->SetBranchAddress("HLT_AK8PFJet260", &HLT_AK8PFJet260, &b_HLT_AK8PFJet260);
+     fChain->SetBranchAddress("HLT_AK8PFJet320", &HLT_AK8PFJet320, &b_HLT_AK8PFJet320);
+     fChain->SetBranchAddress("HLT_AK8PFJet400", &HLT_AK8PFJet400, &b_HLT_AK8PFJet400);
+     fChain->SetBranchAddress("HLT_AK8PFJet450", &HLT_AK8PFJet450, &b_HLT_AK8PFJet450);
+     fChain->SetBranchAddress("HLT_AK8PFJet500", &HLT_AK8PFJet500, &b_HLT_AK8PFJet500);
+     if (isRun2>2) 
+       fChain->SetBranchAddress("HLT_AK8PFJet550", &HLT_AK8PFJet550, &b_HLT_AK8PFJet550);
+     //fChain->SetBranchAddress("HLT_PFJet15", &HLT_PFJet15, &b_HLT_PFJet15);
+     //fChain->SetBranchAddress("HLT_PFJet25", &HLT_PFJet25, &b_HLT_PFJet25);
+     fChain->SetBranchAddress("HLT_PFJet40", &HLT_PFJet40, &b_HLT_PFJet40);
+     fChain->SetBranchAddress("HLT_PFJet60", &HLT_PFJet60, &b_HLT_PFJet60);
+     fChain->SetBranchAddress("HLT_PFJet80", &HLT_PFJet80, &b_HLT_PFJet80);
+     fChain->SetBranchAddress("HLT_PFJet140", &HLT_PFJet140, &b_HLT_PFJet140);
+     fChain->SetBranchAddress("HLT_PFJet200", &HLT_PFJet200, &b_HLT_PFJet200);
+     fChain->SetBranchAddress("HLT_PFJet260", &HLT_PFJet260, &b_HLT_PFJet260);
+     fChain->SetBranchAddress("HLT_PFJet320", &HLT_PFJet320, &b_HLT_PFJet320);
+     fChain->SetBranchAddress("HLT_PFJet400", &HLT_PFJet400, &b_HLT_PFJet400);
+     fChain->SetBranchAddress("HLT_PFJet450", &HLT_PFJet450, &b_HLT_PFJet450);
+     fChain->SetBranchAddress("HLT_PFJet500", &HLT_PFJet500, &b_HLT_PFJet500);
+     if (isRun2>2) {// && dataset!="UL2017B") {
+       fChain->SetBranchAddress("HLT_PFJet550", &HLT_PFJet550, &b_HLT_PFJet550);
+       //fChain->SetBranchAddress("HLT_PFJetFwd15", &HLT_PFJetFwd15, &b_HLT_PFJetFwd15);
+       //fChain->SetBranchAddress("HLT_PFJetFwd25", &HLT_PFJetFwd25, &b_HLT_PFJetFwd25);
+       fChain->SetBranchAddress("HLT_PFJetFwd40", &HLT_PFJetFwd40, &b_HLT_PFJetFwd40);
+       fChain->SetBranchAddress("HLT_PFJetFwd60", &HLT_PFJetFwd60, &b_HLT_PFJetFwd60);
+       fChain->SetBranchAddress("HLT_PFJetFwd80", &HLT_PFJetFwd80, &b_HLT_PFJetFwd80);
+       fChain->SetBranchAddress("HLT_PFJetFwd140", &HLT_PFJetFwd140, &b_HLT_PFJetFwd140);
+       fChain->SetBranchAddress("HLT_PFJetFwd200", &HLT_PFJetFwd200, &b_HLT_PFJetFwd200);
+       fChain->SetBranchAddress("HLT_PFJetFwd260", &HLT_PFJetFwd260, &b_HLT_PFJetFwd260);
+       fChain->SetBranchAddress("HLT_PFJetFwd320", &HLT_PFJetFwd320, &b_HLT_PFJetFwd320);
+       fChain->SetBranchAddress("HLT_PFJetFwd400", &HLT_PFJetFwd400, &b_HLT_PFJetFwd400);
+       fChain->SetBranchAddress("HLT_PFJetFwd450", &HLT_PFJetFwd450, &b_HLT_PFJetFwd450);
+       fChain->SetBranchAddress("HLT_PFJetFwd500", &HLT_PFJetFwd500, &b_HLT_PFJetFwd500);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd15", &HLT_AK8PFJetFwd15, &b_HLT_AK8PFJetFwd15);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd25", &HLT_AK8PFJetFwd25, &b_HLT_AK8PFJetFwd25);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd40", &HLT_AK8PFJetFwd40, &b_HLT_AK8PFJetFwd40);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd60", &HLT_AK8PFJetFwd60, &b_HLT_AK8PFJetFwd60);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd80", &HLT_AK8PFJetFwd80, &b_HLT_AK8PFJetFwd80);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd140", &HLT_AK8PFJetFwd140, &b_HLT_AK8PFJetFwd140);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd200", &HLT_AK8PFJetFwd200, &b_HLT_AK8PFJetFwd200);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd260", &HLT_AK8PFJetFwd260, &b_HLT_AK8PFJetFwd260);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd320", &HLT_AK8PFJetFwd320, &b_HLT_AK8PFJetFwd320);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd400", &HLT_AK8PFJetFwd400, &b_HLT_AK8PFJetFwd400);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd450", &HLT_AK8PFJetFwd450, &b_HLT_AK8PFJetFwd450);
+       //fChain->SetBranchAddress("HLT_AK8PFJetFwd500", &HLT_AK8PFJetFwd500, &b_HLT_AK8PFJetFwd500);
+     }
+   } // !isZB
    /*
    fChain->SetBranchAddress("HLT_PFHT180", &HLT_PFHT180, &b_HLT_PFHT180);
    fChain->SetBranchAddress("HLT_PFHT250", &HLT_PFHT250, &b_HLT_PFHT250);
@@ -6194,50 +6200,52 @@ void DijetHistosFill::Init(TTree *tree)
    //Bool_t HLT_MC(true);
    mtrg["HLT_MC"] = &HLT_MC;
    mtrg["HLT_ZeroBias"] = &HLT_ZeroBias;
+
+   if (!isZB) {
+     mtrg["HLT_DiPFJetAve40"] = &HLT_DiPFJetAve40;
+     mtrg["HLT_DiPFJetAve60"] = &HLT_DiPFJetAve60;
+     mtrg["HLT_DiPFJetAve80"] = &HLT_DiPFJetAve80;
+     mtrg["HLT_DiPFJetAve140"] = &HLT_DiPFJetAve140;
+     mtrg["HLT_DiPFJetAve200"] = &HLT_DiPFJetAve200;
+     mtrg["HLT_DiPFJetAve260"] = &HLT_DiPFJetAve260;
+     mtrg["HLT_DiPFJetAve320"] = &HLT_DiPFJetAve320;
+     mtrg["HLT_DiPFJetAve400"] = &HLT_DiPFJetAve400;
+     mtrg["HLT_DiPFJetAve500"] = &HLT_DiPFJetAve500;
+     
+     mtrg["HLT_PFJet40"] = &HLT_PFJet40;
+     mtrg["HLT_PFJet60"] = &HLT_PFJet60;
+     mtrg["HLT_PFJet80"] = &HLT_PFJet80;
+     //mtrg["HLT_PFJet110"] = &HLT_PFJet110;
+     mtrg["HLT_PFJet140"] = &HLT_PFJet140;
+     mtrg["HLT_PFJet200"] = &HLT_PFJet200;
+     mtrg["HLT_PFJet260"] = &HLT_PFJet260;
+     mtrg["HLT_PFJet320"] = &HLT_PFJet320;
+     mtrg["HLT_PFJet400"] = &HLT_PFJet400; // v14
+     mtrg["HLT_PFJet450"] = &HLT_PFJet450;
+     mtrg["HLT_PFJet500"] = &HLT_PFJet500;
+     mtrg["HLT_PFJet550"] = &HLT_PFJet550;
+     
+     mtrg["HLT_DiPFJetAve60_HFJEC"] = &HLT_DiPFJetAve60_HFJEC;
+     mtrg["HLT_DiPFJetAve80_HFJEC"] = &HLT_DiPFJetAve80_HFJEC;
+     mtrg["HLT_DiPFJetAve100_HFJEC"] = &HLT_DiPFJetAve100_HFJEC;
+     mtrg["HLT_DiPFJetAve160_HFJEC"] = &HLT_DiPFJetAve160_HFJEC;
+     mtrg["HLT_DiPFJetAve220_HFJEC"] = &HLT_DiPFJetAve220_HFJEC;
+     mtrg["HLT_DiPFJetAve300_HFJEC"] = &HLT_DiPFJetAve300_HFJEC;
+
+     //mtrg["HLT_PFJetFwd15"] = &HLT_PFJetFwd15;
+     //mtrg["HLT_PFJetFwd25"] = &HLT_PFJetFwd25;
+     mtrg["HLT_PFJetFwd40"] = &HLT_PFJetFwd40;
+     mtrg["HLT_PFJetFwd60"] = &HLT_PFJetFwd60;
+     mtrg["HLT_PFJetFwd80"] = &HLT_PFJetFwd80;
+     mtrg["HLT_PFJetFwd140"] = &HLT_PFJetFwd140;
+     mtrg["HLT_PFJetFwd200"] = &HLT_PFJetFwd200;
+     mtrg["HLT_PFJetFwd260"] = &HLT_PFJetFwd260;
+     mtrg["HLT_PFJetFwd320"] = &HLT_PFJetFwd320;
+     mtrg["HLT_PFJetFwd400"] = &HLT_PFJetFwd400;
+     mtrg["HLT_PFJetFwd450"] = &HLT_PFJetFwd450;
+     mtrg["HLT_PFJetFwd500"] = &HLT_PFJetFwd500;
+   }
    
-   mtrg["HLT_DiPFJetAve40"] = &HLT_DiPFJetAve40;
-   mtrg["HLT_DiPFJetAve60"] = &HLT_DiPFJetAve60;
-   mtrg["HLT_DiPFJetAve80"] = &HLT_DiPFJetAve80;
-   mtrg["HLT_DiPFJetAve140"] = &HLT_DiPFJetAve140;
-   mtrg["HLT_DiPFJetAve200"] = &HLT_DiPFJetAve200;
-   mtrg["HLT_DiPFJetAve260"] = &HLT_DiPFJetAve260;
-   mtrg["HLT_DiPFJetAve320"] = &HLT_DiPFJetAve320;
-   mtrg["HLT_DiPFJetAve400"] = &HLT_DiPFJetAve400;
-   mtrg["HLT_DiPFJetAve500"] = &HLT_DiPFJetAve500;
-
-   mtrg["HLT_PFJet40"] = &HLT_PFJet40;
-   mtrg["HLT_PFJet60"] = &HLT_PFJet60;
-   mtrg["HLT_PFJet80"] = &HLT_PFJet80;
-   //mtrg["HLT_PFJet110"] = &HLT_PFJet110;
-   mtrg["HLT_PFJet140"] = &HLT_PFJet140;
-   mtrg["HLT_PFJet200"] = &HLT_PFJet200;
-   mtrg["HLT_PFJet260"] = &HLT_PFJet260;
-   mtrg["HLT_PFJet320"] = &HLT_PFJet320;
-   mtrg["HLT_PFJet400"] = &HLT_PFJet400; // v14
-   mtrg["HLT_PFJet450"] = &HLT_PFJet450;
-   mtrg["HLT_PFJet500"] = &HLT_PFJet500;
-   mtrg["HLT_PFJet550"] = &HLT_PFJet550;
-
-   mtrg["HLT_DiPFJetAve60_HFJEC"] = &HLT_DiPFJetAve60_HFJEC;
-   mtrg["HLT_DiPFJetAve80_HFJEC"] = &HLT_DiPFJetAve80_HFJEC;
-   mtrg["HLT_DiPFJetAve100_HFJEC"] = &HLT_DiPFJetAve100_HFJEC;
-   mtrg["HLT_DiPFJetAve160_HFJEC"] = &HLT_DiPFJetAve160_HFJEC;
-   mtrg["HLT_DiPFJetAve220_HFJEC"] = &HLT_DiPFJetAve220_HFJEC;
-   mtrg["HLT_DiPFJetAve300_HFJEC"] = &HLT_DiPFJetAve300_HFJEC;
-
-   //mtrg["HLT_PFJetFwd15"] = &HLT_PFJetFwd15;
-   //mtrg["HLT_PFJetFwd25"] = &HLT_PFJetFwd25;
-   mtrg["HLT_PFJetFwd40"] = &HLT_PFJetFwd40;
-   mtrg["HLT_PFJetFwd60"] = &HLT_PFJetFwd60;
-   mtrg["HLT_PFJetFwd80"] = &HLT_PFJetFwd80;
-   mtrg["HLT_PFJetFwd140"] = &HLT_PFJetFwd140;
-   mtrg["HLT_PFJetFwd200"] = &HLT_PFJetFwd200;
-   mtrg["HLT_PFJetFwd260"] = &HLT_PFJetFwd260;
-   mtrg["HLT_PFJetFwd320"] = &HLT_PFJetFwd320;
-   mtrg["HLT_PFJetFwd400"] = &HLT_PFJetFwd400;
-   mtrg["HLT_PFJetFwd450"] = &HLT_PFJetFwd450;
-   mtrg["HLT_PFJetFwd500"] = &HLT_PFJetFwd500;
-
    Notify();
 }
 
