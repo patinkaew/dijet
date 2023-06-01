@@ -63,24 +63,32 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
         dataset=="UL2016GH" || dataset=="UL2016MG" || dataset=="UL2016Flat" || 
 	dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
 	dataset=="UL2017E" || dataset=="UL2017F" ||
-	dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
-	dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
 	dataset=="UL2017MG" ||
 	dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
 	//dataset=="UL2018D" ||
 	dataset=="UL2018D1" || dataset=="UL2018D2" ||
-	dataset=="UL2018MG"
-	  )) {
+	dataset=="UL2018MG" ||
+
+	dataset=="UL2016BCD_ZB" || dataset=="UL2016EF_ZB" || dataset=="UL2016GH_ZB" ||
+	dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
+	dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
+	dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" || dataset=="UL2018C_ZB" ||
+	dataset=="UL2018D_ZB"
+	)) {
     cout << "Dataset not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
 	 << "UL2016BCD, UL2016EF, UL2016APVMG" << endl
 	 << "UL2016GH, UL2016MG, UL2016Flat," << endl
 	 << "UL2017B, UL2017C, UL2017D, UL2017E, UL2017F" << endl
-      	 << "UL2017B_ZB, UL2017C_ZB, UL2017D_ZB, UL2017E_ZB, UL2017F_ZB" << endl
 	 << "UL2017MG" << endl
       //<< "UL2018A, UL2018B, UL2018C, UL2018D" << endl
 	 << "UL2018A, UL2018B, UL2018C, UL2018D1, UL2018D2" << endl
-	 << "UL2018MG" << endl;
+	 << "UL2018MG"
+	 << endl
+      	 << "UL2016BCD_ZB, UL2016EF_ZB, UL2016GH_ZB" << endl
+	 << "UL2017B_ZB, UL2017C_ZB, UL2017D_ZB, UL2017E_ZB, UL2017F_ZB" << endl
+      	 << "UL2018A_ZB, UL2018B_ZB, UL2018C_ZB, UL2018D_ZB" << endl
+	 << endl;
   }
   
   // Settings
@@ -89,11 +97,15 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
      dataset=="UL2016GH" ||
      dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
      dataset=="UL2017E" || dataset=="UL2017F" ||
-     dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
-     dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
      dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
      //dataset=="UL2018D"
-     dataset=="UL2018D1" || dataset=="UL2018D2"
+     dataset=="UL2018D1" || dataset=="UL2018D2" ||
+
+     dataset=="UL2016BCD_ZB" || dataset=="UL2016EF_ZB" || dataset=="UL2016GH_ZB" ||
+     dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
+     dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
+     dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" || dataset=="UL2018C_ZB" ||
+     dataset=="UL2018D_ZB"
      );
   bool addMC =
     (dataset=="UL2016APVMG" ||

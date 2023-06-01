@@ -497,13 +497,13 @@ void DijetHistosFill::Loop()
      jerpath = "JRDatabase/textFiles/Summer20UL16APV_JRV3_MC/Summer20UL16APV_JRV3_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer20UL16APV_JRV3_MC/Summer20UL16APV_JRV3_MC_SF_AK4PFchs.txt";
    }
-   if (dataset=="UL2016BCD") {
+   if (dataset=="UL2016BCD" || dataset=="UL2016BCD_ZB") {
      jec = getFJC("Summer19UL16APV_RunBCD_V7_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL16APV_RunBCD_V7_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL16APV_RunBCD_V7_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL16APV_RunBCD_V7_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2016EF") {
+   if (dataset=="UL2016EF" || dataset=="UL2016EF_ZB") {
      jec = getFJC("Summer19UL16APV_RunEF_V7_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL16APV_RunEF_V7_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL16APV_RunEF_V7_DATA_L2L3Residual_AK4PFchs");
@@ -520,7 +520,7 @@ void DijetHistosFill::Loop()
      jerpath = "JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
    }
-   if (dataset=="UL2016GH") {
+   if (dataset=="UL2016GH" || dataset=="UL2016GH_ZB") {
      jec = getFJC("Summer19UL16_RunFGH_V7_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL16_RunFGH_V7_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL16_RunFGH_V7_DATA_L2L3Residual_AK4PFchs");
@@ -577,25 +577,25 @@ void DijetHistosFill::Loop()
      jerpath = "JRDatabase/textFiles/Summer19UL18_JRV2_MC/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer19UL18_JRV2_MC/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt";
    }
-   if (dataset=="UL2018A") {
+   if (dataset=="UL2018A" || dataset=="UL2018A_ZB") {
      jec = getFJC("Summer19UL18_RunA_V5_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL18_RunA_V5_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL18_RunA_V5_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL18_RunA_V5_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2018B") {
+   if (dataset=="UL2018B" || dataset=="UL2018B_ZB") {
      jec = getFJC("Summer19UL18_RunB_V5_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL18_RunB_V5_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL18_RunB_V5_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL18_RunB_V5_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2018C") {
+   if (dataset=="UL2018C" || dataset=="UL2018C_ZB") {
      jec = getFJC("Summer19UL18_RunC_V5_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL18_RunC_V5_DATA_L2Relative_AK4PFchs",
 		  "Summer19UL18_RunC_V5_DATA_L2L3Residual_AK4PFchs");
      jecl1rc = getFJC("Summer19UL18_RunC_V5_DATA_L1RC_AK4PFchs","","");
    }
-   if (dataset=="UL2018D" ||
+   if (dataset=="UL2018D" || dataset=="UL2018D_ZB" ||
        dataset=="UL2018D1" || dataset=="UL2018D2") {
      jec = getFJC("Summer19UL18_RunD_V5_DATA_L1FastJet_AK4PFchs",
 		  "Summer19UL18_RunD_V5_DATA_L2Relative_AK4PFchs",
