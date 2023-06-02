@@ -1,6 +1,14 @@
 # dijet
 CMS dijet analysis
 
+Quick starter guide:
+root -l -b -q mk_CondFormats.C
+root -l -b -q mk_DijetHistosFill.C\(\"ERA\"\)\,\(\"VERSION\"\)  [or 'python runAllIOVs.py']
+['hadd' files by hand if using runAllIOVs.py]
+root -l -b -q DijetHistosCombine.C+g
+root -l -b -q DijetHistosJER.C+g
+root -l -b -q DijetHistosOverlay.C+g
+
 Aim of this package is to consolidate multiple analyses done with JetMET and ZeroBias primary data sets together with the corresponding QCD dijet MC. These include: MC truth JEC, jet veto maps, Jet ID, JER pT-dependent scale factors, dijet eta-dependent JEC (L2Res), multijet pT-dependent JEC (L3Res), PF jet composition (JEC global fit), inclusive jet cross section (physics analysis).
 
 The general core design principles are:
