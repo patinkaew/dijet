@@ -1,0 +1,206 @@
+\documentclass[landscape,10pt]{beamer} % use larger type; default would be 10pt
+\usepackage{graphicx}
+\usepackage{hyperref}
+\addtolength{\topmargin}{.5cm}
+%\addtolength{\bottommargin}{.2cm} 
+\addtolength{\oddsidemargin}{-.3in}
+\addtolength{\evensidemargin}{-.3in}
+\addtolength{\textwidth}{0.6in}
+%
+\newcommand{\commentout}[1]{}
+
+%\pagestyle{empty}
+\setbeamertemplate{footline}[frame number]
+%\pagestyle{plain}
+
+\begin{document}
+
+\begin{centering}
+{. }\\
+{. }\\
+{. }\\
+{. }\\
+{. }\\
+{. }\\
+{. }\\
+Results from github.com/miquork/dijet \\
+\today\\
+Mikko Voutilainen, U. Helsinki and HIP\\
+Laura Martikainen, U. Helsinki and HIP\\
+{. }\\
+{. }\\
+{\bf Results for dijet L2Res}\\
+\end{centering}
+
+\newpage
+
+Status so far:
+\begin{itemize}
+\item JMENANO 2016fGH data set, golden JSON applied
+\item Summer20UL16\_V1 JEC (except Summer19UL16\_V7 for data L2L3Res)
+\item Pythia8 FlatQCD (MadGraph being added; DESY uses this) 
+\item Triggers HLT\_DiPFJetAveX, HLT\_DiPFJetAveX\_HFJEC (+HLT\_PFJet; option HLT\_PFJetFwd later)
+\item One variant trying to match trigger thresholds and $\eta$/pT bins to DESY. Some bins split in two.
+\item MPF recalculated starting from (raw) ChsMET, using L1L2L3-RC method
+%\item Initially: tight lepton veto JetID + jet veto maps {\bf for two leading} jets (only)
+\item Apply tight lepton veto JetID + jet veto maps on all jets of $p_T>15$~GeV (otherwise veto event) and apply asymm<0.7 cut.
+%\item Previous update: DESY results with fix to PtAVP.
+%\item Previous: fix trigger merging (primarily HFJEC and Zero Bias triggers)
+%\item Previous: add MadGraph and PtAvP vs PtTag+PtProbe comparisons.
+%\item This updte: add MPFX plots, add data/MC for PtAVP+PtTag+PtProbe with v22
+\item Previous: add flat JER SF and redo with v23 MC
+\item This update: swap Pythia8 to MadGraph for Helsinki / DESY comparison
+\end{itemize}
+
+\newpage
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.32\textwidth]{DijetHistosJER_JER13.pdf}
+\includegraphics[width=0.32\textwidth]{DijetHistosJER_JER13_DijetAndZJet.pdf}
+\includegraphics[width=0.32\textwidth]{DijetHistosJER_JER13_JERwithRC.pdf}
+\caption{MPFX resolution in barrel. (Left) Two approaches. (Middle) grain-of-salt Z+jet. (Right) MPFX with RC noise.}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosJER_JERMC.pdf}
+\caption{JER for data and MC compared to $|\eta|<1.3$.}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosJER_JERSF.pdf}
+\caption{JER scale factor (data/MC ratio) to $|\eta|<1.3$.}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayJER_2016GH.pdf}
+\caption{DijetHistosOverlay(JER) repeat of data and two MCs.}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayJER_2016GH_ratio.pdf}
+\caption{DijetHistosOverlay(JER) repeat of data/MC ratio for two MCs.}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.32\textwidth]{DijetHistosOverlayJER_2016GH_JERvsEta.pdf}
+\caption{DijetHistosOverlay(JER) summary of JER SF vs $|\eta|$ at few different $p_T$.}
+\end{figure}
+
+\newpage
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.32\textwidth]{dijet_pttag.pdf}
+\includegraphics[width=0.32\textwidth]{dijet_ptavp.pdf}
+\includegraphics[width=0.32\textwidth]{dijet_ptprobe.pdf}
+\caption{Early look at v23: net shift in probe/tag ratio caused by JER SF. (Left) Probe $p_T$. (Middle) Average projection $p_{T,aVp}$ (nominal). (Right) Tag $p_T$.}
+\end{figure}
+
+\newpage
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_MPF.pdf}
+\caption{MPF (=MPF) response, data and MCs.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_mpf2.pdf}
+\caption{MPF2 (=DB) response, data and MCs.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_mpfN.pdf}
+\caption{MPFN (=extra jets), data and MCs.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_mpfU.pdf}
+\caption{MPFU (=unclustered energy), data and MCs.}
+\end{figure}
+
+\newpage
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_MPF_ratio.pdf}
+\caption{MPF (=MPF) response, ratios to MCs.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_mpf2_ratio.pdf}
+\caption{MPF2 (=DB) response, ratios to MCs.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_mpfN_ratio.pdf}
+\caption{MPFN (=extra jets), ratios to MCs.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlayPtBins_2016GH_mpfU_ratio.pdf}
+\caption{MPFU (=unclustered energy), ratios to MCs.}
+\end{figure}
+
+
+\newpage
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_data_MPF_PtAVP.pdf}
+\caption{MPF response for dijet data.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_data_mpf2_PtAVP.pdf}
+\caption{MPF2 (=DB) response for dijet data.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_data_mpfN_PtAVP.pdf}
+\caption{MPFN (=extra jets) for dijet data.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_data_mpfU_PtAVP.pdf}
+\caption{MPFU (=unclustered energy) for dijet data.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_data_counts_PtAVP.pdf}
+\caption{Numberof events for dijet data.}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_mc_MPF_PtAVP.pdf}
+\caption{MPF response for dijet MC.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_mc_mpf2_PtAVP.pdf}
+\caption{MPF2 (=DB) response for dijet MC.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_mc_mpfN_PtAVP.pdf}
+\caption{MPFN (=extra jets) for dijet MC.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_mc_mpfU_PtAVP.pdf}
+\caption{MPFU (=unclustered energy) for dijet MC.}
+\end{figure}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=0.98\textwidth]{DijetHistosOverlay_2016GH_mc_counts_PtAVP.pdf}
+\caption{Numberof events for dijet MC.}
+\end{figure}
+
+\end{document}
