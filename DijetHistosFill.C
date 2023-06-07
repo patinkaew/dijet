@@ -315,7 +315,7 @@ void DijetHistosFill::Loop()
    // Listing of available triggers
    vector<string> vtrg;
 
-   vtrg.push_back("HLT_ZeroBias"); // biased for JetHT, but keep as placeholder
+   if (isZB) vtrg.push_back("HLT_ZeroBias"); // biased for JetHT, but keep as placeholder
    
    vtrg.push_back("HLT_PFJet40");
    vtrg.push_back("HLT_PFJet60");
