@@ -1,0 +1,12 @@
+*~
+*.so
+*.pcm
+*.d
+CondFormats/JetMETObjects/interface/JetResolution.h
+JRDatabase/
+rootfiles/
+haddfiles/
+logs/
+pdf/
+txt/
+foo/
