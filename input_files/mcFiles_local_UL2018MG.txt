@@ -1,0 +1,9 @@
+../data/dijet/mc/QCD_HT1000to1500_UL2018.root
+../data/dijet/mc/QCD_HT100to200_UL2018.root
+../data/dijet/mc/QCD_HT1500to2000_UL2018.root
+../data/dijet/mc/QCD_HT2000toInf_UL2018.root
+../data/dijet/mc/QCD_HT200to300_UL2018.root
+../data/dijet/mc/QCD_HT300to500_UL2018.root
+../data/dijet/mc/QCD_HT500to700_UL2018.root
+../data/dijet/mc/QCD_HT50to100_UL2018.root
+../data/dijet/mc/QCD_HT700to1000_UL2018.root
