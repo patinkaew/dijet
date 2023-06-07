@@ -151,8 +151,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   if (!runLocal) assert(runGPU);
   
   if (addData) {
-    ifstream fin(runLocal ? Form("dataFiles_local_%s.txt",dataset.c_str()) : 
-		 Form("dataFiles_%s.txt",dataset.c_str()), ios::in);
+    ifstream fin(runLocal ? Form("input_files/dataFiles_local_%s.txt",dataset.c_str()) : 
+		 Form("input_files/dataFiles_%s.txt",dataset.c_str()), ios::in);
     string filename;
     cout << "Chaining data files:" << endl << flush;
     int nFiles(0), nFilesMax(9999);
@@ -171,8 +171,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   }
   
   if (addMC) {
-    ifstream fin(runLocal ? Form("mcFiles_local_%s.txt",dataset.c_str()) :
-		 Form("mcFiles_%s.txt",dataset.c_str()), ios::in);
+    ifstream fin(runLocal ? Form("input_files/mcFiles_local_%s.txt",dataset.c_str()) :
+		 Form("input_files/mcFiles_%s.txt",dataset.c_str()), ios::in);
     string filename;
     cout << "Chaining MC files:" << endl << flush;
     int nFiles(0), nFilesMax(9999);
