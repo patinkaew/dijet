@@ -22,7 +22,8 @@
 bool doMCtrigOnly = true;
 
 // JER smearing (JER SF)
-bool smearJets = false;
+bool smearJets = true;
+bool useJERSFvsPt = true; // new file format
 int smearNMax = 3;
 std::uint32_t _seed;
 std::mt19937 _mersennetwister;
@@ -286,6 +287,8 @@ void DijetHistosFill::Loop()
    if (isMC) fChain->SetBranchStatus("Pileup_pthatmax",1);
 
    if (isMC && (smearJets || doMCtruth)) {
+     cout << "Adding branches for GenJets ("
+	  << (smearJets ? " smearJets" : "") << (doMCtruth ? " doMCtruth" : "") << ")" << endl;
      fChain->SetBranchStatus("Jet_genJetIdx",1);
      fChain->SetBranchStatus("nGenJet",1);
      fChain->SetBranchStatus("GenJet_pt",1);
@@ -482,7 +485,7 @@ void DijetHistosFill::Loop()
 
    // Redo JEC
    // NB: could implement time dependence as in jetphys/IOV.h
-   FactorizedJetCorrector *jec(0), *jecl1rc(0);
+   FactorizedJetCorrector *jec(0), *jecl1rc(0), *jersfvspt(0);
    string jerpath(""), jerpathsf("");
    //jec = getFJC("","Winter22Run3_V1_MC_L2Relative","","");
    if (isRun2==0) {
@@ -496,6 +499,7 @@ void DijetHistosFill::Loop()
      jecl1rc = getFJC("Summer19UL16APV_V7_MC_L1RC_AK4PFchs","","");
      jerpath = "JRDatabase/textFiles/Summer20UL16APV_JRV3_MC/Summer20UL16APV_JRV3_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer20UL16APV_JRV3_MC/Summer20UL16APV_JRV3_MC_SF_AK4PFchs.txt";
+     jersfvspt = getFJC("","Summer20UL2016APV_ZB_v26c_JRV3_MC_SF_AK4PFchs","");
    }
    if (dataset=="UL2016BCD" || dataset=="UL2016BCD_ZB") {
      jec = getFJC("Summer19UL16APV_RunBCD_V7_DATA_L1FastJet_AK4PFchs",
@@ -519,6 +523,7 @@ void DijetHistosFill::Loop()
      //jecl1rc = getFJC("Summer20UL16_V1_MC_L1RC_AK4PFchs","","");
      jerpath = "JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer20UL16_JRV3_MC/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
+     jersfvspt = getFJC("","Summer20UL2016GH_ZB_v26c_JRV3_MC_SF_AK4PFchs","");
    }
    if (dataset=="UL2016GH" || dataset=="UL2016GH_ZB") {
      jec = getFJC("Summer19UL16_RunFGH_V7_DATA_L1FastJet_AK4PFchs",
@@ -538,6 +543,7 @@ void DijetHistosFill::Loop()
      jecl1rc = getFJC("Summer19UL17_V6_MC_L1RC_AK4PFchs","","");
      jerpath = "JRDatabase/textFiles/Summer19UL17_JRV3_MC/Summer19UL17_JRV3_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer19UL17_JRV3_MC/Summer19UL17_JRV3_MC_SF_AK4PFchs.txt";
+     jersfvspt = getFJC("","Summer20UL2017_ZB_v26c_JRV3_MC_SF_AK4PFchs","");
    }
    if (dataset=="UL2017B" || dataset=="UL2017B_ZB") {
      jec = getFJC("Summer19UL17_RunB_V6_DATA_L1FastJet_AK4PFchs",
@@ -576,6 +582,7 @@ void DijetHistosFill::Loop()
      jecl1rc = getFJC("Summer19UL18_V5_MC_L1RC_AK4PFchs","","");
      jerpath = "JRDatabase/textFiles/Summer19UL18_JRV2_MC/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt";
      jerpathsf = "JRDatabase/textFiles/Summer19UL18_JRV2_MC/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt";
+     jersfvspt = getFJC("","Summer20UL2018_ZB_v26c_JRV3_MC_SF_AK4PFchs","");
    }
    if (dataset=="UL2018A" || dataset=="UL2018A_ZB") {
      jec = getFJC("Summer19UL18_RunA_V5_DATA_L1FastJet_AK4PFchs",
@@ -616,14 +623,16 @@ void DijetHistosFill::Loop()
    JME::JetResolutionScaleFactor *jersf(0);
    if (isMC && smearJets) {
      cout << jerpath << endl << flush;
-     cout << jerpathsf << endl << flush;
-     if (jerpath=="" || jerpathsf=="")
+     if (!useJERSFvsPt) cout << jerpathsf << endl << flush;
+     if (jerpath=="" || (jerpathsf=="" && !useJERSFvsPt))
        cout << "Missing JER file paths for " << dataset << endl << flush;
      assert(jerpath!="");
-     assert(jerpathsf!="");
+     assert(jerpathsf!="" || useJERSFvsPt);
+     assert(jersfvspt || !useJERSFvsPt);
      jer = new JME::JetResolution(jerpath.c_str());
-     jersf = new JME::JetResolutionScaleFactor(jerpathsf.c_str());
-     if (!jer || !jersf)
+     if (!useJERSFvsPt)
+       jersf = new JME::JetResolutionScaleFactor(jerpathsf.c_str());
+     if (!jer || (!jersf && !useJERSFvsPt) || (!jersfvspt && useJERSFvsPt))
        cout << "Missing JER files for " << dataset << endl << flush;
    }
 
@@ -1644,7 +1653,16 @@ void DijetHistosFill::Loop()
 	    // The method presented here can be found in https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
 	    // and the corresponding code in https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_25/PhysicsTools/PatUtils/interface/SmearedJetProducerT.h
 	    double Reso = jer->getResolution({{JME::Binning::JetPt, jPt}, {JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}});
-	    double SF = jersf->getScaleFactor({{JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}}, Variation::NOMINAL);
+	    double SF(1);
+	    if (useJERSFvsPt && jersfvspt) {
+	      jersfvspt->setJetEta(jEta);
+	      jersfvspt->setJetPt(jPt);
+	      jersfvspt->setRho(rho);
+	      SF = jersfvspt->getCorrection();
+	    }
+	    else if (!useJERSFvsPt && jersf) {
+	      SF = jersf->getScaleFactor({{JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}}, Variation::NOMINAL);
+	    }
 	    
 	    // Case 0: by default the JER correction factor is equal to 1
 	    double CF = 1.;
