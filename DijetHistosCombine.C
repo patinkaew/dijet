@@ -26,17 +26,15 @@ void DijetHistosCombine() {
   //DijetHistosCombines("rootfiles/jmenano_mc_out_v23ul16flat.root");
   //DijetHistosCombines("rootfiles/jmenano_mc_out_v23ul16mg.root");
 
-  /*
-  DijetHistosCombines("haddfiles/jmenano_data_out_UL2016APV_v26.root");
+  DijetHistosCombines("haddfiles/jmenano_data_out_UL2016APV_v26c.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016APVMG_v26.root");
-  DijetHistosCombines("haddfiles/jmenano_data_out_UL2016GH_v26.root");
+  DijetHistosCombines("haddfiles/jmenano_data_out_UL2016GH_v26c.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016MG_v26.root");
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2017_v26.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2017MG_v26.root");
-  DijetHistosCombines("haddfiles/jmenano_data_out_UL2018_v26.root");
+  DijetHistosCombines("haddfiles/jmenano_data_out_UL2018_v26c.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2018MG_v26.root");
-  */
-  DijetHistosCombines("haddfiles/jmenano_data_out_Run2_v26.root");
+  DijetHistosCombines("haddfiles/jmenano_data_out_Run2_v26c.root");
   DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v26.root");
   
 } // DijetHistosCombine
