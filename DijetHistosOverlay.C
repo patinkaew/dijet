@@ -6,6 +6,7 @@
 #include "TLatex.h"
 #include "TLine.h"
 #include "TH2D.h"
+#include "TH3D.h"
 #include "TProfile2D.h"
 #include "TGraph.h"
 #include "TF1.h"
@@ -13,7 +14,9 @@
 #include <fstream>
 
 bool debug = false;
-bool addZjetJER = true;
+bool addZjetJER = false;
+bool addZjetJEC = true;
+bool addColorJEC = true; // pT,tag + pT,probe
 
 int findBin(TH2D *h2, double x, double *xnew = 0);
 void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
@@ -28,11 +31,19 @@ void DijetHistosOverlays(string obs, string data, string spt = "PtAVP",
 void DijetHistosOverlayPtBins(string obs); // pT,tag vs pT,probe (vs pT,avp)
 void DijetHistosOverlayPt(string fdt, string fmc, string fmc2, string era);  // pT spectrum / counts
 void DijetHistosOverlayJER(string sdt, string smc, string era); // JER+JER SF
+void DijetHistosOverlayJEC(string sdt, string smc, string era); // JEC+L2RES
 
 struct JER {
   double eta, deta;
   double n0_dt, s_dt, c_dt, d_dt, npu_dt;
   double n0_mc, s_mc, c_mc, d_mc, npu_mc;
+};
+
+struct JEC {
+  double eta, deta;
+  double p0, p1;
+  //double p0_dt, p1_dt;
+  //double p0_mc, p1_mc;
 };
 
 void DijetHistosOverlay() {
@@ -62,7 +73,9 @@ void DijetHistosOverlay() {
   DijetHistosOverlayPtBins("mpf2");
   DijetHistosOverlayPtBins("MPF");
   */
-
+  
+  // Before MC JER SF
+  /*
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016APV_v26c.root",
   			"rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root",
   			"UL2016APV_ZB_v26c");
@@ -78,7 +91,40 @@ void DijetHistosOverlay() {
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   			"haddfiles/jmenano_mc_cmb_Run2_v26.root",
   			"Run2_ZB_v26c");
+  */
+  //DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  //			"rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
+  //			"UL2017_ZB_v26c");
 
+  // After MC JER SF
+  /*
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016APV_v26c.root",
+  			"rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root",
+  			"UL2016APV_ZB_v27");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016GH_v26c.root",
+  			"rootfiles/jmenano_mc_cmb_UL2016MG_v27.root",
+  			"UL2016GH_ZB_v27");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  			"rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
+  			"UL2017_ZB_v27");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2018_v26c.root",
+  			"rootfiles/jmenano_mc_cmb_UL2018MG_v27.root",
+  			"UL2018_ZB_v27");
+  DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
+  			"haddfiles/jmenano_mc_cmb_Run2_v27.root",
+  			"Run2_ZB_v27");
+  */
+
+  DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_Run2_v26c.root",
+  			"haddfiles/jmenano_mc_cmb_Run2_v26.root",
+  			"Run2_ZB_v26"); // before JER SF
+  DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_Run2_v26c.root",
+  			"haddfiles/jmenano_mc_cmb_Run2_v27.root",
+  			"Run2_ZB_v27"); // After JER SF
+
+  //DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  //			"rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
+  //			"UL2017_ZB_v27");
 } // DijetHistosOverlay
 
 void DijetHistosOverlays(string obs, string data, string spt,
@@ -813,7 +859,7 @@ void DijetHistosOverlayJER(string fdt, string fmc, string era) {
 
   if (true) { // JER and JERSF vs eta
 
-    int color[ny] = {kBlack, kMagenta+1, kBlue, kCyan+2, kGreen+2,
+    int color[ny] = {kGray+1, kMagenta+1, kBlue, kCyan+2, kGreen+2,
 		     kYellow+2, kOrange+1, kRed, kBlack};
       
     TH1D *h = tdrHist("h","JER in data",0,0.60,"|#eta|",0.0,5.191);
@@ -995,6 +1041,405 @@ void DijetHistosOverlayJER(string fdt, string fmc, string era) {
   } // produce text file
 			      
 } // DijetHistosOverLayJER
+
+// Overlay JEC and L2Res
+void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
+
+  setTDRStyle();
+  TDirectory *curdir = gDirectory;
+
+  TLatex *tex = new TLatex();
+  tex->SetNDC(); tex->SetTextSize(0.045*1.5);
+  TLine *l = new TLine();
+
+  const char *co = "";
+  const char *cera = era.c_str();
+  bool isZB = TString(cera).Contains("_ZB");
+  
+  TFile *f1(0), *f1m(0), *f1p(0);
+  f1 = new TFile(fdt.c_str(),"READ");
+  assert(f1 && !f1->IsZombie());
+  f1m = new TFile(fmc.c_str(),"READ");
+  assert(f1m && !f1m->IsZombie());  
+
+  curdir->cd();
+
+  TH2D *h2jec(0), *h2jecm(0);
+  h2jec = (TH2D*)f1->Get("Dijet2/h2jec"); assert(h2jec);
+  h2jecm = (TH2D*)f1m->Get("Dijet2/h2jec"); assert(h2jecm);
+
+  TCanvas *c1 = new TCanvas(Form("c1%s",co),Form("c1%s",co),1200,600);
+  c1->Divide(6,3,0,0);
+
+  TCanvas *c2 = new TCanvas(Form("c2%s",co),Form("c2%s",co),1200,600);
+  c2->Divide(6,3,0,0);
+
+  const double vy[] = {15, 30, 60, 120, 240, 480, 1000,  2000, 4000, 6500};
+  const int ny = sizeof(vy)/sizeof(vy[0])-1;
+  vector<double> vx(h2jec->GetNbinsX()+1);
+  for (int i = 1; i != h2jec->GetNbinsX()+2; ++i) {
+    vx[i-1] = h2jec->GetXaxis()->GetBinLowEdge(i);
+  }
+  int nx = vx.size()-1;
+  TH2D *h2jecf = new TH2D("h2jecf",";#eta;JEC",nx,&vx[0],ny,vy);
+  TH2D *h2jecsf = new TH2D("h2jecsf",";#eta;JEC SF",nx,&vx[0],ny,vy);
+  
+  const int neta = h2jec->GetNbinsX();
+  vector<JEC> vjec(neta);
+
+  for (int ieta = 1; ieta != h2jec->GetNbinsX()+1; ++ieta) {
+    
+    c1->cd(ieta);
+    gPad->SetLogx();
+
+    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.85,1.30);
+    h->Draw();
+
+    // Add fits on top
+    double ptmin = (isZB ? 30. : 59.);
+    double etamin = h2jec->GetXaxis()->GetBinLowEdge(ieta);
+    double etamax = h2jec->GetXaxis()->GetBinLowEdge(ieta+1);
+    double fitptmax2 = min(1784.,0.55*6500./cosh(etamin));
+    int jmax2 = h2jec->GetYaxis()->FindBin(fitptmax2);
+    fitptmax2 = h2jec->GetYaxis()->GetBinLowEdge(jmax2);
+    double fitptmax1 = max(132.,0.45*6500./cosh(etamin));
+    int jmax1 = h2jec->GetYaxis()->FindBin(fitptmax1);
+    fitptmax1 = h2jec->GetYaxis()->GetBinLowEdge(jmax1);
+    double fitptmax =  (fabs(etamin)>=2.9 ? fitptmax1 : fitptmax2);
+    double fitptmin = (isZB ? 30. : 15.);
+
+    l->SetLineStyle(kDotted);
+    double ymin = h->GetMaximum();
+    double ymax = h->GetMinimum();
+    l->DrawLine(ptmin,ymin,ptmin,ymax);
+    double ptmax = fitptmax;
+    double ptmax1 = fitptmax1;
+    l->DrawLine(ptmax,ymin,ptmax,ymax);
+    double ptmax2 = fitptmax2;
+    l->DrawLine(ptmax2,ymin,ptmax2,ymax);
+
+    l->SetLineStyle(kSolid);
+    l->SetLineColor(kBlack);
+    l->DrawLine(15,1,3500,1);
+    
+    TH1D *h1jec = h2jec->ProjectionY(Form("h1jec%s_%d",co,ieta),ieta,ieta);
+    TH1D *h1jecm = h2jecm->ProjectionY(Form("h1jecm%s_%d",co,ieta),ieta,ieta);
+
+    h1jec->SetMarkerSize(0.7);
+    h1jecm->SetMarkerSize(0.7);
+    
+    //tdrDraw(h1jecm,"Pz",kOpenCircle,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jecm,"Pz",kOpenCircle,kGreen+3,kSolid,-1,kNone);
+    tdrDraw(h1jec,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    
+    tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (ieta==1 || ieta%6==0) {
+      TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(h1jec,"Data","PLE");
+      leg->AddEntry(h1jecm,"MadGraph","PLE");
+    }
+
+    TF1 *fjec = new TF1(Form("fjec%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
+			fitptmin,fitptmax);
+    TF1 *fjecm = new TF1(Form("fjecm%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
+			 fitptmin,fitptmax);
+
+    fjec->SetParameters(1,0,0);
+    h1jec->Fit(fjec,"QRN");
+    fjec->SetRange(15,3500);
+
+    fjecm->SetParameters(1,0,0);
+    h1jecm->Fit(fjecm,"QRN");
+    fjecm->SetRange(15,3500);
+
+    fjecm->SetLineColor(kGreen+3);//kBlue);
+    fjecm->Draw("SAME");
+    fjec->SetLineColor(kGreen+2);
+    fjec->Draw("SAME");
+    
+    c2->cd(ieta);
+    gPad->SetLogx();
+
+    //TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.96,1.11);
+    TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.92,1.12);
+    h2->Draw();
+
+    double ptmin2 = (isZB ? 15. : 59.);
+    double ymin2 = h2->GetMinimum();
+    double ymax2 = h2->GetMaximum();
+    l->SetLineStyle(kDotted);
+    l->SetLineColor(kBlack);
+    l->DrawLine(ptmin,ymin2,ptmin,ymax2);
+    l->DrawLine(ptmax,ymin2,ptmax,ymax2);
+    l->DrawLine(ptmax2,ymin2,ptmax2,ymax2);
+    l->SetLineStyle(kSolid);
+    l->DrawLine(15,1,3500,1);
+
+    TH1D *h1jecr = (TH1D*)h1jec->Clone(Form("h1jecr%s_%d",co,ieta));
+
+    h1jecr->Divide(h1jecm);
+
+    h1jecr->GetXaxis()->SetRangeUser(ptmin2,fitptmax);
+    h1jecr->SetMarkerSize(0.7);
+    
+    tdrDraw(h1jecr,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+
+    tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
+
+    if (ieta==1 || ieta%6==0) {
+      TLegend *leg = tdrLeg(0.55,0.90-1*0.075,0.85,0.90);
+      leg->SetTextSize(0.045*1.5);
+      leg->AddEntry(h1jecr,"MadGraph","PLE");
+    }
+
+    TF1 *fjec2r = new TF1(Form("fjer2r%d",ieta),
+			  "([0]+log(x)*([1]+log(x)*[2]))/"
+			 "([3]+log(x)*([4]+log(x)*[5]))",15,3000);
+    fjec2r->SetParameters(fjec->GetParameter(0),fjec->GetParameter(1),
+			  fjec->GetParameter(2),
+			  fjecm->GetParameter(0),fjecm->GetParameter(1),
+			  fjecm->GetParameter(2));
+    fjec2r->SetLineColor(kBlack);
+    fjec2r->SetLineWidth(2);
+    fjec2r->SetLineStyle(kDotted);
+    fjec2r->Draw("SAME");
+
+    TF1 *fjecr = new TF1(Form("fjecr%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
+			 fitptmin,fitptmax);
+    fjecr->SetLineColor(kGreen+2);
+
+    fjecr->SetParameters(1,0,0);
+    h1jecr->Fit(fjecr,"QRN");
+    fjecr->SetRange(15,3500);
+    fjecr->Draw("SAME");
+    
+    for (int ipt = 1; ipt != h2jecf->GetNbinsY()+1; ++ipt) {
+      double etamin = h2jecf->GetXaxis()->GetBinLowEdge(ieta);
+      double etamax = h2jecf->GetXaxis()->GetBinLowEdge(ieta+1);
+      double absetamin = min(fabs(etamin),fabs(etamax));
+      double pt = h2jecf->GetYaxis()->GetBinLowEdge(ipt);
+      if (cosh(absetamin)*pt < 6500.) {
+	h2jecf->SetBinContent(ieta, ipt, fjec->Eval(pt));
+	h2jecsf->SetBinContent(ieta, ipt, fjecr->Eval(pt));
+      }
+    } // for ipt
+
+    // Copy results for text file
+    JEC jec;
+    jec.eta = h2jecf->GetXaxis()->GetBinCenter(ieta);
+    jec.deta = 0.5*h2jecf->GetXaxis()->GetBinWidth(ieta);
+    jec.p0  = fjecr->GetParameter(0);
+    jec.p1   = fjecr->GetParameter(1);
+    //
+    //jec.p0_dt  = fjecr->GetParameter(0);
+    //jec.p1_dt   = fjecr->GetParameter(1);
+    //
+    //jec.p0_mc  = fjerr->GetParameter(2);
+    //jec.p1_mc   = fjerr->GetParameter(3);
+    //
+    vjec[ieta-1] = jec;
+  } // for ieta
+
+  c1->SaveAs(Form("pdf/DijetHistosOverlayJEC_%s.pdf",cera));
+  c2->SaveAs(Form("pdf/DijetHistosOverlayJEC_%s_ratio.pdf",cera));
+
+  if (true) { // JEC and L2Res vs eta
+
+    int color[ny] = {kGray+1, kMagenta+1, kBlue, kCyan+2, kGreen+2,
+		     kYellow+2, kOrange+1, kRed, kBlack};
+      
+    TH1D *h = tdrHist("h","MPF in data",0.96,1.26,"|#eta|",0.0,5.191);
+    TH1D *hd = tdrHist("hd","Data/MC",0.96,1.11,"|#eta|",0.0,5.191);
+
+    TString tera = era.c_str();
+    if (tera.Contains("UL2016APV")) lumi_13TeV = "2016early, 19.7 fb^{-1}";
+    if (tera.Contains("UL2016BCDEF")) lumi_13TeV = "2016BCDEF, 19.7 fb^{-1}";
+    if (tera.Contains("UL2016GH")) lumi_13TeV = "2016late, 16.8 fb^{-1}";
+    if (tera.Contains("UL2017")) lumi_13TeV = "2017, 41.5 fb^{-1}";
+    if (tera.Contains("UL2018")) lumi_13TeV = "2018, 59.9 fb^{-1}";
+    if (tera.Contains("Run2")) lumi_13TeV = "Run2, 137.9 fb^{-1}";
+
+    TCanvas *c3 = tdrDiCanvas("c3",h,hd,4,11);
+
+    c3->cd(1);
+
+    l->SetLineStyle(kDotted);
+    double ymin3 = h->GetMinimum();
+    double ymax3 = h->GetMaximum();
+    l->DrawLine(0,1,5.191,1);
+    l->DrawLine(1.3,ymin3,1.3,ymax3-0.05);
+    l->DrawLine(2.5,ymin3,2.5,ymax3);
+    l->DrawLine(3.139,ymin3,3.139,ymax3);
+    
+    TLegend *leg = tdrLeg(0.70,0.89-ny*0.035,0.95,0.89);
+    leg->SetTextSize(0.04);
+
+    for (int ipt = 1; ipt != h2jecf->GetNbinsY()+1; ++ipt) {
+      TH1D *h1jecf = h2jecf->ProjectionX(Form("h1jerf_%d",ipt),ipt,ipt);
+      tdrDraw(h1jecf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
+
+      int pt = h2jecf->GetYaxis()->GetBinLowEdge(ipt);
+      leg->AddEntry(h1jecf,Form("%d GeV",pt),"L");
+    }
+    
+    c3->cd(2);
+    
+    double ymin3d = hd->GetMinimum();
+    double ymax3d = hd->GetMaximum();
+    l->SetLineStyle(kDashed);
+    l->DrawLine(0,1,5.191,1);
+    l->SetLineStyle(kDotted);
+    l->DrawLine(1.3,ymin3d,1.3,ymax3d);
+    l->DrawLine(2.5,ymin3d,2.5,ymax3d);
+    l->DrawLine(3.139,ymin3d,3.139,ymax3d);
+    
+    for (int ipt = 1; ipt != h2jecsf->GetNbinsY()+1; ++ipt) {
+      TH1D *h1jecsf = h2jecsf->ProjectionX(Form("h1jecsf_%d",ipt),ipt,ipt);
+      tdrDraw(h1jecsf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
+    }
+
+    c3->SaveAs(Form("pdf/DijetHistosOverlayJEC_%s_JECvsEta.pdf",cera));
+  } // JEC+L2Res
+
+  // Overlay pT,tag and pT,ave bins
+  if (addColorJEC) {
+
+    TH2D *h2jecpf(0), *h2jecpfm(0);
+    h2jecpf = (TH2D*)f1->Get("Dijet2/h2jecpf"); assert(h2jecpf);
+    h2jecpfm = (TH2D*)f1m->Get("Dijet2/h2jecpf"); assert(h2jecpfm);
+
+    TH2D *h2jectc(0), *h2jectcm(0);
+    h2jectc = (TH2D*)f1->Get("Dijet2/h2jectc"); assert(h2jectc);
+    h2jectcm = (TH2D*)f1m->Get("Dijet2/h2jectc"); assert(h2jectcm);
+
+    for (int ieta = 1; ieta != h2jec->GetNbinsX()+1; ++ieta) {
+
+      TH1D *h1jecpf = h2jecpf->ProjectionY(Form("h1jecpf%s_%d",co,ieta),
+					   ieta,ieta);
+      TH1D *h1jecpfm = h2jecpfm->ProjectionY(Form("h1jecpfm%s_%d",co,ieta),
+					     ieta,ieta);
+      TH1D *h1jectc = h2jectc->ProjectionY(Form("h1jectc%s_%d",co,ieta),
+					   ieta,ieta);
+      TH1D *h1jectcm = h2jectcm->ProjectionY(Form("h1jectcm%s_%d",co,ieta),
+					     ieta,ieta);
+      c1->cd(ieta);
+
+      //h1jecpf->SetMarkerSize(0.7);
+      //h1jecpfm->SetMarkerSize(0.7);
+      //h1jectc->SetMarkerSize(0.7);
+      //h1jectcm->SetMarkerSize(0.7);
+      
+      tdrDraw(h1jectcm,"Pz",kOpenDiamond,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1jectc,"Pz",kFullDiamond,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1jecpfm,"Pz",kOpenDiamond,kRed,kSolid,-1,kNone);
+      tdrDraw(h1jecpf,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
+
+      c2->cd(ieta);
+
+      TH1D *h1jecpfr = (TH1D*)h1jecpf->Clone(Form("h1jecpfr%s_%d",co,ieta));
+      h1jecpfr->Divide(h1jecpfm);
+      TH1D *h1jectcr = (TH1D*)h1jectc->Clone(Form("h1jectcr%s_%d",co,ieta));
+      h1jectcr->Divide(h1jectcm);
+
+      tdrDraw(h1jectcr,"Pz",kFullDiamond,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1jecpfr,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
+    } // for ieta
+
+    c1->SaveAs(Form("pdf/DijetHistosOverlayJEC_wColor_%s.pdf",cera));    
+    c2->SaveAs(Form("pdf/DijetHistosOverlayJEC_wColor_%s_ratio.pdf",cera)); 
+  } // addColorJEC 
+
+  // Overlay Z+jet JER. Next stage would be to add it to fit as well
+  // => update to Z+jet JEC
+  if (addZjetJEC) {
+
+    TFile *fz(0);
+    TString tera = era.c_str();
+    if (tera.Contains("UL2016APV")) {
+      fz = new TFile("../jecsys2020/rootfiles/jme_bplusZ_2016ULAPV_Zmm_sync_v53.root","READ");
+    }
+    if (tera.Contains("UL2016GH")) {
+    }
+    if (tera.Contains("UL2017") || tera.Contains("Run2")) {
+      fz = new TFile("../jecsys2020/rootfiles/jme_bplusZ_2017UL_Zmm_sync_v53.root","READ");
+    }
+    if (tera.Contains("UL2018")) { 
+    }
+    assert (fz && !fz->IsZombie()); {
+      
+      TH3D *h3z = (TH3D*)fz->Get("data/h3D_Zpt_RMPF_eta_alpha100"); assert(h3z);
+      TH3D *h3zm = (TH3D*)fz->Get("mc/h3D_Zpt_RMPF_eta_alpha100"); assert(h3zm);
+
+      h3z->RebinX(2);
+      h3zm->RebinX(2);
+
+      // Flatten 3D histo to a profile in (x=eta)-(y=pT) plane
+      TProfile2D *p2z  = h3z->Project3DProfile("xz");  p2z->SetName("p2z");
+      TProfile2D *p2zm  = h3zm->Project3DProfile("xz");  p2zm->SetName("p2zm");
+      
+      for (int i = 1; i != h2jec->GetNbinsX()+1; ++i) {
+	
+	double eta = h2jec->GetXaxis()->GetBinCenter(i);
+	int j = p2z->GetXaxis()->FindBin(eta);
+	TH1D *h1z = p2z->ProjectionY(Form("h1z_%d",i),j,j);
+	TH1D *h1zm = p2zm->ProjectionY(Form("h1zm_%d",i),j,j);
+	
+	TH1D *h1zr = (TH1D*)h1z->Clone(Form("h1zr_%d",i));
+	h1zr->Divide(h1zm);
+	
+	c1->cd(i);
+	tdrDraw(h1z,"Pz",kFullStar,kMagenta+1); h1z->SetMarkerSize(0.8);//0.7);
+	tdrDraw(h1zm,"Pz",kOpenStar,kMagenta+1); h1zm->SetMarkerSize(1.0);//0.7);
+	
+	c2->cd(i);
+	tdrDraw(h1zr,"Pz",kFullStar,kMagenta); h1zr->SetMarkerSize(1.0);//0.7);
+      }
+      
+      c1->SaveAs(Form("pdf/DijetHistosOverlayJEC_wZjet_%s.pdf",cera));    
+      c2->SaveAs(Form("pdf/DijetHistosOverlayJEC_wZjet_%s_ratio.pdf",cera)); 
+    } // Z+jet file available
+  } // addZJetJEC
+
+  if (false) { // text file later
+
+    // Produce output text file (FactorizedJetCorrecter Style
+    ofstream txt(Form("pdf/jerSF/Summer20%s_L2Residual_AK4PFchs.txt",cera));
+    txt << "{1 JetEta 2 JetPt Rho "
+	<< "sqrt(max([0]*fabs([0])/(x*x)+[4]*[4]/(x*x)+"
+	<< "[1]*[1]*pow(x,[3])+[2]*[2],0.))/"
+	<< "sqrt(max([5]*fabs([5])/(x*x)+[9]*[9]/(x*x)+"
+	<< "[6]*[6]*pow(x,[8])+[7]*[7],0.))"
+	<< " Correction L2Relative}" << endl;
+
+    // Rho from HLT_PFJet500,550/Incjet/PFComposition/prho13->at(1000 GeV)
+    double rho = 19.59; // Run2
+    TString tera = era.c_str();
+    if (tera.Contains("UL2016APV")) rho = 14.06;
+    if (tera.Contains("UL2016BCDEF")) rho = 14.06;
+    if (tera.Contains("UL2016GH")) rho = 16.55;
+    if (tera.Contains("UL2017")) rho = 21.72;
+    if (tera.Contains("UL2018")) rho = 20.68;
+    if (tera.Contains("Run2")) rho = 19.59;
+
+    for (int i = neta-1; i != -1; --i) {
+      JEC &jec = vjec[i];
+      txt << Form("%6.3f %6.3f %2d %2d %4d"
+		  " %6.2f %5.3f\n",
+		  -jec.eta-jec.deta, -jec.eta+jec.deta, 4, 8, 6500,
+		  jec.p0, jec.p1);
+    } // for i in -neta
+    for (int i = 0; i != neta; ++i) {
+      JEC &jec = vjec[i];
+      txt << Form("%6.3f %6.3f %2d %2d %4d"
+		  " %6.2f %5.3f\n",
+		  +jec.eta-jec.deta, +jec.eta+jec.deta, 14, 8, 6500,
+		  jec.p0, jec.p1);
+    } // for i in +neta
+  } // produce text file
+			      
+} // DijetHistosOverLayJEC
 
 int findBin(TH2D *h2, double x, double *xnew) {
 

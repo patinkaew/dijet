@@ -38,7 +38,8 @@ void DijetHistosJER() {
   //drawDijetHistosJER();
   //drawDijetHistosJERtest();
 
-
+  // Before MC JER SF
+  /*
   DijetHistosJERs("haddfiles/jmenano_data_cmb_UL2016APV_v26c.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root","Dijet2");
   DijetHistosJERs("haddfiles/jmenano_data_cmb_UL2016GH_v26c.root","Dijet2");
@@ -65,6 +66,29 @@ void DijetHistosJER() {
   drawDijetHistosJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   		     "haddfiles/jmenano_mc_cmb_Run2_v26.root",
   		     "Run2_ZB_v26c");
+  */
+  // After MC JER SF
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016MG_v27.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2017MG_v27.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2");
+  DijetHistosJERs("haddfiles/jmenano_mc_cmb_Run2_v27.root","Dijet2");
+
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2016APV_v26c.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root",
+  		     "UL2016APV_ZB_v27");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2016GH_v26c.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2016MG_v27.root",
+  		     "UL2016GH_ZB_v27");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
+  		     "UL2017_ZB_v27");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_UL2018_v26c.root",
+  		     "rootfiles/jmenano_mc_cmb_UL2018MG_v27.root",
+  		     "UL2018_ZB_v27");
+  drawDijetHistosJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
+  		     "haddfiles/jmenano_mc_cmb_Run2_v27.root",
+  		     "Run2_ZB_v27");
 
 }
 
@@ -421,10 +445,13 @@ void drawDijetHistosJER(string sd, string sm, string era) {
   if (tera.Contains("Run2")) lumi_13TeV = "2018, 137.9 fb^{-1}";
 
   const char *c = "_Dijet2";
-  TCanvas *c1 = new TCanvas(Form("c1%s",c),Form("c1%s",c),1200,600);
+  const char *cera = era.c_str();
+  TCanvas *c1 = new TCanvas(Form("c1_%s_%s",c,cera),Form("c1_%s_%s",c,cera),
+			    1200,600);
   c1->Divide(6,3,0,0);
   
-  TCanvas *c2 = new TCanvas(Form("c2%s",c),Form("c2%s",c),1200,600);
+  TCanvas *c2 = new TCanvas(Form("c2_%s_%s",c,cera),Form("c2_%s_%s",c,cera),
+			    1200,600);
   c2->Divide(6,3,0,0);
 
   TLine *l = new TLine();
@@ -448,12 +475,12 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     c1->cd(min(i,18));
     gPad->SetLogx();
 
-    TH1D *h = tdrHist(Form("h%d%s",i,c),"JER",0,0.3);
+    TH1D *h = tdrHist(Form("h%d_%s_%s",i,c,cera),"JER",0,0.3);
     tdrDraw(h,"",kNone);
 
     // RMS(MPFX) as low pT reference (sensitive to PU)
-    TH1D *h1xs = h2m0xs->ProjectionY(Form("h1xs%d%s",i,c),i,i);
-    TH1D *h1xsm = h2m0xsm->ProjectionY(Form("h1xsm%d%s",i,c),i,i);
+    TH1D *h1xs = h2m0xs->ProjectionY(Form("h1xs%d_%s_%s",i,c,cera),i,i);
+    TH1D *h1xsm = h2m0xsm->ProjectionY(Form("h1xsm%d_%s_%s",i,c,cera),i,i);
     // Calculate effective parallel jet areas for MET (nmet):
     // int_0_2pi 1./(2pi)*cos^2(theta)dtheta = 1/2 to scale phi direction area
     double nmet = ((1./2.)*2.*5.*TMath::TwoPi()) / (TMath::Pi()*0.4*0.4);
@@ -471,10 +498,10 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     tdrDraw(h1jer13,"HIST",kNone,kBlue,kSolid,-1,kNone);
     tdrDraw(h1jer13m,"HIST",kNone,kBlue-9,kSolid,-1,kNone);
 
-    TH1D *h1jer = h2jer->ProjectionY(Form("h1jer%d%s",i,c),i,i);
+    TH1D *h1jer = h2jer->ProjectionY(Form("h1jer%d_%s_%s",i,c,cera),i,i);
     tdrDraw(h1jer,"Pz",kFullCircle,kGreen+2);
     h1jer->SetMarkerSize(0.7);
-    TH1D *h1jerm = h2jerm->ProjectionY(Form("h1jerm%d%s",i,c),i,i);
+    TH1D *h1jerm = h2jerm->ProjectionY(Form("h1jerm%d_%s_%s",i,c,cera),i,i);
     tdrDraw(h1jerm,"Pz",kOpenCircle,kGreen+2);
     h1jerm->SetMarkerSize(0.7);
 
@@ -483,7 +510,7 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     tex->DrawLatex(0.60,0.88,Form("%1.3f < |#eta| < %1.3f",eta1,eta2));
 
     double ptmax = min(2000.,6500.*0.7/cosh(eta1));
-    TF1 *f1 = new TF1(Form("f1%d%s",i,c),"sqrt([0]*fabs([0])/(x*x)+"
+    TF1 *f1 = new TF1(Form("f1%d_%s_%s",i,c,cera),"sqrt([0]*fabs([0])/(x*x)+"
 		      "[1]*[1]*pow(x,[3])+[2]*[2])",30,ptmax);
     //f1->SetParameters(-1,1,0.04,0.);
     f1->SetParameters(0,1,0.04,-1);
@@ -515,7 +542,7 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     c2->cd(min(i,18));
     gPad->SetLogx();
     
-    TH1D *h2 = tdrHist(Form("h2%d%s",i,c),"Data/MC",0.8,2.0);////0.5,2.0);
+    TH1D *h2 = tdrHist(Form("h2_%d_%s_%s",i,c,cera),"Data/MC",0.8,2.0);
     tdrDraw(h2,"",kNone);
     l->DrawLine(15,1,3500,1);
 
@@ -527,9 +554,9 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     //tdrDraw(h1m0sr,"HIST",kNone,kBlue,kSolid,-1,kNone);
 
     // RMS(MPFX) as low pT reference (sensitive to PU)
-    TH1D *h1m0xs = h2m0xs->ProjectionY(Form("h1m0xs%d%s",i,c),i,i);
-    TH1D *h1m0xsm = h2m0xsm->ProjectionY(Form("h1m0xsm%d%s",i,c),i,i);
-    TH1D *h1m0xsr = (TH1D*)h1m0xs->Clone(Form("h1m0xsr%d%s",i,c));
+    TH1D *h1m0xs = h2m0xs->ProjectionY(Form("h1m0xs%d_%s_%s",i,c,cera),i,i);
+    TH1D *h1m0xsm = h2m0xsm->ProjectionY(Form("h1m0xsm%d_%s_%s",i,c,cera),i,i);
+    TH1D *h1m0xsr = (TH1D*)h1m0xs->Clone(Form("h1m0xsr%d_%s_%s",i,c,cera));
     h1m0xsr->Divide(h1m0xsm);
     h1m0xsr->GetXaxis()->SetRangeUser(15,200);
     //tdrDraw(h1m0xsr,"HIST",kNone,kRed,kSolid,-1,kNone);
@@ -548,7 +575,7 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     tex->DrawLatex(0.60,0.88,Form("%1.3f < |#eta| < %1.3f",eta1,eta2));
 
     
-    TF1 *f2 = new TF1(Form("f2%d%s",i,c),
+    TF1 *f2 = new TF1(Form("f2%d_%s_%s",i,c,cera),
 		      //"sqrt([0]*[4]*fabs([0]*[4])/(x*x)+"
 		      //"[1]*[5]*[1]*[5]*pow(x,[3]*[7])+[2]*[6]*[2]*[6])"
 		      "sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])"
@@ -994,7 +1021,8 @@ void drawDijetHistosJERtest() {
 	++ndf;
       }
     }
-    tex->DrawLatex(0.45,0.49,Form("#chi^{2} / ndf (Ratio) = %1.1f / %d",chi2,ndf));
+    tex->DrawLatex(0.45,0.49,Form("#chi^{2} / ndf (Ratio) = %1.1f / %d",
+				  chi2,ndf));
     tex->DrawLatex(0.42,0.80,"|#eta| < 1.3");
 
     c2->cd(2);
