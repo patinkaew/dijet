@@ -26,6 +26,8 @@ void DijetHistosCombine() {
   //DijetHistosCombines("rootfiles/jmenano_mc_out_v23ul16flat.root");
   //DijetHistosCombines("rootfiles/jmenano_mc_out_v23ul16mg.root");
 
+  // Before JER SF for MC
+  /*
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2016APV_v26c.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016APVMG_v26.root");
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2016GH_v26c.root");
@@ -34,8 +36,36 @@ void DijetHistosCombine() {
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2017MG_v26.root");
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2018_v26c.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2018MG_v26.root");
+  */
+  
+  /*
+  // This one is taking a while. Why? CPU ~100%, mem up to >3 GB
   DijetHistosCombines("haddfiles/jmenano_data_out_Run2_v26c.root");
   DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v26.root");
+
+  // After JER SF for MC
+  DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016APVMG_v27.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016MG_v27.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_UL2017MG_v27.root");
+  DijetHistosCombines("rootfiles/jmenano_mc_out_UL2018MG_v27.root");
+  DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v27.root");
+  */
+
+  // New Run3 files from Iita and Mikael
+  // 2022
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022C_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022D_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022E_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022F_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022G_v1.root");
+  // 2023
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023B_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023Cv123_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023Cv4_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023D_v1.root");
+  // Main combos (after checking stability for L2Res)
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022D_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2022BCv123_v1.root");
   
 } // DijetHistosCombine
 
