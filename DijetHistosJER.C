@@ -110,18 +110,19 @@ void DijetHistosJER() {
   //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2022BCv123_v1.root","Dijet2");
   
   // Plot results vs UL2018 for now
-  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2");
+  //DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2"); // with JER SF
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2"); // no JER SF
   //
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022C_v1_vs_UL18_v27");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022D_v1_vs_UL18_v27");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022E_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022E_v1_vs_UL18_v27");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022F_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022F_v1_vs_UL18_v27");
-  //drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022G_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022G_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022C_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022D_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022E_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022E_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022F_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022F_v1_vs_UL18_v26");
+  //drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022G_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022G_v1_vs_UL18_v26");
   //
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023B_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023B_v1_vs_UL18_v27");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv123_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023Cv123_v1_vs_UL18_v27");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv4_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023Cv4_v1_vs_UL18_v27");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023D_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023B_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023B_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv123_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023Cv123_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv4_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023Cv4_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023D_v1_vs_UL18_v26");
 }
 
 // Update cmb.root to add JER results
