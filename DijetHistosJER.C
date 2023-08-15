@@ -67,6 +67,8 @@ void DijetHistosJER() {
   		     "haddfiles/jmenano_mc_cmb_Run2_v26.root",
   		     "Run2_ZB_v26c");
   */
+
+  /*
   // After MC JER SF
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2016MG_v27.root","Dijet2");
@@ -89,7 +91,37 @@ void DijetHistosJER() {
   drawDijetHistosJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   		     "haddfiles/jmenano_mc_cmb_Run2_v27.root",
   		     "Run2_ZB_v27");
+  */
 
+  // New Run3 files from Iita and Mikael
+  // 2022
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022E_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022F_v1.root","Dijet2");
+  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022G_v1.root","Dijet2");
+  // 2023
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023B_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv123_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv4_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023D_v1.root","Dijet2");
+  // Main combos (after checking stability for L2Res)
+  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","Dijet2");
+  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2022BCv123_v1.root","Dijet2");
+  
+  // Plot results vs UL2018 for now
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2");
+  //
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022C_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022D_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022E_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022E_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022F_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022F_v1_vs_UL18_v27");
+  //drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022G_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2022G_v1_vs_UL18_v27");
+  //
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023B_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023B_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv123_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023Cv123_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv4_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023Cv4_v1_vs_UL18_v27");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","2023D_v1_vs_UL18_v27");
 }
 
 // Update cmb.root to add JER results
@@ -335,6 +367,11 @@ void DijetHistosJERs(string file, string dir) {
       // Use UL2018 until proper Run2 combo available
       frc = new TFile("../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
     }
+    
+    // Run3 2022+2023
+    if (!frc && s.Contains("202")) {
+      frc = new TFile("../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
+    }
 
 
     assert(frc && !frc->IsZombie());
@@ -530,6 +567,11 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     f1->SetLineColor(kBlack);//kGreen+1);
     f1->Draw("SAME");
 
+    // PATCH Run3
+    h1jer->Scale(0.5);
+    h1jer13->Scale(0.5);
+    // \PATCH Run3
+    
     if (i%6==0 || i==1) {
       //TLegend *leg = tdrLeg(0.70,0.85-4*0.05,1.00,0.85);
       TLegend *leg = tdrLeg(0.70,0.85-3*0.05,1.00,0.85);
@@ -902,7 +944,10 @@ void drawDijetHistosJERtest() {
     double sumrmsdt2(0), sumrmsmc2(0), sumeta(0);
     for (int i = 0; i != 5; ++i) {
       double deta = 2.* gm->GetErrorXlow(i);
-      sumrmsdt2 += deta*pow(gd->GetY()[i],2);
+      //sumrmsdt2 += deta*pow(gd->GetY()[i],2);
+      // PATCH Run3
+      sumrmsdt2 += 0;
+      // \PATCH Run3
       sumrmsmc2 += deta*pow(gm->GetY()[i],2);
       sumeta += deta;
     }
