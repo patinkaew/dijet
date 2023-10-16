@@ -17,9 +17,21 @@ How to RUN on Hefaistos:
 + starting up takes quite a bit (~X sec) due to GetEntries() call
    => code TStopWatch to ignore this startup time, or skip GetEntries
 
+How to ANALYZE locally:
+-----------------------
+Copy files locally for further processing
 - rsync -rutP files from Hefaistos
-- root -l -b -q DijetHistosCombine.C+g
-- root -l -b -q DijetHistosJER.C+g
+
+After producing the jmenano_[data,mc])_out_v[X].root root files and hadding: 
+- root -l -b -q DijetHistosCombine.C+g   [merge triggers]
+- root -l -b -q DijetHistosJER.C+g       [JER SF]
+- root -l -b -q DijetHistosL2Res.C+g     [dijet L2Res]
+- root -l -b -q DijetHistosOverlay.C+g   [draw dijet L2Res]
+
+Jet veto maps in jecsys3 package:
+- root -l -b -q jecsys3/minitools/doJetVetoV2.C
+- root -l -b -q jecsys3/minitools/drawJetVetoV2.C
+
 
 To-do:
 - add trigger turn-on folder
@@ -32,6 +44,14 @@ To-do:
 - figure out segfault for 2018D. Could be array overflow?
 - update to Summer20 L1+L2L3 when available
 
+To-do Run3:
+- update JEC
+- fix multijet Crecoil and PF composition
+- update JER SF
+- then re-update JER SF pT-dep
+- check MET filters
+
+
 From Fikri, 31 March 2023:
 I don't thinkFlag_METFilters is defined at Nano production level. Its defined at Mini production level [1]
 As for Jet_jetId, JMENanoV9 uses the same release as the central NanoAODv9, which is 10_6_26. The jetId decisions should follow the recommendations [2] .
@@ -43,9 +63,13 @@ Bugs:
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
 
-// v27: Filter out corrupt files from 2018D2 and 2018MG (log files >1MB). => To be done
+// v29: add Run3 code from Iita. Update JEC, jetvetomaps, JSON, rho branch mapping. Remove or comment out branches not in 2023 tuples. Patch Pileup_pthatmax for isMG.
 
-// v26(ZB): Add UL2017*_ZB eras for Zero Bias primary data set
+// v28: add Incjet/h2pteta without pT range preselection.
+
+// v27: Filter out corrupt files from 2018D2 and 2018MG (log files >1MB), as well as other large log files. Switch of HLT_ZeroBias for non-ZB datasets. Move input files to input_files subdirectory to clean up. Add useJERSFvsPt switch and functionality for MC.
+
+// v26(ZB): Add UL2017*_ZB eras for Zero Bias primary data set. v26c also added rest.
 // v26: Fix division by zero bug for Jet_CF[i] that made MPF0 and MPFu corrupted. Add UL2017MG files.
 
 // v25: Improve handling of JER files. Default data set and versioning to "X" and "vX", set version in runAllIOVs.py". Split UL2018D to UL2018D1, UL2018D2 for more balanced running. Set nGenJetMax=100 (was 76 from 2016GH). Add debugFiles option to print out file names.

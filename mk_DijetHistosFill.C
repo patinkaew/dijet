@@ -69,13 +69,27 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 	dataset=="UL2018D1" || dataset=="UL2018D2" ||
 	dataset=="UL2018MG" ||
 
-	dataset=="UL2016BCD_ZB" || dataset=="UL2016EF_ZB" || dataset=="UL2016GH_ZB" ||
-	dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
+	dataset=="UL2016BCD_ZB" || dataset=="UL2016EF_ZB" ||
+	dataset=="UL2016GH_ZB" ||
+	dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" ||
+	dataset=="UL2017D_ZB" ||
 	dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
-	dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" || dataset=="UL2018C_ZB" ||
-	dataset=="UL2018D_ZB"
+	dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" ||
+	dataset=="UL2018C_ZB" ||
+	dataset=="UL2018D_ZB" ||
+
+	dataset=="2022C" || dataset=="2022D" ||
+	dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+	dataset=="2023BCv123" || dataset=="2023Cv4" || dataset=="2023D" ||
+	dataset=="2022C_ZB" || dataset=="2022D_ZB" ||
+	dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
+	dataset=="2023BCv123_ZB" || dataset=="2023Cv4_ZB" ||
+	dataset=="2023D_ZB" ||
+
+	dataset=="Summer22Flat" || dataset=="Summer22MG" ||
+	dataset=="Summer22EEFlat" || dataset=="Summer22EEMG"
 	)) {
-    cout << "Dataset not supported" << endl << flush;
+    cout << "Dataset " << dataset << " not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
 	 << "UL2016BCD, UL2016EF, UL2016APVMG" << endl
 	 << "UL2016GH, UL2016MG, UL2016Flat," << endl
@@ -105,12 +119,23 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
      dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
      dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
      dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" || dataset=="UL2018C_ZB" ||
-     dataset=="UL2018D_ZB"
+     dataset=="UL2018D_ZB" ||
+
+     dataset=="2022C" || dataset=="2022D" ||
+     dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+     dataset=="2023BCv123" || dataset=="2023Cv4" || dataset=="2023D" ||
+     dataset=="2022C_ZB" || dataset=="2022D_ZB" ||
+     dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
+     dataset=="2023BCv123_ZB" || dataset=="2023Cv4_ZB" ||
+     dataset=="2023D_ZB"
      );
   bool addMC =
     (dataset=="UL2016APVMG" ||
      dataset=="UL2016MG"  || dataset=="UL2016Flat" ||
-     dataset=="UL2017MG"  || dataset=="UL2018MG"
+     dataset=="UL2017MG"  || dataset=="UL2018MG" ||
+
+     dataset=="Summer22Flat" || dataset=="Summer22MG" ||
+     dataset=="Summer22EEFlat" || dataset=="Summer22EEMG"
      ); 
 
   //cout << "Clean old shared objects and link files" << endl << flush;
@@ -183,7 +208,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
     cout << "Chained " << nFiles <<  " files" << endl << flush;
 
     bool isMG = (dataset=="UL2016APVMG" || dataset=="UL2016MG" ||
-		 dataset=="UL2017MG" || dataset=="UL2018MG");
+		 dataset=="UL2017MG" || dataset=="UL2018MG" ||
+		 dataset=="Summer22MG" || dataset=="Summer22EEMG");
     
     DijetHistosFill filler(c, isMG ? 2 : 1, dataset,version);
     filler.Loop();

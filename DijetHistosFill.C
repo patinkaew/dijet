@@ -111,8 +111,12 @@ public:
   static const int ny = 10;
   TH2D *h2pteta_all;
   TH2D *h2pteta_sel;
+  TH2D *h2pteta;
   TH1D *hpt13;
   TH1D* vpt[ny];
+
+  // Control plots for pileup
+  TH2D *h2jtvht, *h2jtoht;
 
   // (Optional) composition plots
   TProfile2D *p2pt, *p2rho, *p2chf, *p2nef, *p2nhf, *p2cef, *p2muf;
@@ -279,16 +283,18 @@ void DijetHistosFill::Loop()
    //if (debug) 
    cout << "Setting branch status for "
 	<< (isMC ? (isMG ? "MC (MG)" : "MC (Flat)") : (isZB ? "DATA (ZB)" : "DATA"))
-	<< (isRun2 ? " and Run2 (" : " and Run3 (") << isRun2 << ")"
+	<< " and " << (isRun2 ? "Run2" : "Run3")
+	<< " (isRun2=" << isRun2 << ", isRun3=" << isRun3 <<  ")"
 	<< endl << flush;
    
    if (isMC) fChain->SetBranchStatus("genWeight",1);
    if (isMC) fChain->SetBranchStatus("Generator_binvar",1); // pThat in Pythia8
-   if (isMC) fChain->SetBranchStatus("Pileup_pthatmax",1);
+   if (isMC && !(isMG && isRun3)) fChain->SetBranchStatus("Pileup_pthatmax",1);
 
    if (isMC && (smearJets || doMCtruth)) {
      cout << "Adding branches for GenJets ("
-	  << (smearJets ? " smearJets" : "") << (doMCtruth ? " doMCtruth" : "") << ")" << endl;
+	  << (smearJets ? " smearJets" : "")
+	  << (doMCtruth ? " doMCtruth" : "") << ")" << endl;
      fChain->SetBranchStatus("Jet_genJetIdx",1);
      fChain->SetBranchStatus("nGenJet",1);
      fChain->SetBranchStatus("GenJet_pt",1);
@@ -314,7 +320,9 @@ void DijetHistosFill::Loop()
    fChain->SetBranchStatus("event",1);
    //fChain->SetBranchStatus("Rho_fixedGridRhoAll",1);
    if (isRun2) fChain->SetBranchStatus("fixedGridRhoFastjetAll",1);
-   
+   if (isRun3) fChain->SetBranchStatus("Rho_fixedGridRhoFastjetAll",1);
+   fChain->SetBranchStatus("L1_UnprefireableEvent",1);
+
    // Listing of available triggers
    vector<string> vtrg;
 
@@ -434,8 +442,8 @@ void DijetHistosFill::Loop()
    }
 
    // List reference pT and abseta thresholds for triggers
-   mt["HLT_MC"] = range{15, 3000, 0, 5.2};
-   mt["HLT_ZeroBias"]  = range{15,  3000,  0, 5.2};
+   mt["HLT_MC"] = range{10, 3000, 0, 5.2};
+   mt["HLT_ZeroBias"]  = range{10,  3000,  0, 5.2};
    
    mt["HLT_DiPFJetAve40"]  = range{40,  85,  0, 5.2};
    mt["HLT_DiPFJetAve60"]  = range{85,  100, 0, 5.2};
@@ -610,10 +618,91 @@ void DijetHistosFill::Loop()
      jecl1rc = getFJC("Summer19UL18_RunD_V5_DATA_L1RC_AK4PFchs","","");
    }
 
-   if (!jec || !jecl1rc)
+   //2022
+   if (dataset=="2022C" || dataset=="2022C_ZB") {
+     jec = getFJC("",//Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+		  "Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+   }
+   if (dataset=="2022D" || dataset=="2022D_ZB") {
+     jec = getFJC("",//Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
+		  "Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
+   }
+   if (dataset=="2022E" || dataset=="2022E_ZB") {
+     jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
+		  "Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+   }
+   if (dataset=="2022F" || dataset=="2022F_ZB") {
+     jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
+		  "Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+   }
+   if (dataset=="2022G" || dataset=="2022G_ZB") {
+     jec = getFJC("",//Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
+		  "Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
+   }
+   
+   //22/23 MC
+   if (dataset=="Summer22" ||
+       dataset=="Summer22Flat" || dataset=="Summer22MG") {
+     jec = getFJC("",//Winter22Run3_V2_MC_L1FastJet_AK4PFPuppi",
+		  "Winter22Run3_V2_MC_L2Relative_AK4PFPuppi",
+		  "");//Winter22Run3_V2_MC_L2L3Residual_AK4PFPuppi");
+     jerpath = "CondFormats/JetMETObjects/data/Summer22_V1_NSCP_MC_PtResolution_ak4puppi.txt";
+     jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt"; // Same as Summer22EE, is ok
+     useJERSFvsPt = false;
+   }
+   if (dataset=="Summer22EE" ||
+       dataset=="Summer22EEFlat" || dataset=="Summer22EEMG") {
+     jec = getFJC("",//Summer22EEPrompt22_V1_MC_L1FastJet_AK4PFPuppi",
+		  "Summer22EEPrompt22_V1_MC_L2Relative_AK4PFPuppi",
+		  "");//Summer22EEPrompt22_V1_MC_L2L3Residual_AK4PFPuppi");
+     jerpath = "CondFormats/JetMETObjects/data/Summer22EEVetoRun3_V1_NSCP_MC_PtResolution_ak4puppi.txt";
+     jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt";
+     useJERSFvsPt = false;
+   }
+   if (dataset=="Summer23" ||
+       dataset=="Summer23Flat" || dataset=="Summer23MG" ||
+       dataset=="Summer23BPIXFlat" || dataset=="Summer23BPIXMG") {
+     jec = getFJC("",//Winter23Prompt23_V2_MC_L1FastJet_AK4PFPuppi",
+		  "Winter23Prompt23_V2_MC_L2Relative_AK4PFPuppi",
+		  "");//Winter23Prompt23_V2_MC_L2L3Residual_AK4PFPuppi");
+     jerpath = "CondFormats/JetMETObjects/data/Summer22EEVetoRun3_V1_NSCP_MC_PtResolution_ak4puppi.txt"; // Same as Summer22EE, until updated
+     jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt"; // Same as Summer22EE, until updated
+     useJERSFvsPt = false;
+   }
+
+   //2023
+   //if (dataset=="2023B" || dataset=="2023B_ZB") {
+   //jec = getFJC("Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+   //		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+   //		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+   //}
+ 
+   if (dataset=="2023BCv123" || dataset=="2023BCv123_ZB") {
+     jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+   }
+   if (dataset=="2023Cv4" || dataset=="2023Cv4_ZB") {
+     jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+   }
+
+   if (dataset=="2023D" || dataset=="2023D_ZB") {
+     jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+   }
+
+   if (isRun2 && (!jec || !jecl1rc))
      cout << "Missing files for " << dataset << endl << flush;
    assert(jec);
-   assert(jecl1rc);
+   //assert(jecl1rc);
 
    if (debug) cout << "Setting up JER smearing" << endl << flush;
    
@@ -662,32 +751,54 @@ void DijetHistosFill::Loop()
    if (debug) cout << "Setting up histograms" << endl << flush;   
 
    // Setup HT bin weighting and monitoring
-   TH1D *hxsec(0), *hnevt(0), *hLHE_HT(0), *hHT(0);
-   double vht[] = {0, 25, 50, 100, 200, 300, 500, 700, 1000, 1500, 2000, 6500};
-   const int nht = sizeof(vht)/sizeof(vht[0])-1;
-   int nMG(0);
+   TH1D *hxsec(0), *hnevt(0), *hnwgt(0), *hLHE_HT(0), *hLHE_HTw(0), *hHT(0);
+   double vht2[] = {0, 25, 50, 100, 200, 300, 500, 700, 1000, 1500, 2000, 6500};
+   const int nht2 = sizeof(vht2)/sizeof(vht2[0])-1;
+   double vht3[] = {0, 40, 70, 100, 200, 400, 600, 800, 1000, 1200, 1500, 2000,
+		    6800};
+   const int nht3 = sizeof(vht3)/sizeof(vht3[0])-1;
+   const double *vht = (isRun3 ? &vht3[0] : &vht2[0]);
+   const int nht = (isRun3 ? nht3 : nht2);
+   int nMG(0), sumwMG(0);
    if (isMG) {
      
      hxsec = new TH1D("hxsec",";H_{T} (GeV);pb",nht,vht);
      hnevt = new TH1D("hnevt",";H_{T} (GeV);N_{evt}",nht,vht);
+     hnwgt = new TH1D("hnwgt",";H_{T} (GeV);Sum of weights",nht,vht);
      hLHE_HT = new TH1D("hLHE_HT",";H_{T} (GeV);N_{evt} (unweighted)",nht,vht);
-     hHT = new TH1D("hHT",";H_{T} (GeV);N_{evt} (weighted)",2485,15,2500);
+     hLHE_HTw = new TH1D("hLHE_HTw",";H_{T} (GeV);N_{evt} (weighted)",nht,vht);
+     hHT = new TH1D("hHT",";H_{T} (GeV);N_{evt} (weighted)",2490,10,2500);
 
      // Reference number of events, retrieved manuallay with
      // TChain c("Events"); c.AddFile("<path to files>/*.root"); c.GetEntries();
      // Also re-calculated this code before event loop when needed
-     int vnevt[nht] = {0, 0, 11197186, 23002929, 17512439, 16405924, 14359110,
-		       13473185, 4365993, 2944561, 1836165};
+     int vnevt2[nht2] = {0, 0, 11197186, 23002929, 17512439, 16405924, 14359110,
+			 13473185, 4365993, 2944561, 1836165};
+     //int vnevt3[nht3] = {0, 9929, 26573, 16411, 10495, 8260, 7929, 10082, 14390, 6548, 6250}; // Summer22MG, local files
+     int vnevt3[nht3] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // Summer22MG, local files
+     int vnwgt3[nht3] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // Summer22MG, local files
+     const int *vnevt = (isRun3 ? &vnevt3[0] : &vnevt2[0]);
+     const int *vnwgt = (isRun3 ? &vnwgt3[0] : &vnevt2[0]);
      for (int i = 0; i != nht; ++i) {
        hnevt->SetBinContent(i+1, vnevt[i]);
+       hnwgt->SetBinContent(i+1, vnwgt[i]);
        nMG += vnevt[i];
+       sumwMG += vnwgt[i];
      }
      cout << "Loaded Hefaistos MadGraph event numbers ("
 	  << nMG << ")" << endl << flush;
      
      // xsec from jetphys/settings.h_template
-     double vxsec[nht] = {0, 0, 246300000.*23700000./28060000., 23700000,
-			  1547000, 322600, 29980, 6334, 1088, 99.11, 20.23};
+     double vxsec2[nht2] = {0, 0, 246300000.*23700000./28060000., 23700000,
+			    1547000, 322600, 29980, 6334, 1088, 99.11, 20.23};
+     // Run3 xsec from Mikel Mendizabal, MatterMost 16 Oct 2023
+     double vxsec3[nht3] =
+       {0, 3.136e+08,
+	5.883e+07, //5.807e+07 * 3478241.4 / 5305581.5, // HT 70to100
+	2.520e+07, 1.936e+06, 9.728e+04,
+	1.323e+04, //3.044e+04, //HT 60to800
+	3.027e+03, 8.883e+02, 3.834e+02, 1.253e+02, 2.629e+01};
+     const double *vxsec = (isRun3 ? &vxsec3[0] : &vxsec2[0]);
      for (int i = 0; i != nht; ++i) {
        hxsec->SetBinContent(i+1, vxsec[i]);
      }
@@ -706,13 +817,13 @@ void DijetHistosFill::Loop()
    double vptd[] = 
      //{59.,85.,104.,170.,236., 302., 370., 460., 575.}; // central
      //{86., 110., 132., 204., 279., 373.} // forward
-     {15, 21, 28, 37, 49,
+     {10, 15, 21, 28, 37, 49,
       59, 86, 110, 132, 170, 204, 236, 279, 302, 373, 460, 575,
       638, 737, 846, 967, 1101, 1248,
       1410, 1588, 1784, 2000, 2238, 2500, 2787, 3103};
    double nptd = sizeof(vptd)/sizeof(vptd[0])-1;
    // L3Res (gamma+jet) pT binning adapted and extended
-   const double vpt[] = {15, 20, 25, 30, 35,
+   const double vpt[] = {10, 15, 20, 25, 30, 35,
 			 40, 50, 60, 70, 85, 100, 125, 155, 180, 210, 250, 300,
 			 350, 400, 500, 600, 800, 1000, 1200, 1500,
 			 1800, 2100, 2400, 2700, 3000};
@@ -800,10 +911,22 @@ void DijetHistosFill::Loop()
    
    bool doJSON = (true && !isMC);
    if (doJSON) {
-     if (!LoadJSON()) {
-       cout << "Issues loading the JSON file; aborting..." << endl << flush;
-       exit(0);
-     }
+     //if (!LoadJSON()) {
+     //cout << "Issues loading the JSON file; aborting..." << endl << flush;
+     //exit(0);
+     //}
+
+     // Load JSON files
+     if (TString(dataset.c_str()).Contains("2016"))
+       LoadJSON("rootfiles/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt");
+     if (TString(dataset.c_str()).Contains("2017"))
+       LoadJSON("rootfiles/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt");
+     if (TString(dataset.c_str()).Contains("2018"))
+       LoadJSON("rootfiles/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt");
+     if (TString(dataset.c_str()).Contains("2022"))
+       LoadJSON("rootfiles/Cert_Collisions2022_355100_362760_Golden.json");
+     if (TString(dataset.c_str()).Contains("2023"))
+       LoadJSON("rootfiles/Cert_Collisions2023_366442_370790_Golden.json");
    }
    int _nbadevts_json(0);
 
@@ -993,6 +1116,16 @@ void DijetHistosFill::Loop()
 				 nx,vx,npti,vpti);
        h->h2pteta_sel = new TH2D("h2pteta_sel",";#eta;p_{T} (GeV);N_{jet}",
 				 nx,vx,npti,vpti);
+       h->h2pteta = new TH2D("h2pteta",";#eta;p_{T} (GeV);N_{jet}",
+			     nx,vx,npti,vpti);
+
+       // For pileup cleaning checks
+       if (isMG) {
+	 h->h2jtvht = new TH2D("h2jtvht",";H_{T} (GeV);2*Jet[0]",
+			       npti,vpti,npti,vpti);
+	 h->h2jtoht = new TH2D("h2jtoht",";H_{T} (GeV);2*Jet[0]/HT",
+			       npti,vpti,200,0.,10.);
+       }
        
        h->hpt13 = new TH1D("hpt13",";p_{T,jet} (GeV)",npti,vpti);
        for (int iy = 0; iy != h->ny; ++iy) {
@@ -1406,6 +1539,22 @@ void DijetHistosFill::Loop()
 	fjv = new TFile("rootfiles/hotjets-UL17_v2.root","READ");
    if (isRun2==4) //TString(ds.c_str()).Contains("2018"))
 	fjv = new TFile("rootfiles/hotjets-UL18.root","READ");
+   if (dataset=="2022C" || dataset=="2022D" || dataset=="2022C_ZB" ||
+       dataset=="2022D_ZB" || dataset=="Summer22" ||
+       dataset=="Summer22Flat" || dataset=="Summer22MG")
+     fjv = new TFile("rootfiles/jetveto2022CD.root","READ");
+   if (dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+       dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
+       dataset=="Summer22EE" ||
+       dataset=="Summer22EEFlat" || dataset=="Summer22EEMG")
+     fjv = new TFile("rootfiles/jetveto2022EFG.root","READ");
+   if (dataset=="2023B" || dataset=="2023C" || dataset=="2023BCv123" ||
+       dataset=="2023Cv123" || dataset=="2023Cv4" ||
+       dataset=="2023B_ZB" || dataset=="2023C_ZB" || dataset=="2023BCv123_ZB" ||
+       dataset=="2023Cv123_ZB" || dataset=="2023Cv4_ZB")
+     fjv = new TFile("rootfiles/jetveto2023BC.root","READ");
+   if (dataset=="2023D" || dataset=="2023D_ZB")
+     fjv = new TFile("rootfiles/jetveto2023D.root","READ");
    assert(fjv);
    
    // Veto lists for different years (NB: extra MC map for UL16):
@@ -1424,6 +1573,22 @@ void DijetHistosFill::Loop()
      h2jv = (TH2D*)fjv->Get("h2hot_ul17_plus_hep17_plus_hbpw89");
    if (isRun2==4) //TString(ds.c_str()).Contains("2018"))
      h2jv = (TH2D*)fjv->Get("h2hot_ul18_plus_hem1516_and_hbp2m1");
+   if (dataset=="2022C" || dataset=="2022D" || dataset=="2022C_ZB" ||
+       dataset=="2022D_ZB" || dataset=="Summer22" ||
+       dataset=="Summer22Flat" || dataset=="Summer22MG")
+     h2jv = (TH2D*)fjv->Get("jetvetomap");
+   if (dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+       dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
+       dataset=="Summer22EE" ||
+       dataset=="Summer22EEFlat" || dataset=="Summer22EEMG")
+     h2jv = (TH2D*)fjv->Get("jetvetomap");
+   if (dataset=="2023B" || dataset=="2023C" || dataset=="2023BCv123" ||
+       dataset=="2023Cv123" || dataset=="2023Cv4" ||
+       dataset=="2023B_ZB" || dataset=="2023C_ZB" || dataset=="2023BCv123_ZB" ||
+       dataset=="2023Cv123_ZB" || dataset=="2023Cv4_ZB")
+     h2jv = (TH2D*)fjv->Get("jetvetomap");
+   if (dataset=="2023D" || dataset=="2023D_ZB")
+     h2jv = (TH2D*)fjv->Get("jetvetomap");
    assert(h2jv);
    
    //Long64_t nentries = fChain->GetEntriesFast();
@@ -1436,11 +1601,15 @@ void DijetHistosFill::Loop()
      cout << "Recalculate HT bin counts prior to starting."
 	  << " This will take a few minutes" << endl;
      hnevt->Reset();
+     hnwgt->Reset();
      for (Long64_t jentry=0; jentry<nentries;jentry++) {
        Long64_t ientry = LoadTree(jentry);
        if (ientry < 0) break;
        b_LHE_HT->GetEntry(ientry); //read only this branch
+       b_genWeight->GetEntry(ientry); //also this if MG
+       double w = genWeight;
        hnevt->Fill(LHE_HT);
+       hnwgt->Fill(LHE_HT,w);
        if (jentry%1000000==0) cout << "." << flush;
        if (jentry%50000000==0 && jentry!=0) cout << "\nn="<<jentry<<endl<<flush;
      } // for jentry
@@ -1449,6 +1618,11 @@ void DijetHistosFill::Loop()
      cout << Form("int vnevt[%d] = ",hnevt->GetNbinsX());
      for (int i = 1; i != hnevt->GetNbinsX()+1; ++i) {
        cout<<Form("%s%d",(i==1 ? "{" : ", "),int(hnevt->GetBinContent(i)+0.5));
+     }
+     cout << "}; // " << dataset << endl << flush;
+     cout << Form("double vnwgt[%d] = ",hnwgt->GetNbinsX());
+     for (int i = 1; i != hnwgt->GetNbinsX()+1; ++i) {
+       cout<<Form("%s%1.4g",(i==1 ? "{" : ", "),hnwgt->GetBinContent(i));
      }
      cout << "}; // " << dataset << endl << flush;
    } // isMC && nentries!=nMG
@@ -1525,17 +1699,21 @@ void DijetHistosFill::Loop()
       if (isMG) {
 	int iht = hxsec->FindBin(LHE_HT);
 	double xsec = hxsec->GetBinContent(iht);
-	double nevt = hnevt->GetBinContent(iht);
+	double nevt = (isRun3 ? hnwgt->GetBinContent(iht) :
+		       hnevt->GetBinContent(iht));
 	double wht = (nevt ? xsec / nevt : 1);
 	w *= wht;
 	hLHE_HT->Fill(LHE_HT); // cross-check hnevt afterwards
+	hLHE_HTw->Fill(LHE_HT, w); // cross-check hnwgt afterwards
 	hHT->Fill(LHE_HT, w); // cross-check HT spectrum smoothness afterwards
       }
       double rho = Rho_fixedGridRhoFastjetAll;
       
       bool doPtHatFilter = true;
       if (doPtHatFilter && isMC) {
-	if ( isMG && 2.*Pileup_pthatmax>LHE_HT) continue;
+	if ( isMG && !isRun3 && 2.*Pileup_pthatmax>LHE_HT) continue;
+	if (isMG && isRun3 && 2.*Jet_pt[0]/LHE_HT>2.5/pow(LHE_HT/40.,2)+1.5)
+	  continue; // Run3 MG patch for missing Pileup_pthatmax
 	if (!isMG && Pileup_pthatmax>Generator_binvar) continue;
       }
 
@@ -1614,7 +1792,7 @@ void DijetHistosFill::Loop()
       // JEC with smeared reco pT for consistency
       //Jet_smearFactor[i] = 0.;
       // Safety reset that works for data as well
-      for (int i = 0; i != njet; ++i) { Jet_CF[i] = 1.; }
+      for (int i = 0; i != njet; ++i) { Jet_CF[i] = 1.; } // reset Jet_CF
 
       if (isMC && smearJets) { 
 	
@@ -1886,6 +2064,13 @@ void DijetHistosFill::Loop()
 	    h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
 	    if (Jet_jetId[i]>=4 && !Jet_jetveto[i] && Flag_METFilters>0) {
 	      
+	      h->h2pteta->Fill(p4.Eta(), p4.Pt(), w);
+
+	      if (isMG && i==0) {
+		h->h2jtvht->Fill(LHE_HT, 2*p4.Pt(), w);
+		h->h2jtoht->Fill(LHE_HT, 2*p4.Pt()/LHE_HT, w);
+	      }
+
 	      if (p4.Pt() >= h->ptmin && p4.Pt() < h->ptmax &&
 		  fabs(p4.Rapidity()) > h->absetamin &&
 		  fabs(p4.Rapidity()) < h->absetamax)
@@ -2040,6 +2225,7 @@ void DijetHistosFill::Loop()
 
 		if (doPFComposition) {
 		  h->ppt25->Fill(ptavp3, Jet_pt[i], w*Fi);
+		  h->prho25->Fill(ptavp3, rho, w*Fi);
 		  h->pchf25->Fill(ptavp3, Jet_chHEF[i], w*Fi);
 		  h->pnhf25->Fill(ptavp3, Jet_neHEF[i], w*Fi);
 		  h->pnef25->Fill(ptavp3, Jet_neEmEF[i], w*Fi);
@@ -2556,6 +2742,61 @@ void DijetHistosFill::Loop()
 } // Loop()
 
 
+// Code originally from jetphys/HistosFill.C
+void DijetHistosFill::PrintInfo(string info, bool printcout)
+{
+  //*ferr << info << endl << flush;
+  if (printcout) cout << info << endl << flush;
+}
+
+// Code originally from jetphys/HistosFill.C
+bool DijetHistosFill::LoadJSON(string json)
+{
+  PrintInfo(string("Processing LoadJSON() with ") + json + " ...",true);
+  ifstream file(json, ios::in);
+  if (!file.is_open()) { assert(false); return false; }
+  char c;
+  string s, s2, s3;
+  char s1[256];
+  int rn(0), ls1(0), ls2(0), nrun(0), nls(0);
+  file.get(c);
+  if (c!='{') return false;
+  while (file >> s and sscanf(s.c_str(),"\"%d\":",&rn)==1) {
+    if (_dh_debug) PrintInfo(Form("\"%d\": ",rn),true);
+
+    while (file.get(c) and c==' ') {};
+    if (_dh_debug) { PrintInfo(Form("%c",c),true); assert(c=='['); }
+    ++nrun;
+
+    bool endrun = false;
+    while (!endrun and file >> s >> s2 and (sscanf((s+s2).c_str(),"[%d,%d]%s",&ls1,&ls2,s1)==3 or (file >> s3 and sscanf((s+s2+s3).c_str(),"[%d,%d]%s",&ls1,&ls2,s1)==3))) {
+
+      s2 = s1;
+      if (s2=="]") { file >> s3; s2 += s3; }
+
+      if (_dh_debug) PrintInfo(Form("[%d,%d,'%s']",ls1,ls2,s1),true);
+
+      for (int ls = ls1; ls != ls2+1; ++ls) {
+        _json[rn][ls] = 1;
+        ++nls;
+      }
+
+      endrun = (s2=="]," || s2=="]}");
+      if (_dh_debug and !endrun and s2!=",") { PrintInfo(string("s1: ")+s2,true); assert(s2==","); }
+    } // while ls
+    if (_dh_debug) PrintInfo("",true);
+
+    if (s2=="]}") continue;
+    else if (_dh_debug and s2!="],") PrintInfo(string("s2: ")+s2,true); assert(s2=="],");
+  } // while run
+  if (s2!="]}") { PrintInfo(string("s3: ")+s2,true); return false; }
+
+  PrintInfo(string("Called LoadJSON() with ") + json + ":",true);
+  PrintInfo(Form("Loaded %d good runs and %d good lumi sections",nrun,nls),true);
+  return true;
+} // LoadJSON
+
+/*
 bool DijetHistosFill::LoadJSON()
 {
   // Get the JSON files from here:
@@ -2582,8 +2823,13 @@ bool DijetHistosFill::LoadJSON()
     if (isRun2==3)
       json="rootfiles/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt";
     if (isRun2==4)
-    json="rootfiles/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt";
-  
+      json="rootfiles/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt";
+
+    if (TString(dataset.c_str()).Contains("2022"))
+      json = "rootfiles/Cert_Collisions2022_355100_362760_Golden.json";
+    if (TString(dataset.c_str()).Contains("2023"))
+      json = "rootfiles/Cert_Collisions2023_366442_370790_Golden.json";
+
   cout << "Processing LoadJSON() with " + json + " ..." << flush;
   ifstream file(json, ios::in);
   if (!file.is_open()) return false;
@@ -2626,3 +2872,4 @@ bool DijetHistosFill::LoadJSON()
   cout << Form("Loaded %d good runs and %d good lumi sections",nrun,nls) << endl;
   return true;
 } // LoadJSON
+*/
