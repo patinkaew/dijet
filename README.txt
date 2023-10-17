@@ -20,7 +20,10 @@ How to RUN on Hefaistos:
 How to ANALYZE locally:
 -----------------------
 Copy files locally for further processing
-- rsync -rutP files from Hefaistos
+- rsync -rutP Hefaistos:/media/storage/dijet/rootfiles/*v[X].root rootfiles/
+
+Hadd files together as needed (either JetMET+ZB, or parts of IOV)
+- python addAllIOVs.py
 
 After producing the jmenano_[data,mc])_out_v[X].root root files and hadding: 
 - root -l -b -q DijetHistosCombine.C+g   [merge triggers]
@@ -62,6 +65,8 @@ Bugs:
 - mpfu in multijet large compared to mpfn. Why? => sign error
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
+
+// v30. Change PuppiMET to RawPuppiMET for raw MET input. Split 2022F file list into two.
 
 // v29: add Run3 code from Iita. Update JEC, jetvetomaps, JSON, rho branch mapping. Remove or comment out branches not in 2023 tuples. Patch Pileup_pthatmax for isMG.
 

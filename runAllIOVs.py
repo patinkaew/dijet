@@ -21,7 +21,7 @@ IOV_list= [
     '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG','Summer22EEMG'
 ]
-version = 'v29'
+version = 'v30'
 
 #os.system("rm *.so *.d *.pcm")
 os.system("root -l -b -q mk_CondFormats.C")

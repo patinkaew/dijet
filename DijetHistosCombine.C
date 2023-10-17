@@ -8,7 +8,7 @@
 #include "TProfile2D.h"
 #include <iostream>
 
-bool debug = false;
+int debug = 1; // 1=trg, 2=dir, 3=all
 
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
@@ -18,6 +18,23 @@ bool copyBin(string trg, string folder, string histo, double pt, double eta);
 void DijetHistosCombines(string file = "rootfiles/jmenano_data_out.root");
 
 void DijetHistosCombine() {
+
+  // Run3
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2022C_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2022D_JME_v29.root");
+    DijetHistosCombines("rootfiles/jmenano_data_out_2022CD_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2022E_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2022F_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2022G_JME_v29.root");
+    //DijetHistosCombines("rootfiles/jmenano_data_out_2022FG_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2023BCv123_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2023Cv4_JME_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_data_out_2023D_JME_v29.root");
+  //
+  //DijetHistosCombines("rootfiles/jmenano_mc_out_Summer22MG_v29.root");
+  //DijetHistosCombines("rootfiles/jmenano_mc_out_Summer22EEMG_v29.root");
+	
+  
   /*
   DijetHistosCombines("rootfiles/jmenano_data_out_v22ul16.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_v22ul16flatmc.root");
@@ -38,11 +55,11 @@ void DijetHistosCombine() {
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2018MG_v26.root");
   */
   
-  /*
-  // This one is taking a while. Why? CPU ~100%, mem up to >3 GB
-  DijetHistosCombines("haddfiles/jmenano_data_out_Run2_v26c.root");
-  DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v26.root");
 
+  // This one is taking a while. Why? CPU ~100%, mem up to >3 GB
+  //DijetHistosCombines("haddfiles/jmenano_data_out_Run2_v26c.root");
+  //DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v26.root");
+  /*
   // After JER SF for MC
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016APVMG_v27.root");
   DijetHistosCombines("rootfiles/jmenano_mc_out_UL2016MG_v27.root");
@@ -52,20 +69,32 @@ void DijetHistosCombine() {
   */
 
   // New Run3 files from Iita and Mikael
+  // Iita_20230814/*_v1.root -> Iita_20230824_jetveto/*_JME_v1.root
+  /*
   // 2022
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022C_v1.root");
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022D_v1.root");
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022E_v1.root");
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022F_v1.root");
-  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022G_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022C_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022D_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022E_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022F_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022G_JME_v1.root");
   // 2023
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023B_v1.root");
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023Cv123_v1.root");
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023Cv4_v1.root");
-  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2023D_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2023B_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2023Cv123_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2023BCv123_JME_v1.root");
+  DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2023Cv4_JME_v1.root");
+  */
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2023D_JME_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_out_Summer22_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_out_Summer22EE_v1.root");
   // Main combos (after checking stability for L2Res)
-  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/jmenano_data_out_2022D_v1.root");
-  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230814/nano_data_out_2022BCv123_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022CD_JME_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022FG_JME_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2022EFG_JME_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2023Cv4D_JME_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_out_2022BCv123_JME_v1.root");
+  //
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_out_2223_JME_v1.root");
+  //DijetHistosCombines("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_out_Summer22Both_v1.root");
   
 } // DijetHistosCombine
 
@@ -96,6 +125,7 @@ void DijetHistosCombines(string file) {
   fin->cd(htrg->GetXaxis()->GetBinLabel(1));
   //fin->cd("HLT_PFJet450");
   TDirectory *dir = gDirectory;
+  if (debug>0) cout << "Initialize with " << dir->GetName() << endl << flush;
   loopOverDirectories(dir,fout,"none","");
   
   // Then copy stuff over
@@ -104,6 +134,8 @@ void DijetHistosCombines(string file) {
     string trg = htrg->GetXaxis()->GetBinLabel(i);
     fin->cd(trg.c_str());
     dir = gDirectory;
+    if (debug>0) cout << "Process " << trg << " in "
+		      << dir->GetName() << endl << flush;
     loopOverDirectories(dir,fout,trg.c_str(),"");
   }
 
@@ -121,7 +153,7 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 
     // Recurse directory structure
     if (string(key->GetClassName())=="TDirectoryFile") {
-      if (debug) cout << key->GetName() << "->";
+      if (debug>1) cout << key->GetName() << "->";
       TDirectory *subdir = (TDirectory*)key->ReadObj();
 
       if (!outdir->FindObject(subdir->GetName()))
@@ -132,7 +164,7 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
       loopOverDirectories(subdir, suboutdir,
 			  trg=="" ? key->GetName() : trg,
 			  trg=="" ? "" : (folder=="" ? key->GetName():folder));
-    }
+    } 
     // Create histograms, if not yet there
     else {
 
@@ -303,10 +335,10 @@ void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 	} // for ibin
       } // TH1D
 
-      if (debug) cout << endl << "  " << key->GetName();
+      if (debug>2) cout << endl << "  " << key->GetName();
     }
   }
-  if (debug) cout << endl;
+  if (debug>1) cout << endl;
 } // loopOverDirectories
 
 struct range {
@@ -425,8 +457,9 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     mj["HLT_PFJetFwd450"] = range{500, 600, fwdeta0, 5.2};
     mj["HLT_PFJetFwd500"] = range{600,3000, fwdeta0, 5.2};
 
-    mi["HLT_ZeroBias"] = range{15,  49,  0, 5.2};
+    mi["HLT_ZeroBias"] = range{10,  49,  0, 5.2};
 
+    /*
     mi["HLT_PFJet40"]  = range{49,  84,  0, 5.2};
     mi["HLT_PFJet60"]  = range{84,  114, 0, 5.2};
     mi["HLT_PFJet80"]  = range{114, 196, 0, 5.2};
@@ -437,8 +470,8 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     mi["HLT_PFJet400"] = range{468, 548, 0, 5.2};
     mi["HLT_PFJet450"] = range{548, 686, 0, 5.2};
     mi["HLT_PFJet500"] = range{686,6500, 0, 5.2};
+    */
 
-    /*
     mi["HLT_PFJet40"]  = range{49,  84,  0, fwdeta0};
     mi["HLT_PFJet60"]  = range{84,  114, 0, fwdeta};
     mi["HLT_PFJet80"]  = range{114, 196, 0, fwdeta};
@@ -461,7 +494,6 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     mi["HLT_PFJetFwd400"] = range{468, 548, fwdeta0, 5.2};
     mi["HLT_PFJetFwd450"] = range{548, 686, fwdeta0, 5.2};
     mi["HLT_PFJetFwd500"] = range{686,6500, fwdeta0, 5.2};
-    */
   }
 
   bool tcHist = (folder=="Dijet2" && (hist=="h2ptetatc" || hist=="p2restc" ||

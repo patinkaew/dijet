@@ -238,5 +238,3 @@
 /media/DATA2/JME_NANO_DATA/2022/JMENanoRun3_v2p1_Run2022G-PromptReco-v1/ZeroBias/230604_140009/0000/tree_97.root
 /media/DATA2/JME_NANO_DATA/2022/JMENanoRun3_v2p1_Run2022G-PromptReco-v1/ZeroBias/230604_140009/0000/tree_98.root
 /media/DATA2/JME_NANO_DATA/2022/JMENanoRun3_v2p1_Run2022G-PromptReco-v1/ZeroBias/230604_140009/0000/tree_99.root
-/media/DATA2/JME_NANO_DATA/2022/JMENanoRun3_v2p1_Run2022G-PromptReco-v1/ZeroBias/230604_140009/0000/ZeroBias_JMENanoRun3_v2p1_Run2022G-PromptReco-v1_JMENANO.txt
-/media/DATA2/JME_NANO_DATA/2022/JMENanoRun3_v2p1_Run2022G-PromptReco-v1/ZeroBias/230604_140009/0000_redirector.txt

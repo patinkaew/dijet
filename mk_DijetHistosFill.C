@@ -80,6 +80,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
 	dataset=="2022C" || dataset=="2022D" ||
 	dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+	dataset=="2022F1" || dataset=="2022F2" ||
 	dataset=="2023BCv123" || dataset=="2023Cv4" || dataset=="2023D" ||
 	dataset=="2022C_ZB" || dataset=="2022D_ZB" ||
 	dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
@@ -123,6 +124,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
      dataset=="2022C" || dataset=="2022D" ||
      dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+     dataset=="2022F1" || dataset=="2022F2" ||
      dataset=="2023BCv123" || dataset=="2023Cv4" || dataset=="2023D" ||
      dataset=="2022C_ZB" || dataset=="2022D_ZB" ||
      dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||

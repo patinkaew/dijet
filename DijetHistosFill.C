@@ -424,8 +424,10 @@ void DijetHistosFill::Loop()
      fChain->SetBranchStatus("ChsMET_phi",1);
    }
    else {
-     fChain->SetBranchStatus("PuppiMET_pt",1);
-     fChain->SetBranchStatus("PuppiMET_phi",1);
+     //fChain->SetBranchStatus("PuppiMET_pt",1);
+     //fChain->SetBranchStatus("PuppiMET_phi",1);
+     fChain->SetBranchStatus("RawPuppiMET_pt",1);
+     fChain->SetBranchStatus("RawPuppiMET_phi",1);
    }
    
    fChain->SetBranchStatus("Flag_METFilters",1);
@@ -1544,6 +1546,7 @@ void DijetHistosFill::Loop()
        dataset=="Summer22Flat" || dataset=="Summer22MG")
      fjv = new TFile("rootfiles/jetveto2022CD.root","READ");
    if (dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+       dataset=="2022F1" || dataset=="2022F2" ||
        dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
        dataset=="Summer22EE" ||
        dataset=="Summer22EEFlat" || dataset=="Summer22EEMG")
@@ -1578,6 +1581,7 @@ void DijetHistosFill::Loop()
        dataset=="Summer22Flat" || dataset=="Summer22MG")
      h2jv = (TH2D*)fjv->Get("jetvetomap");
    if (dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
+       dataset=="2022F1" || dataset=="2022F2" ||
        dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
        dataset=="Summer22EE" ||
        dataset=="Summer22EEFlat" || dataset=="Summer22EEMG")
@@ -1983,9 +1987,12 @@ void DijetHistosFill::Loop()
 	p4m0.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
       }
       else {
-	p4rawmet.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);
-      	p4t1met.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);
-      	p4m0.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);
+	p4rawmet.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
+      	p4t1met.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
+      	p4m0.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
+	//p4rawmet.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);
+      	//p4t1met.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);
+      	//p4m0.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);
       }
       p4mht.SetPtEtaPhiM(0,0,0,0);
 

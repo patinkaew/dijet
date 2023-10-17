@@ -17,8 +17,44 @@ void DijetHistosJERs(string file, string dir);
 void drawDijetHistosJER(string sd="",string sm="",string era="");
 void drawDijetHistosJERtest();
 
+bool scaleJER = false;
+
 // Process several directories in a uniform way
 void DijetHistosJER() {
+  // Run3 files
+  scaleJER = false;
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_2022CD_JME_v29.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_2022E_JME_v29.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_2022FG_JME_v29.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_2023BCv123_JME_v29.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_2023Cv4_JME_v29.root","Dijet2");
+  DijetHistosJERs("rootfiles/jmenano_data_cmb_2023D_JME_v29.root","Dijet2");
+  //
+  scaleJER = true; // something weird with MC RMS
+  DijetHistosJERs("rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","Dijet2");
+  //DijetHistosJERs("rootfiles/jmenano_mc_cmb_Summer22EEMG_v29.root","Dijet2");
+  scaleJER = false;
+  
+  const char *mc22 = "rootfiles/jmenano_mc_cmb_Summer22MG_v29.root";
+  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2022CD_JME_v29.root",mc22,
+		     "2022CD_v29_vs_Summer22_v29");
+  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2022E_JME_v29.root",mc22,
+		     "2022E_v29_vs_Summer22_v29");
+  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2022FG_JME_v29.root",mc22,
+		     "2022FG_v29_vs_Summer22_v29");
+  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2023BCv123_JME_v29.root",mc22,
+		     "2023BCv123_v29_vs_Summer22_v29");
+  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2023Cv4_JME_v29.root",mc22,
+		     "2023Cv4_v29_vs_Summer22_v29");
+  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2023D_JME_v29.root",mc22,
+		     "2023D_v29_vs_Summer22_v29");
+
+
+  //Regarding the pt dependent JER SFs. Here is the pre approval of the DP Note, where we kept a slide for the SFs https://indico.cern.ch/event/1302471/#8-dp-notes-for-run3
+  // MC pThat / qScale (LHE_HT)
+  // qScale is in JMENANO, XPOG decides what stays in NANO?
+  // => find two files where pthatmax is not is, and ones where it is
+  
   /*
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v21ul16.root","Dijet2");
   DijetHistosJERs("rootfiles/jmenano_data_cmb_v21ul16.root","Dijet/JER");
@@ -94,35 +130,62 @@ void DijetHistosJER() {
   */
 
   // New Run3 files from Iita and Mikael
+  // Iita_20230814/*_v1.root -> Iita_20230824_jetveto/*_JME_v1.root
   // 2022
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","Dijet2");
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","Dijet2");
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022E_v1.root","Dijet2");
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022F_v1.root","Dijet2");
-  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022G_v1.root","Dijet2");
+  /*
+  scaleJER = false;
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022C_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022D_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022E_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022F_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022G_JME_v1.root","Dijet2");
   // 2023
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023B_v1.root","Dijet2");
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv123_v1.root","Dijet2");
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv4_v1.root","Dijet2");
-  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023D_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023B_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023Cv123_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023BCv123_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023Cv4_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023D_JME_v1.root","Dijet2");
   // Main combos (after checking stability for L2Res)
-  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","Dijet2");
-  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2022BCv123_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022CD_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022FG_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022EFG_JME_v1.root","Dijet2");
+  //DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2022BCv123_JME_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023Cv4D_JME_v1.root","Dijet2");
+  */
   
   // Plot results vs UL2018 for now
   //DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2"); // with JER SF
-  DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2"); // no JER SF
+  //DijetHistosJERs("rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2"); // no JER SF
+  /*
+  scaleJER = true;
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_cmb_Summer22_v1.root","Dijet2");
+  DijetHistosJERs("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_cmb_Summer22EE_v1.root","Dijet2");
+  scaleJER = false;
+  */
+  
+  // mc_cmb_UL2018MG_v26 -> mc_cmb_Summer22_v1
+  /*
+  const char *mc22 = "../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_cmb_Summer22_v1.root";
+  //const char *mc22 = "rootfiles/jmenano_mc_cmb_UL2018MG_v26.root";
+  //const char *mc22ee = "../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_mc_cmb_Summer22EE_v1.root";
+  const char *mc22ee = "rootfiles/jmenano_mc_cmb_UL2018MG_v26.root";
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022C_JME_v1.root",mc22,"2022C_v1_vs_Summer22_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022D_JME_v1.root",mc22,"2022D_v1_vs_Summer22_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022E_JME_v1.root",mc22ee,"2022E_v1_vs_Summer22EE_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022F_JME_v1.root",mc22ee,"2022F_v1_vs_Summer22EE_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022G_JME_v1.root",mc22ee,"2022G_v1_vs_Summer22EE_v1");
   //
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022C_v1_vs_UL18_v26");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022D_v1_vs_UL18_v26");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022E_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022E_v1_vs_UL18_v26");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022F_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022F_v1_vs_UL18_v26");
-  //drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022G_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022G_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023B_JME_v1.root",mc22,"2023B_v1_vs_Summer22_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023Cv123_JME_v1.root",mc22,"2023Cv123_v1_vs_Summer22_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023BCv123_JME_v1.root",mc22,"2023BCv123_v1_vs_Summer22_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023Cv4_JME_v1.root",mc22,"2023Cv4_v1_vs_Summer22_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023D_JME_v1.root",mc22,"2023D_v1_vs_Summer22_v1");
   //
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023B_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023B_v1_vs_UL18_v26");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv123_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023Cv123_v1_vs_UL18_v26");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023Cv4_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023Cv4_v1_vs_UL18_v26");
-  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2023D_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2023D_v1_vs_UL18_v26");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022CD_JME_v1.root",mc22ee,"2022CD_v1_vs_Summer22EE_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022FG_JME_v1.root",mc22ee,"2022FG_v1_vs_Summer22EE_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/jmenano_data_cmb_2022EFG_JME_v1.root",mc22ee,"2022EFG_v1_vs_Summer22EE_v1");
+  drawDijetHistosJER("../jecsys3/rootfiles/Iita_20230824_jetveto/nano_data_cmb_2023Cv4D_JME_v1.root",mc22,"2023Cv4D_v1_vs_Summer22_v1");
+  */
 }
 
 // Update cmb.root to add JER results
@@ -370,7 +433,7 @@ void DijetHistosJERs(string file, string dir) {
     }
     
     // Run3 2022+2023
-    if (!frc && s.Contains("202")) {
+    if (!frc && (s.Contains("202") || s.Contains("Summer22"))) {
       frc = new TFile("../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
     }
 
@@ -656,6 +719,35 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     f2->SetLineColor(kBlack);//Green+1);
     f2->Draw("SAME");
 
+    // Add HCAL prefire pT^2 shape to JER as well
+    TF1 *f2x2 = new TF1(Form("f2x2%d_%s_%s",i,c,cera),
+			"sqrt([0]*fabs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2]+"
+			//"[4]*[4]*x*x)"
+			"[4]*[4]*pow(x,2))"
+			"/sqrt([5]*fabs([5])/(x*x)+[6]*[6]*pow(x,[8])+[7]*[7])",
+			30,ptmax);
+    assert(f1->GetNpar()==4);
+    f2x2->SetParameter(4, 0.);
+    for (int ip = 0; ip != f1->GetNpar(); ++ip) {
+      f2x2->SetParameter(ip, f1->GetParameter(ip));
+      f2x2->SetParameter(5+ip, f1->GetParameter(ip));
+      f2x2->FixParameter(5+ip, f1->GetParameter(ip));
+    }
+    f2x2->FixParameter(0,f1->GetParameter(0));
+    f2x2->SetParLimits(1,f1->GetParameter(1),1.5);
+    f2x2->SetParLimits(2,f1->GetParameter(2),0.25);
+    f2x2->FixParameter(3,f1->GetParameter(3));
+    if (min(fabs(eta1),fabs(eta2))>1.3) {
+      f2x2->FixParameter(4, 0.);
+    }
+    if (min(fabs(eta1),fabs(eta2))>2.6) {
+      f2x2->FixParameter(3,-1);
+    }
+    h1jerr->Fit(f2x2,"QRN");
+    f2x2->SetLineWidth(1);
+    f2x2->SetLineColor(kRed);
+    f2x2->Draw("SAME");
+    
     if (i%6==0 || i==1) {
       //TLegend *leg = tdrLeg(0.70,0.85-4*0.05,1.00,0.85);
       TLegend *leg = tdrLeg(0.70,0.85-3*0.05,1.00,0.85);
@@ -1093,7 +1185,7 @@ void drawDijetHistosJERtest() {
   } // RC noise
   
   // test with Z+jet and dijet traditional
-  {
+  if (false) {
     TFile *fdj = new TFile("rootfiles/dijet_balance_UL18_Summer19UL18_V5_AK4CHS.root","READ");
     assert(fdj && !fdj->IsZombie());
     // older dijet files
@@ -1287,12 +1379,13 @@ TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
   // Extract JER (RMS)
   TH1D *h1jer = p1xs->ProjectionX(Form("h1jer_%s",c));
   for (int i = 1; i != h1s->GetNbinsX()+1; ++i) {
-    double rmsy = p1s->GetBinError(i) / sqrt(2.);
-    double erry = p1->GetBinError(i) / sqrt(2.);
+    double k = (scaleJER ? 1./2. : 1.);
+    double rmsy = p1s->GetBinError(i) * k / sqrt(2.);
+    double erry = p1->GetBinError(i) * k / sqrt(2.);
     h1s->SetBinContent(i, rmsy);
     h1s->SetBinError(i, rmsy ? erry / rmsy : 0);
-    double rmsx = p1xs->GetBinError(i) / sqrt(2.);
-    double errx = p1x->GetBinError(i) / sqrt(2.);
+    double rmsx = p1xs->GetBinError(i) * k / sqrt(2.);
+    double errx = p1x->GetBinError(i) * k / sqrt(2.);
     h1xs->SetBinContent(i, rmsx);
     h1xs->SetBinError(i, rmsx ? errx / rmsx : 0);
 

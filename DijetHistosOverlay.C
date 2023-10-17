@@ -14,9 +14,11 @@
 #include <fstream>
 
 bool debug = false;
+bool useMPF = true;//false; // MPF instead of HDM
 bool addZjetJER = false;
-bool addZjetJEC = true;
-bool addColorJEC = true; // pT,tag + pT,probe
+bool addZjetJES = false;//true;
+bool addColorJES = true; // pT,tag + pT,probe
+bool addColorJES2 = true;//true; // DB + MPF
 
 int findBin(TH2D *h2, double x, double *xnew = 0);
 void addBins(TH1D *h1to, TH2D *h2from, int i1, int i2,
@@ -31,7 +33,7 @@ void DijetHistosOverlays(string obs, string data, string spt = "PtAVP",
 void DijetHistosOverlayPtBins(string obs); // pT,tag vs pT,probe (vs pT,avp)
 void DijetHistosOverlayPt(string fdt, string fmc, string fmc2, string era);  // pT spectrum / counts
 void DijetHistosOverlayJER(string sdt, string smc, string era); // JER+JER SF
-void DijetHistosOverlayJEC(string sdt, string smc, string era); // JEC+L2RES
+void DijetHistosOverlayJES(string sdt, string smc, string era); // JES+L2RES
 
 struct JER {
   double eta, deta;
@@ -39,7 +41,7 @@ struct JER {
   double n0_mc, s_mc, c_mc, d_mc, npu_mc;
 };
 
-struct JEC {
+struct JES {
   double eta, deta;
   double p0, p1;
   //double p0_dt, p1_dt;
@@ -92,7 +94,7 @@ void DijetHistosOverlay() {
   			"haddfiles/jmenano_mc_cmb_Run2_v26.root",
   			"Run2_ZB_v26c");
   */
-  //DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  //DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_UL2017_v26.root",
   //			"rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
   //			"UL2017_ZB_v26c");
 
@@ -115,14 +117,26 @@ void DijetHistosOverlay() {
   			"Run2_ZB_v27");
   */
 
-  DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_Run2_v26c.root",
+  /*
+  DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   			"haddfiles/jmenano_mc_cmb_Run2_v26.root",
   			"Run2_ZB_v26"); // before JER SF
-  DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_Run2_v26c.root",
+  DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   			"haddfiles/jmenano_mc_cmb_Run2_v27.root",
   			"Run2_ZB_v27"); // After JER SF
+  */
 
-  //DijetHistosOverlayJEC("haddfiles/jmenano_data_cmb_UL2017_v26.root",
+  //DijetHistosOverlayJES("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022C_v1_vs_UL18_v26"); // before JER SF
+
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022CD_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2022CD_v29");
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022E_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2022E_v29"); // tbd: 22EE
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022FG_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2022FG_v29"); // tbd: 22EE
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023BCv123_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2023BCv123_v29"); // tbd: 23
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023Cv4_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2023Cv4_v29"); // tbd: 23
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023D_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2023D_v29"); // tbd: 23
+
+  
+  //DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_UL2017_v26.root",
   //			"rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
   //			"UL2017_ZB_v27");
 } // DijetHistosOverlay
@@ -1042,8 +1056,8 @@ void DijetHistosOverlayJER(string fdt, string fmc, string era) {
 			      
 } // DijetHistosOverLayJER
 
-// Overlay JEC and L2Res
-void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
+// Overlay JES and L2Res
+void DijetHistosOverlayJES(string fdt, string fmc, string era) {
 
   setTDRStyle();
   TDirectory *curdir = gDirectory;
@@ -1064,10 +1078,18 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
 
   curdir->cd();
 
-  TH2D *h2jec(0), *h2jecm(0);
-  h2jec = (TH2D*)f1->Get("Dijet2/h2jec"); assert(h2jec);
-  h2jecm = (TH2D*)f1m->Get("Dijet2/h2jec"); assert(h2jecm);
-
+  TH2D *h2jes(0), *h2jesm(0);
+  if (useMPF) {
+    h2jes = (TH2D*)f1->Get("Dijet2/h2mpf");
+    h2jesm = (TH2D*)f1m->Get("Dijet2/h2mpf");
+  }
+  else {
+    h2jes = (TH2D*)f1->Get("Dijet2/h2jes");
+    h2jesm = (TH2D*)f1m->Get("Dijet2/h2jes");
+  }
+  assert(h2jes);
+  assert(h2jesm);
+  
   TCanvas *c1 = new TCanvas(Form("c1%s",co),Form("c1%s",co),1200,600);
   c1->Divide(6,3,0,0);
 
@@ -1076,35 +1098,37 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
 
   const double vy[] = {15, 30, 60, 120, 240, 480, 1000,  2000, 4000, 6500};
   const int ny = sizeof(vy)/sizeof(vy[0])-1;
-  vector<double> vx(h2jec->GetNbinsX()+1);
-  for (int i = 1; i != h2jec->GetNbinsX()+2; ++i) {
-    vx[i-1] = h2jec->GetXaxis()->GetBinLowEdge(i);
+  vector<double> vx(h2jes->GetNbinsX()+1);
+  for (int i = 1; i != h2jes->GetNbinsX()+2; ++i) {
+    vx[i-1] = h2jes->GetXaxis()->GetBinLowEdge(i);
   }
   int nx = vx.size()-1;
-  TH2D *h2jecf = new TH2D("h2jecf",";#eta;JEC",nx,&vx[0],ny,vy);
-  TH2D *h2jecsf = new TH2D("h2jecsf",";#eta;JEC SF",nx,&vx[0],ny,vy);
+  TH2D *h2jesf = new TH2D("h2jesf",";#eta;JES",nx,&vx[0],ny,vy);
+  TH2D *h2jessf = new TH2D("h2jessf",";#eta;JES SF",nx,&vx[0],ny,vy);
   
-  const int neta = h2jec->GetNbinsX();
-  vector<JEC> vjec(neta);
+  const int neta = h2jes->GetNbinsX();
+  vector<JES> vjes(neta);
 
-  for (int ieta = 1; ieta != h2jec->GetNbinsX()+1; ++ieta) {
+  for (int ieta = 1; ieta != h2jes->GetNbinsX()+1; ++ieta) {
     
     c1->cd(ieta);
     gPad->SetLogx();
 
-    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.85,1.30);
+    TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.85,1.3);//0.92,1.12);
+    if (addColorJES) { h->GetYaxis()->SetRangeUser(0.5,1.75); } // Run3
+    if (addColorJES2) { h->GetYaxis()->SetRangeUser(0.5,1.75); }
     h->Draw();
 
     // Add fits on top
     double ptmin = (isZB ? 30. : 59.);
-    double etamin = h2jec->GetXaxis()->GetBinLowEdge(ieta);
-    double etamax = h2jec->GetXaxis()->GetBinLowEdge(ieta+1);
+    double etamin = h2jes->GetXaxis()->GetBinLowEdge(ieta);
+    double etamax = h2jes->GetXaxis()->GetBinLowEdge(ieta+1);
     double fitptmax2 = min(1784.,0.55*6500./cosh(etamin));
-    int jmax2 = h2jec->GetYaxis()->FindBin(fitptmax2);
-    fitptmax2 = h2jec->GetYaxis()->GetBinLowEdge(jmax2);
+    int jmax2 = h2jes->GetYaxis()->FindBin(fitptmax2);
+    fitptmax2 = h2jes->GetYaxis()->GetBinLowEdge(jmax2);
     double fitptmax1 = max(132.,0.45*6500./cosh(etamin));
-    int jmax1 = h2jec->GetYaxis()->FindBin(fitptmax1);
-    fitptmax1 = h2jec->GetYaxis()->GetBinLowEdge(jmax1);
+    int jmax1 = h2jes->GetYaxis()->FindBin(fitptmax1);
+    fitptmax1 = h2jes->GetYaxis()->GetBinLowEdge(jmax1);
     double fitptmax =  (fabs(etamin)>=2.9 ? fitptmax1 : fitptmax2);
     double fitptmin = (isZB ? 30. : 15.);
 
@@ -1122,48 +1146,50 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
     l->SetLineColor(kBlack);
     l->DrawLine(15,1,3500,1);
     
-    TH1D *h1jec = h2jec->ProjectionY(Form("h1jec%s_%d",co,ieta),ieta,ieta);
-    TH1D *h1jecm = h2jecm->ProjectionY(Form("h1jecm%s_%d",co,ieta),ieta,ieta);
+    TH1D *h1jes = h2jes->ProjectionY(Form("h1jes%s_%d",co,ieta),ieta,ieta);
+    TH1D *h1jesm = h2jesm->ProjectionY(Form("h1jesm%s_%d",co,ieta),ieta,ieta);
 
-    h1jec->SetMarkerSize(0.7);
-    h1jecm->SetMarkerSize(0.7);
+    h1jes->SetMarkerSize(0.7);
+    h1jesm->SetMarkerSize(0.7);
     
-    //tdrDraw(h1jecm,"Pz",kOpenCircle,kBlue,kSolid,-1,kNone);
-    tdrDraw(h1jecm,"Pz",kOpenCircle,kGreen+3,kSolid,-1,kNone);
-    tdrDraw(h1jec,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    //tdrDraw(h1jesm,"Pz",kOpenCircle,kBlue,kSolid,-1,kNone);
+    tdrDraw(h1jesm,"Pz",kOpenCircle,kGreen+3,kSolid,-1,kNone);
+    tdrDraw(h1jes,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
     
     tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
 
     if (ieta==1 || ieta%6==0) {
       TLegend *leg = tdrLeg(0.55,0.90-2*0.075,0.85,0.90);
       leg->SetTextSize(0.045*1.5);
-      leg->AddEntry(h1jec,"Data","PLE");
-      leg->AddEntry(h1jecm,"MadGraph","PLE");
+      leg->AddEntry(h1jes,"Data","PLE");
+      leg->AddEntry(h1jesm,"MadGraph","PLE");
     }
 
-    TF1 *fjec = new TF1(Form("fjec%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
+    TF1 *fjes = new TF1(Form("fjes%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
 			fitptmin,fitptmax);
-    TF1 *fjecm = new TF1(Form("fjecm%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
+    TF1 *fjesm = new TF1(Form("fjesm%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
 			 fitptmin,fitptmax);
 
-    fjec->SetParameters(1,0,0);
-    h1jec->Fit(fjec,"QRN");
-    fjec->SetRange(15,3500);
+    fjes->SetParameters(1,0,0);
+    h1jes->Fit(fjes,"QRN");
+    fjes->SetRange(15,3500);
 
-    fjecm->SetParameters(1,0,0);
-    h1jecm->Fit(fjecm,"QRN");
-    fjecm->SetRange(15,3500);
+    fjesm->SetParameters(1,0,0);
+    h1jesm->Fit(fjesm,"QRN");
+    fjesm->SetRange(15,3500);
 
-    fjecm->SetLineColor(kGreen+3);//kBlue);
-    fjecm->Draw("SAME");
-    fjec->SetLineColor(kGreen+2);
-    fjec->Draw("SAME");
+    fjesm->SetLineColor(kGreen+3);//kBlue);
+    fjesm->Draw("SAME");
+    fjes->SetLineColor(kGreen+2);
+    fjes->Draw("SAME");
     
     c2->cd(ieta);
     gPad->SetLogx();
 
     //TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.96,1.11);
     TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.92,1.12);
+    if (addColorJES)  { h2->GetYaxis()->SetRangeUser(0.80,1.30); } // Run3
+    if (addColorJES2) { h2->GetYaxis()->SetRangeUser(0.80,1.30); }
     h2->Draw();
 
     double ptmin2 = (isZB ? 15. : 59.);
@@ -1177,75 +1203,76 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
     l->SetLineStyle(kSolid);
     l->DrawLine(15,1,3500,1);
 
-    TH1D *h1jecr = (TH1D*)h1jec->Clone(Form("h1jecr%s_%d",co,ieta));
+    TH1D *h1jesr = (TH1D*)h1jes->Clone(Form("h1jesr%s_%d",co,ieta));
 
-    h1jecr->Divide(h1jecm);
+    h1jesr->Divide(h1jesm);
 
-    h1jecr->GetXaxis()->SetRangeUser(ptmin2,fitptmax);
-    h1jecr->SetMarkerSize(0.7);
+    h1jesr->GetXaxis()->SetRangeUser(ptmin2,fitptmax);
+    h1jesr->SetMarkerSize(0.7);
     
-    tdrDraw(h1jecr,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
+    tdrDraw(h1jesr,"Pz",kFullCircle,kGreen+2,kSolid,-1,kNone);
 
     tex->DrawLatex(0.55,0.92,Form("%1.3f<|#eta|<%1.3f",etamin,etamax));
 
     if (ieta==1 || ieta%6==0) {
       TLegend *leg = tdrLeg(0.55,0.90-1*0.075,0.85,0.90);
       leg->SetTextSize(0.045*1.5);
-      leg->AddEntry(h1jecr,"MadGraph","PLE");
+      leg->AddEntry(h1jesr,"MadGraph","PLE");
     }
 
-    TF1 *fjec2r = new TF1(Form("fjer2r%d",ieta),
+    TF1 *fjes2r = new TF1(Form("fjer2r%d",ieta),
 			  "([0]+log(x)*([1]+log(x)*[2]))/"
 			 "([3]+log(x)*([4]+log(x)*[5]))",15,3000);
-    fjec2r->SetParameters(fjec->GetParameter(0),fjec->GetParameter(1),
-			  fjec->GetParameter(2),
-			  fjecm->GetParameter(0),fjecm->GetParameter(1),
-			  fjecm->GetParameter(2));
-    fjec2r->SetLineColor(kBlack);
-    fjec2r->SetLineWidth(2);
-    fjec2r->SetLineStyle(kDotted);
-    fjec2r->Draw("SAME");
+    fjes2r->SetParameters(fjes->GetParameter(0),fjes->GetParameter(1),
+			  fjes->GetParameter(2),
+			  fjesm->GetParameter(0),fjesm->GetParameter(1),
+			  fjesm->GetParameter(2));
+    fjes2r->SetLineColor(kBlack);
+    fjes2r->SetLineWidth(2);
+    fjes2r->SetLineStyle(kDotted);
+    fjes2r->Draw("SAME");
 
-    TF1 *fjecr = new TF1(Form("fjecr%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
+    TF1 *fjesr = new TF1(Form("fjesr%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
 			 fitptmin,fitptmax);
-    fjecr->SetLineColor(kGreen+2);
+    fjesr->SetLineColor(kGreen+2);
 
-    fjecr->SetParameters(1,0,0);
-    h1jecr->Fit(fjecr,"QRN");
-    fjecr->SetRange(15,3500);
-    fjecr->Draw("SAME");
+    fjesr->SetParameters(1,0,0);
+    h1jesr->Fit(fjesr,"QRN");
+    fjesr->SetRange(15,3500);
+    fjesr->Draw("SAME");
     
-    for (int ipt = 1; ipt != h2jecf->GetNbinsY()+1; ++ipt) {
-      double etamin = h2jecf->GetXaxis()->GetBinLowEdge(ieta);
-      double etamax = h2jecf->GetXaxis()->GetBinLowEdge(ieta+1);
+    for (int ipt = 1; ipt != h2jesf->GetNbinsY()+1; ++ipt) {
+      double etamin = h2jesf->GetXaxis()->GetBinLowEdge(ieta);
+      double etamax = h2jesf->GetXaxis()->GetBinLowEdge(ieta+1);
       double absetamin = min(fabs(etamin),fabs(etamax));
-      double pt = h2jecf->GetYaxis()->GetBinLowEdge(ipt);
+      double pt = h2jesf->GetYaxis()->GetBinLowEdge(ipt);
       if (cosh(absetamin)*pt < 6500.) {
-	h2jecf->SetBinContent(ieta, ipt, fjec->Eval(pt));
-	h2jecsf->SetBinContent(ieta, ipt, fjecr->Eval(pt));
+	h2jesf->SetBinContent(ieta, ipt, fjes->Eval(pt));
+	h2jessf->SetBinContent(ieta, ipt, fjesr->Eval(pt));
       }
     } // for ipt
 
     // Copy results for text file
-    JEC jec;
-    jec.eta = h2jecf->GetXaxis()->GetBinCenter(ieta);
-    jec.deta = 0.5*h2jecf->GetXaxis()->GetBinWidth(ieta);
-    jec.p0  = fjecr->GetParameter(0);
-    jec.p1   = fjecr->GetParameter(1);
+    JES jes;
+    jes.eta = h2jesf->GetXaxis()->GetBinCenter(ieta);
+    jes.deta = 0.5*h2jesf->GetXaxis()->GetBinWidth(ieta);
+    jes.p0  = fjesr->GetParameter(0);
+    jes.p1   = fjesr->GetParameter(1);
     //
-    //jec.p0_dt  = fjecr->GetParameter(0);
-    //jec.p1_dt   = fjecr->GetParameter(1);
+    //jes.p0_dt  = fjesr->GetParameter(0);
+    //jes.p1_dt   = fjesr->GetParameter(1);
     //
-    //jec.p0_mc  = fjerr->GetParameter(2);
-    //jec.p1_mc   = fjerr->GetParameter(3);
+    //jes.p0_mc  = fjerr->GetParameter(2);
+    //jes.p1_mc   = fjerr->GetParameter(3);
     //
-    vjec[ieta-1] = jec;
+    vjes[ieta-1] = jes;
   } // for ieta
 
-  c1->SaveAs(Form("pdf/DijetHistosOverlayJEC_%s.pdf",cera));
-  c2->SaveAs(Form("pdf/DijetHistosOverlayJEC_%s_ratio.pdf",cera));
+  const char *cmpf = (useMPF ? "_MPF" : "");
+  c1->SaveAs(Form("pdf/DijetHistosOverlayJES_%s%s.pdf",cera,cmpf));
+  c2->SaveAs(Form("pdf/DijetHistosOverlayJES_%s_ratio%s.pdf",cera,cmpf));
 
-  if (true) { // JEC and L2Res vs eta
+  if (true) { // JES and L2Res vs eta
 
     int color[ny] = {kGray+1, kMagenta+1, kBlue, kCyan+2, kGreen+2,
 		     kYellow+2, kOrange+1, kRed, kBlack};
@@ -1276,12 +1303,12 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
     TLegend *leg = tdrLeg(0.70,0.89-ny*0.035,0.95,0.89);
     leg->SetTextSize(0.04);
 
-    for (int ipt = 1; ipt != h2jecf->GetNbinsY()+1; ++ipt) {
-      TH1D *h1jecf = h2jecf->ProjectionX(Form("h1jerf_%d",ipt),ipt,ipt);
-      tdrDraw(h1jecf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
+    for (int ipt = 1; ipt != h2jesf->GetNbinsY()+1; ++ipt) {
+      TH1D *h1jesf = h2jesf->ProjectionX(Form("h1jerf_%d",ipt),ipt,ipt);
+      tdrDraw(h1jesf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
 
-      int pt = h2jecf->GetYaxis()->GetBinLowEdge(ipt);
-      leg->AddEntry(h1jecf,Form("%d GeV",pt),"L");
+      int pt = h2jesf->GetYaxis()->GetBinLowEdge(ipt);
+      leg->AddEntry(h1jesf,Form("%d GeV",pt),"L");
     }
     
     c3->cd(2);
@@ -1295,65 +1322,169 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
     l->DrawLine(2.5,ymin3d,2.5,ymax3d);
     l->DrawLine(3.139,ymin3d,3.139,ymax3d);
     
-    for (int ipt = 1; ipt != h2jecsf->GetNbinsY()+1; ++ipt) {
-      TH1D *h1jecsf = h2jecsf->ProjectionX(Form("h1jecsf_%d",ipt),ipt,ipt);
-      tdrDraw(h1jecsf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
+    for (int ipt = 1; ipt != h2jessf->GetNbinsY()+1; ++ipt) {
+      TH1D *h1jessf = h2jessf->ProjectionX(Form("h1jessf_%d",ipt),ipt,ipt);
+      tdrDraw(h1jessf,"HIST][",kNone,color[ipt-1],kSolid,-1,kNone);
     }
 
-    c3->SaveAs(Form("pdf/DijetHistosOverlayJEC_%s_JECvsEta.pdf",cera));
-  } // JEC+L2Res
+    c3->SaveAs(Form("pdf/DijetHistosOverlayJES_%s_JESvsEta.pdf",cera));
+  } // JES+L2Res
 
-  // Overlay pT,tag and pT,ave bins
-  if (addColorJEC) {
+  // Overlay pT,tag and pT,ave bins, and MPF+DB
+  if (addColorJES) {
 
-    TH2D *h2jecpf(0), *h2jecpfm(0);
-    h2jecpf = (TH2D*)f1->Get("Dijet2/h2jecpf"); assert(h2jecpf);
-    h2jecpfm = (TH2D*)f1m->Get("Dijet2/h2jecpf"); assert(h2jecpfm);
+    TH2D *h2jespf(0), *h2jespfm(0);
+    if (useMPF) {
+      h2jespf = (TH2D*)f1->Get("Dijet2/h2mpfpf");
+      h2jespfm = (TH2D*)f1m->Get("Dijet2/h2mpfpf");
+    }
+    else {
+      h2jespf = (TH2D*)f1->Get("Dijet2/h2jespf");
+      h2jespfm = (TH2D*)f1m->Get("Dijet2/h2jespf");
+    }
+    assert(h2jespf);
+    assert(h2jespfm);
+    
+    TH2D *h2jestc(0), *h2jestcm(0);
+    if (useMPF) {
+      h2jestc = (TH2D*)f1->Get("Dijet2/h2mpftc");
+      h2jestcm = (TH2D*)f1m->Get("Dijet2/h2mpftc");
+    }
+    else {
+      h2jestc = (TH2D*)f1->Get("Dijet2/h2jestc");
+      h2jestcm = (TH2D*)f1m->Get("Dijet2/h2jestc");
+    }
+    assert(h2jestc);
+    assert(h2jestcm);
+ 
+    for (int ieta = 1; ieta != h2jes->GetNbinsX()+1; ++ieta) {
 
-    TH2D *h2jectc(0), *h2jectcm(0);
-    h2jectc = (TH2D*)f1->Get("Dijet2/h2jectc"); assert(h2jectc);
-    h2jectcm = (TH2D*)f1m->Get("Dijet2/h2jectc"); assert(h2jectcm);
-
-    for (int ieta = 1; ieta != h2jec->GetNbinsX()+1; ++ieta) {
-
-      TH1D *h1jecpf = h2jecpf->ProjectionY(Form("h1jecpf%s_%d",co,ieta),
+      TH1D *h1jespf = h2jespf->ProjectionY(Form("h1jespf%s_%d",co,ieta),
 					   ieta,ieta);
-      TH1D *h1jecpfm = h2jecpfm->ProjectionY(Form("h1jecpfm%s_%d",co,ieta),
+      TH1D *h1jespfm = h2jespfm->ProjectionY(Form("h1jespfm%s_%d",co,ieta),
 					     ieta,ieta);
-      TH1D *h1jectc = h2jectc->ProjectionY(Form("h1jectc%s_%d",co,ieta),
+      TH1D *h1jestc = h2jestc->ProjectionY(Form("h1jestc%s_%d",co,ieta),
 					   ieta,ieta);
-      TH1D *h1jectcm = h2jectcm->ProjectionY(Form("h1jectcm%s_%d",co,ieta),
+      TH1D *h1jestcm = h2jestcm->ProjectionY(Form("h1jestcm%s_%d",co,ieta),
 					     ieta,ieta);
       c1->cd(ieta);
 
-      //h1jecpf->SetMarkerSize(0.7);
-      //h1jecpfm->SetMarkerSize(0.7);
-      //h1jectc->SetMarkerSize(0.7);
-      //h1jectcm->SetMarkerSize(0.7);
-      
-      tdrDraw(h1jectcm,"Pz",kOpenDiamond,kBlue,kSolid,-1,kNone);
-      tdrDraw(h1jectc,"Pz",kFullDiamond,kBlue,kSolid,-1,kNone);
-      tdrDraw(h1jecpfm,"Pz",kOpenDiamond,kRed,kSolid,-1,kNone);
-      tdrDraw(h1jecpf,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
+      //h1jespf->SetMarkerSize(0.7);
+      //h1jespfm->SetMarkerSize(0.7);
+      //h1jestc->SetMarkerSize(0.7);
+      //h1jestcm->SetMarkerSize(0.7);
+
+      tdrDraw(h1jestcm,"Pz",kOpenDiamond,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1jestc,"Pz",kFullDiamond,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1jespfm,"Pz",kOpenDiamond,kRed,kSolid,-1,kNone);
+      tdrDraw(h1jespf,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
 
       c2->cd(ieta);
 
-      TH1D *h1jecpfr = (TH1D*)h1jecpf->Clone(Form("h1jecpfr%s_%d",co,ieta));
-      h1jecpfr->Divide(h1jecpfm);
-      TH1D *h1jectcr = (TH1D*)h1jectc->Clone(Form("h1jectcr%s_%d",co,ieta));
-      h1jectcr->Divide(h1jectcm);
+      TH1D *h1jespfr = (TH1D*)h1jespf->Clone(Form("h1jespfr%s_%d",co,ieta));
+      h1jespfr->Divide(h1jespfm);
+      TH1D *h1jestcr = (TH1D*)h1jestc->Clone(Form("h1jestcr%s_%d",co,ieta));
+      h1jestcr->Divide(h1jestcm);
 
-      tdrDraw(h1jectcr,"Pz",kFullDiamond,kBlue,kSolid,-1,kNone);
-      tdrDraw(h1jecpfr,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
+      tdrDraw(h1jestcr,"Pz",kFullDiamond,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1jespfr,"Pz",kFullDiamond,kRed,kSolid,-1,kNone);
     } // for ieta
 
-    c1->SaveAs(Form("pdf/DijetHistosOverlayJEC_wColor_%s.pdf",cera));    
-    c2->SaveAs(Form("pdf/DijetHistosOverlayJEC_wColor_%s_ratio.pdf",cera)); 
-  } // addColorJEC 
+    c1->SaveAs(Form("pdf/DijetHistosOverlayJES_wColor_%s%s.pdf",cera,cmpf));    
+    c2->SaveAs(Form("pdf/DijetHistosOverlayJES_wColor_%s_ratio%s.pdf",cera,cmpf)); 
+  } // addColorJES
+
+    // Overlay pT,tag and pT,ave bins, and MPF+DB
+  if (addColorJES2) {
+
+    TH2D *h2dbab(0), *h2dbabm(0);
+    h2dbab = (TH2D*)f1->Get("Dijet2/h2db"); assert(h2dbab);
+    h2dbabm = (TH2D*)f1m->Get("Dijet2/h2db"); assert(h2dbabm);
+    TH2D *h2dbpf(0), *h2dbpfm(0);
+    h2dbpf = (TH2D*)f1->Get("Dijet2/h2dbpf"); assert(h2dbpf);
+    h2dbpfm = (TH2D*)f1m->Get("Dijet2/h2dbpf"); assert(h2dbpf);
+    TH2D *h2dbtc(0), *h2dbtcm(0);
+    h2dbtc = (TH2D*)f1->Get("Dijet2/h2dbtc"); assert(h2dbtc);
+    h2dbtcm = (TH2D*)f1m->Get("Dijet2/h2dbtc"); assert(h2dbtc);
+
+    TH2D *h2mpfab(0), *h2mpfabm(0);
+    h2mpfab = (TH2D*)f1->Get("Dijet2/h2mpf"); assert(h2mpfab);
+    h2mpfabm = (TH2D*)f1m->Get("Dijet2/h2mpf"); assert(h2mpfabm);
+    TH2D *h2mpfpf(0), *h2mpfpfm(0);
+    h2mpfpf = (TH2D*)f1->Get("Dijet2/h2mpfpf"); assert(h2mpfpf);
+    h2mpfpfm = (TH2D*)f1m->Get("Dijet2/h2mpfpf"); assert(h2mpfpf);
+    TH2D *h2mpftc(0), *h2mpftcm(0);
+    h2mpftc = (TH2D*)f1->Get("Dijet2/h2mpftc"); assert(h2mpftc);
+    h2mpftcm = (TH2D*)f1m->Get("Dijet2/h2mpftc"); assert(h2mpftc);
+
+    for (int ieta = 1; ieta != h2jes->GetNbinsX()+1; ++ieta) {
+
+      int i = ieta;
+      TH1D *h1dbab = h2dbab->ProjectionY(Form("h1dbab%s_%d",co,i),i,i);
+      TH1D *h1dbabm = h2dbabm->ProjectionY(Form("h1dbabm%s_%d",co,i),i,i);
+      TH1D *h1dbpf = h2dbpf->ProjectionY(Form("h1dbpf%s_%d",co,i),i,i);
+      TH1D *h1dbpfm = h2dbpfm->ProjectionY(Form("h1dbpfm%s_%d",co,i),i,i);
+      TH1D *h1dbtc = h2dbtc->ProjectionY(Form("h1dbtc%s_%d",co,i),i,i);
+      TH1D *h1dbtcm = h2dbtcm->ProjectionY(Form("h1dbtcm%s_%d",co,i),i,i);
+
+      TH1D *h1mpfab = h2mpfab->ProjectionY(Form("h1mpfab%s_%d",co,i),i,i);
+      TH1D *h1mpfabm = h2mpfabm->ProjectionY(Form("h1mpfabm%s_%d",co,i),i,i);
+      TH1D *h1mpfpf = h2mpfpf->ProjectionY(Form("h1mpfpf%s_%d",co,i),i,i);
+      TH1D *h1mpfpfm = h2mpfpfm->ProjectionY(Form("h1mpfpfm%s_%d",co,i),i,i);
+      TH1D *h1mpftc = h2mpftc->ProjectionY(Form("h1mpftc%s_%d",co,i),i,i);
+      TH1D *h1mpftcm = h2mpftcm->ProjectionY(Form("h1mpftcm%s_%d",co,i),i,i);
+      
+      c1->cd(ieta);
+
+      tdrDraw(h1dbabm,"HIST",kNone,kGreen+3,kDashed,-1,kNone);
+      tdrDraw(h1dbab,"HIST",kNone,kGreen+3,kSolid,-1,kNone);
+      tdrDraw(h1dbtcm,"HIST",kNone,kBlue+1,kDashed,-1,kNone);
+      tdrDraw(h1dbtc,"HIST",kNone,kBlue+1,kSolid,-1,kNone);
+      tdrDraw(h1dbpfm,"HIST",kNone,kRed+1,kDashed,-1,kNone);
+      tdrDraw(h1dbpf,"HIST",kNone,kRed+1,kSolid,-1,kNone);
+
+      tdrDraw(h1mpfabm,"HIST",kNone,kGreen+2,kDashed,-1,kNone);
+      tdrDraw(h1mpfab,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+      tdrDraw(h1mpftcm,"HIST",kNone,kBlue,kDashed,-1,kNone);
+      tdrDraw(h1mpftc,"HIST",kNone,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1mpfpfm,"HIST",kNone,kRed,kDashed,-1,kNone);
+      tdrDraw(h1mpfpf,"HIST",kNone,kRed,kSolid,-1,kNone);
+
+      
+      c2->cd(ieta);
+      
+      TH1D *h1dbabr = (TH1D*)h1dbab->Clone(Form("h1dbabr%s_%d",co,ieta));
+      h1dbabr->Divide(h1dbabm);
+      TH1D *h1dbpfr = (TH1D*)h1dbpf->Clone(Form("h1dbpfr%s_%d",co,ieta));
+      h1dbpfr->Divide(h1dbpfm);
+      TH1D *h1dbtcr = (TH1D*)h1dbtc->Clone(Form("h1dbtcr%s_%d",co,ieta));
+      h1dbtcr->Divide(h1dbtcm);
+
+      TH1D *h1mpfabr = (TH1D*)h1mpfab->Clone(Form("h1mpfabr%s_%d",co,ieta));
+      h1mpfabr->Divide(h1mpfabm);
+      TH1D *h1mpfpfr = (TH1D*)h1mpfpf->Clone(Form("h1mpfpfr%s_%d",co,ieta));
+      h1mpfpfr->Divide(h1mpfpfm);
+      TH1D *h1mpftcr = (TH1D*)h1mpftc->Clone(Form("h1mpftcr%s_%d",co,ieta));
+      h1mpftcr->Divide(h1mpftcm);
+
+      tdrDraw(h1dbabr,"HIST",kNone,kGreen+3,kSolid,-1,kNone);
+      tdrDraw(h1dbtcr,"HIST",kNone,kBlue+1,kSolid,-1,kNone);
+      tdrDraw(h1dbpfr,"HIST",kNone,kRed+1,kSolid,-1,kNone);
+
+      tdrDraw(h1mpfabr,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
+      tdrDraw(h1mpftcr,"HIST",kNone,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1mpfpfr,"HIST",kNone,kRed,kSolid,-1,kNone);
+
+    } // for ieta
+
+    c1->SaveAs(Form("pdf/DijetHistosOverlayJES_wColor2_%s%s.pdf",cera,cmpf));
+    c2->SaveAs(Form("pdf/DijetHistosOverlayJES_wColor2_%s_ratio%s.pdf",
+		    cera,cmpf)); 
+  } // addColorJES2 
 
   // Overlay Z+jet JER. Next stage would be to add it to fit as well
-  // => update to Z+jet JEC
-  if (addZjetJEC) {
+  // => update to Z+jet JES
+  if (addZjetJES) {
 
     TFile *fz(0);
     TString tera = era.c_str();
@@ -1362,10 +1493,13 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
     }
     if (tera.Contains("UL2016GH")) {
     }
-    if (tera.Contains("UL2017") || tera.Contains("Run2")) {
+    if (tera.Contains("UL2017")) { // || tera.Contains("Run2")) {
       fz = new TFile("../jecsys2020/rootfiles/jme_bplusZ_2017UL_Zmm_sync_v53.root","READ");
     }
     if (tera.Contains("UL2018")) { 
+    }
+    if (tera.Contains("Run2")) {
+      fz = new TFile("../jecsys2020/rootfiles/jme_bplusZ_Run2_Zmm_sync_v53.root","READ");
     }
     assert (fz && !fz->IsZombie()); {
       
@@ -1379,9 +1513,9 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
       TProfile2D *p2z  = h3z->Project3DProfile("xz");  p2z->SetName("p2z");
       TProfile2D *p2zm  = h3zm->Project3DProfile("xz");  p2zm->SetName("p2zm");
       
-      for (int i = 1; i != h2jec->GetNbinsX()+1; ++i) {
+      for (int i = 1; i != h2jes->GetNbinsX()+1; ++i) {
 	
-	double eta = h2jec->GetXaxis()->GetBinCenter(i);
+	double eta = h2jes->GetXaxis()->GetBinCenter(i);
 	int j = p2z->GetXaxis()->FindBin(eta);
 	TH1D *h1z = p2z->ProjectionY(Form("h1z_%d",i),j,j);
 	TH1D *h1zm = p2zm->ProjectionY(Form("h1zm_%d",i),j,j);
@@ -1397,10 +1531,11 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
 	tdrDraw(h1zr,"Pz",kFullStar,kMagenta); h1zr->SetMarkerSize(1.0);//0.7);
       }
       
-      c1->SaveAs(Form("pdf/DijetHistosOverlayJEC_wZjet_%s.pdf",cera));    
-      c2->SaveAs(Form("pdf/DijetHistosOverlayJEC_wZjet_%s_ratio.pdf",cera)); 
+      c1->SaveAs(Form("pdf/DijetHistosOverlayJES_wZjet_%s%s.pdf",cera,cmpf)); 
+      c2->SaveAs(Form("pdf/DijetHistosOverlayJES_wZjet_%s_ratio%s.pdf",
+		      cera,cmpf)); 
     } // Z+jet file available
-  } // addZJetJEC
+  } // addZJetJES
 
   if (false) { // text file later
 
@@ -1424,22 +1559,22 @@ void DijetHistosOverlayJEC(string fdt, string fmc, string era) {
     if (tera.Contains("Run2")) rho = 19.59;
 
     for (int i = neta-1; i != -1; --i) {
-      JEC &jec = vjec[i];
+      JES &jes = vjes[i];
       txt << Form("%6.3f %6.3f %2d %2d %4d"
 		  " %6.2f %5.3f\n",
-		  -jec.eta-jec.deta, -jec.eta+jec.deta, 4, 8, 6500,
-		  jec.p0, jec.p1);
+		  -jes.eta-jes.deta, -jes.eta+jes.deta, 4, 8, 6500,
+		  jes.p0, jes.p1);
     } // for i in -neta
     for (int i = 0; i != neta; ++i) {
-      JEC &jec = vjec[i];
+      JES &jes = vjes[i];
       txt << Form("%6.3f %6.3f %2d %2d %4d"
 		  " %6.2f %5.3f\n",
-		  +jec.eta-jec.deta, +jec.eta+jec.deta, 14, 8, 6500,
-		  jec.p0, jec.p1);
+		  +jes.eta-jes.deta, +jes.eta+jes.deta, 14, 8, 6500,
+		  jes.p0, jes.p1);
     } // for i in +neta
   } // produce text file
 			      
-} // DijetHistosOverLayJEC
+} // DijetHistosOverLayJES
 
 int findBin(TH2D *h2, double x, double *xnew) {
 
