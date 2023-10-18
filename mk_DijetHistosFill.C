@@ -142,7 +142,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
      dataset=="Summer22Flat" || dataset=="Summer22MG" ||
      dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
      dataset=="Summer22EEFlat" || dataset=="Summer22EEMG" ||
-     dataset=="Summer22EEMG2" || dataset=="Summer22EEMG2" ||
+     dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
      dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4"
      ); 
 
