@@ -88,7 +88,10 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 	dataset=="2023D_ZB" ||
 
 	dataset=="Summer22Flat" || dataset=="Summer22MG" ||
-	dataset=="Summer22EEFlat" || dataset=="Summer22EEMG"
+	dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
+	dataset=="Summer22EEFlat" || dataset=="Summer22EEMG" ||
+	dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
+	dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4"
 	)) {
     cout << "Dataset " << dataset << " not supported" << endl << flush;
     cout << "Supported datasets are:" << endl
@@ -137,7 +140,10 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
      dataset=="UL2017MG"  || dataset=="UL2018MG" ||
 
      dataset=="Summer22Flat" || dataset=="Summer22MG" ||
-     dataset=="Summer22EEFlat" || dataset=="Summer22EEMG"
+     dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
+     dataset=="Summer22EEFlat" || dataset=="Summer22EEMG" ||
+     dataset=="Summer22EEMG2" || dataset=="Summer22EEMG2" ||
+     dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4"
      ); 
 
   //cout << "Clean old shared objects and link files" << endl << flush;
@@ -211,7 +217,11 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
     bool isMG = (dataset=="UL2016APVMG" || dataset=="UL2016MG" ||
 		 dataset=="UL2017MG" || dataset=="UL2018MG" ||
-		 dataset=="Summer22MG" || dataset=="Summer22EEMG");
+		 dataset=="Summer22MG" ||
+		 dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
+		 dataset=="Summer22EEMG" ||
+		 dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
+		 dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4");
     
     DijetHistosFill filler(c, isMG ? 2 : 1, dataset,version);
     filler.Loop();

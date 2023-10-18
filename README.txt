@@ -66,6 +66,8 @@ Bugs:
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
 
+// v31. Update MC JECs to those used by Mikel (Summer22) and switch off L2L3Residuals. Split Summer22(EE)MGs into 2 or 4, fix 2022F JEC. (Next steps: implement pT-dependent JER SF and run with it. Figure out MPF vs DB.)
+
 // v30. Change PuppiMET to RawPuppiMET for raw MET input. Split 2022F file list into two.
 
 // v29: add Run3 code from Iita. Update JEC, jetvetomaps, JSON, rho branch mapping. Remove or comment out branches not in 2023 tuples. Patch Pileup_pthatmax for isMG.

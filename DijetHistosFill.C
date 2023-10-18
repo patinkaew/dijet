@@ -498,10 +498,10 @@ void DijetHistosFill::Loop()
    FactorizedJetCorrector *jec(0), *jecl1rc(0), *jersfvspt(0);
    string jerpath(""), jerpathsf("");
    //jec = getFJC("","Winter22Run3_V1_MC_L2Relative","","");
-   if (isRun2==0) {
-     jec = getFJC("","Winter22Run3_V1_MC_L2Relative",
-		  isMC ? "":"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
-   }
+   //if (isRun2==0) {
+   //jec = getFJC("","Winter22Run3_V1_MC_L2Relative",
+   //		  isMC ? "":"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+   //}
    // 2016APV (BCD, EF)
    if (dataset=="UL2016APVMG") {
      jec = getFJC("Summer19UL16APV_V7_MC_L1FastJet_AK4PFchs",
@@ -621,46 +621,58 @@ void DijetHistosFill::Loop()
    }
 
    //2022
+   // Align JECs with
+   // https://indico.cern.ch/event/1335203/#7-update-on-l2res-for-2022-rer
    if (dataset=="2022C" || dataset=="2022C_ZB") {
      jec = getFJC("",//Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-		  "Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-		  "Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PFPUPPI", // Mikel
+		  "");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022D" || dataset=="2022D_ZB") {
      jec = getFJC("",//Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
-		  "Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
-		  "Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PFPUPPI", // Mikel
+		  "");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022E" || dataset=="2022E_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
-		  "Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
-		  "Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+		  "");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
-   if (dataset=="2022F" || dataset=="2022F_ZB") {
+   //if (dataset=="2022F" || dataset=="2022F_ZB") {
+   if (TString(dataset.c_str()).Contains("2022F")) {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
-		  "Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
-		  "Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+		  "");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022G" || dataset=="2022G_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
-		  "Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
-		  "Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+		  "");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    
    //22/23 MC
    if (dataset=="Summer22" ||
-       dataset=="Summer22Flat" || dataset=="Summer22MG") {
+       dataset=="Summer22Flat" ||
+       TString(dataset.c_str()).Contains("Summer22MG")) {
      jec = getFJC("",//Winter22Run3_V2_MC_L1FastJet_AK4PFPuppi",
-		  "Winter22Run3_V2_MC_L2Relative_AK4PFPuppi",
+		  //"Winter22Run3_V2_MC_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PFPUPPI", // Mikel
 		  "");//Winter22Run3_V2_MC_L2L3Residual_AK4PFPuppi");
      jerpath = "CondFormats/JetMETObjects/data/Summer22_V1_NSCP_MC_PtResolution_ak4puppi.txt";
      jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt"; // Same as Summer22EE, is ok
      useJERSFvsPt = false;
    }
    if (dataset=="Summer22EE" ||
-       dataset=="Summer22EEFlat" || dataset=="Summer22EEMG") {
+       dataset=="Summer22EEFlat" ||
+       TString(dataset.c_str()).Contains("Summer22EEMG")) {
      jec = getFJC("",//Summer22EEPrompt22_V1_MC_L1FastJet_AK4PFPuppi",
-		  "Summer22EEPrompt22_V1_MC_L2Relative_AK4PFPuppi",
+		  //"Summer22EEPrompt22_V1_MC_L2Relative_AK4PFPuppi",
+		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  "");//Summer22EEPrompt22_V1_MC_L2L3Residual_AK4PFPuppi");
      jerpath = "CondFormats/JetMETObjects/data/Summer22EEVetoRun3_V1_NSCP_MC_PtResolution_ak4puppi.txt";
      jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt";
@@ -686,22 +698,25 @@ void DijetHistosFill::Loop()
  
    if (dataset=="2023BCv123" || dataset=="2023BCv123_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PFPUPPI", // Mikel
+		  "");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2023Cv4" || dataset=="2023Cv4_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PFPUPPI", // Mikel
+		  "");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
    if (dataset=="2023D" || dataset=="2023D_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PFPUPPI", // Mikel
+		  "");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
-   if (isRun2 && (!jec || !jecl1rc))
+   if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
      cout << "Missing files for " << dataset << endl << flush;
    assert(jec);
    //assert(jecl1rc);
@@ -1543,13 +1558,15 @@ void DijetHistosFill::Loop()
 	fjv = new TFile("rootfiles/hotjets-UL18.root","READ");
    if (dataset=="2022C" || dataset=="2022D" || dataset=="2022C_ZB" ||
        dataset=="2022D_ZB" || dataset=="Summer22" ||
-       dataset=="Summer22Flat" || dataset=="Summer22MG")
+       dataset=="Summer22Flat" ||
+       TString(dataset.c_str()).Contains("Summer22MG"))
      fjv = new TFile("rootfiles/jetveto2022CD.root","READ");
    if (dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
        dataset=="2022F1" || dataset=="2022F2" ||
        dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
        dataset=="Summer22EE" ||
-       dataset=="Summer22EEFlat" || dataset=="Summer22EEMG")
+       dataset=="Summer22EEFlat" ||
+       TString(dataset.c_str()).Contains("Summer22EEMG"))
      fjv = new TFile("rootfiles/jetveto2022EFG.root","READ");
    if (dataset=="2023B" || dataset=="2023C" || dataset=="2023BCv123" ||
        dataset=="2023Cv123" || dataset=="2023Cv4" ||
@@ -1578,13 +1595,15 @@ void DijetHistosFill::Loop()
      h2jv = (TH2D*)fjv->Get("h2hot_ul18_plus_hem1516_and_hbp2m1");
    if (dataset=="2022C" || dataset=="2022D" || dataset=="2022C_ZB" ||
        dataset=="2022D_ZB" || dataset=="Summer22" ||
-       dataset=="Summer22Flat" || dataset=="Summer22MG")
+       dataset=="Summer22Flat" ||
+       TString(dataset.c_str()).Contains("Summer22MG"))
      h2jv = (TH2D*)fjv->Get("jetvetomap");
    if (dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
        dataset=="2022F1" || dataset=="2022F2" ||
        dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
        dataset=="Summer22EE" ||
-       dataset=="Summer22EEFlat" || dataset=="Summer22EEMG")
+       dataset=="Summer22EEFlat" ||
+       TString(dataset.c_str()).Contains("Summer22EEMG"))
      h2jv = (TH2D*)fjv->Get("jetvetomap");
    if (dataset=="2023B" || dataset=="2023C" || dataset=="2023BCv123" ||
        dataset=="2023Cv123" || dataset=="2023Cv4" ||

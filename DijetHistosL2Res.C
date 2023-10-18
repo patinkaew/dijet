@@ -52,20 +52,16 @@ void DijetHistosL2Res() {
     
     const char *c = (i==0 ? "" : (i==1 ? "pf" : "tc"));
 
-    // Run3
-    //DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022C_JME_v29.root","Dijet2",c);
-    //DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022D_JME_v29.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022CD_JME_v29.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022E_JME_v29.root","Dijet2",c);
-    //DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022F_JME_v29.root","Dijet2",c);
-    //DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022G_JME_v29.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022FG_JME_v29.root","Dijet2",c);
+    // Run3 (v29->v30)
+    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022E_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2",c);
     // 2023
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023BCv123_JME_v29.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023Cv4_JME_v29.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023D_JME_v29.root","Dijet2",c);
+    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023D_JME_v30.root","Dijet2",c);
     // MC
-    DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","Dijet2",c);
+    DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2",c);
 
     /*
     // New Run3 files from Iita and Mikael

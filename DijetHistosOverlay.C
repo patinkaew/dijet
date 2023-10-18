@@ -128,12 +128,13 @@ void DijetHistosOverlay() {
 
   //DijetHistosOverlayJES("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022C_v1_vs_UL18_v26"); // before JER SF
 
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022CD_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2022CD_v29");
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022E_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2022E_v29"); // tbd: 22EE
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022FG_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2022FG_v29"); // tbd: 22EE
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023BCv123_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2023BCv123_v29"); // tbd: 23
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023Cv4_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2023Cv4_v29"); // tbd: 23
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023D_JME_v29.root","rootfiles/jmenano_mc_cmb_Summer22MG_v29.root","2023D_v29"); // tbd: 23
+  // Run3 (v29->v30)
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","2022CD_v30");
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022E_JME_v30.root","rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","2022E_v30"); // tbd: 22EE
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","2022FG_v30"); // tbd: 22EE
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","2023BCv123_v30"); // tbd: 23
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","2023Cv4_v30"); // tbd: 23
+  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023D_JME_v30.root","rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","2023D_v30"); // tbd: 23
 
   
   //DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_UL2017_v26.root",
@@ -1114,15 +1115,23 @@ void DijetHistosOverlayJES(string fdt, string fmc, string era) {
     c1->cd(ieta);
     gPad->SetLogx();
 
+    double etamin = h2jes->GetXaxis()->GetBinLowEdge(ieta);
+    double etamax = h2jes->GetXaxis()->GetBinLowEdge(ieta+1);
+
     TH1D *h = tdrHist(Form("h%s_%d",co,ieta),"",0.85,1.3);//0.92,1.12);
     if (addColorJES) { h->GetYaxis()->SetRangeUser(0.5,1.75); } // Run3
-    if (addColorJES2) { h->GetYaxis()->SetRangeUser(0.5,1.75); }
+    if (addColorJES2) {
+      if (etamin<1.4)
+	h->GetYaxis()->SetRangeUser(0.50,1.75);
+      if (etamin>1.4 && etamin <2.6)
+	h->GetYaxis()->SetRangeUser(0.30,2.0);
+      if (etamin>2.6)
+	h->GetYaxis()->SetRangeUser(0.0,2.50);
+    }
     h->Draw();
 
     // Add fits on top
     double ptmin = (isZB ? 30. : 59.);
-    double etamin = h2jes->GetXaxis()->GetBinLowEdge(ieta);
-    double etamax = h2jes->GetXaxis()->GetBinLowEdge(ieta+1);
     double fitptmax2 = min(1784.,0.55*6500./cosh(etamin));
     int jmax2 = h2jes->GetYaxis()->FindBin(fitptmax2);
     fitptmax2 = h2jes->GetYaxis()->GetBinLowEdge(jmax2);
@@ -1178,9 +1187,11 @@ void DijetHistosOverlayJES(string fdt, string fmc, string era) {
     h1jesm->Fit(fjesm,"QRN");
     fjesm->SetRange(15,3500);
 
-    fjesm->SetLineColor(kGreen+3);//kBlue);
+    //fjesm->SetLineColor(kGreen+3);//kBlue);
+    fjesm->SetLineColor(kGray+2);//kBlue);
     fjesm->Draw("SAME");
-    fjes->SetLineColor(kGreen+2);
+    //fjes->SetLineColor(kGreen+2);
+    fjes->SetLineColor(kBlack);
     fjes->Draw("SAME");
     
     c2->cd(ieta);
@@ -1189,7 +1200,14 @@ void DijetHistosOverlayJES(string fdt, string fmc, string era) {
     //TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.96,1.11);
     TH1D *h2 = tdrHist(Form("h2%s_%d",co,ieta),"Data/MC",0.92,1.12);
     if (addColorJES)  { h2->GetYaxis()->SetRangeUser(0.80,1.30); } // Run3
-    if (addColorJES2) { h2->GetYaxis()->SetRangeUser(0.80,1.30); }
+    if (addColorJES2) {
+      if (etamin<1.4)
+	h2->GetYaxis()->SetRangeUser(0.80,1.30);
+      if (etamin>1.4 && etamin <2.6)
+	h2->GetYaxis()->SetRangeUser(0.70,1.45);
+      if (etamin>2.6)
+	h2->GetYaxis()->SetRangeUser(0.60,1.60);
+    }
     h2->Draw();
 
     double ptmin2 = (isZB ? 15. : 59.);
@@ -1230,11 +1248,12 @@ void DijetHistosOverlayJES(string fdt, string fmc, string era) {
     fjes2r->SetLineColor(kBlack);
     fjes2r->SetLineWidth(2);
     fjes2r->SetLineStyle(kDotted);
-    fjes2r->Draw("SAME");
+    //fjes2r->Draw("SAME");
 
     TF1 *fjesr = new TF1(Form("fjesr%d",ieta),"[0]+log(x)*([1]+log(x)*[2])",
 			 fitptmin,fitptmax);
-    fjesr->SetLineColor(kGreen+2);
+    //fjesr->SetLineColor(kGreen+2);
+    fjesr->SetLineColor(kBlack);
 
     fjesr->SetParameters(1,0,0);
     h1jesr->Fit(fjesr,"QRN");
@@ -1443,12 +1462,12 @@ void DijetHistosOverlayJES(string fdt, string fmc, string era) {
       tdrDraw(h1dbpfm,"HIST",kNone,kRed+1,kDashed,-1,kNone);
       tdrDraw(h1dbpf,"HIST",kNone,kRed+1,kSolid,-1,kNone);
 
-      tdrDraw(h1mpfabm,"HIST",kNone,kGreen+2,kDashed,-1,kNone);
-      tdrDraw(h1mpfab,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
-      tdrDraw(h1mpftcm,"HIST",kNone,kBlue,kDashed,-1,kNone);
-      tdrDraw(h1mpftc,"HIST",kNone,kBlue,kSolid,-1,kNone);
-      tdrDraw(h1mpfpfm,"HIST",kNone,kRed,kDashed,-1,kNone);
-      tdrDraw(h1mpfpf,"HIST",kNone,kRed,kSolid,-1,kNone);
+      tdrDraw(h1mpfabm,"Pz",kNone,kGreen+2,kDashed,-1,kNone);
+      tdrDraw(h1mpfab,"Pz",kNone,kGreen+2,kSolid,-1,kNone);
+      tdrDraw(h1mpftcm,"Pz",kNone,kBlue,kDashed,-1,kNone);
+      tdrDraw(h1mpftc,"Pz",kNone,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1mpfpfm,"Pz",kNone,kRed,kDashed,-1,kNone);
+      tdrDraw(h1mpfpf,"Pz",kNone,kRed,kSolid,-1,kNone);
 
       
       c2->cd(ieta);
@@ -1471,9 +1490,9 @@ void DijetHistosOverlayJES(string fdt, string fmc, string era) {
       tdrDraw(h1dbtcr,"HIST",kNone,kBlue+1,kSolid,-1,kNone);
       tdrDraw(h1dbpfr,"HIST",kNone,kRed+1,kSolid,-1,kNone);
 
-      tdrDraw(h1mpfabr,"HIST",kNone,kGreen+2,kSolid,-1,kNone);
-      tdrDraw(h1mpftcr,"HIST",kNone,kBlue,kSolid,-1,kNone);
-      tdrDraw(h1mpfpfr,"HIST",kNone,kRed,kSolid,-1,kNone);
+      tdrDraw(h1mpfabr,"Pz",kNone,kGreen+2,kSolid,-1,kNone);
+      tdrDraw(h1mpftcr,"Pz",kNone,kBlue,kSolid,-1,kNone);
+      tdrDraw(h1mpfpfr,"PZ",kNone,kRed,kSolid,-1,kNone);
 
     } // for ieta
 
