@@ -19,15 +19,15 @@
 
 #include <fstream>
 #include <string>
-#include <filesystem>
 #include <iostream>
 #include <stdlib.h>
 
 #include <unistd.h>
 #include <limits.h>
 
-char hostname[HOST_NAME_MAX];
+#include <unordered_set>
 
+char hostname[HOST_NAME_MAX];
 
 #define GPU
 //#define LOCAL
@@ -66,94 +66,54 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   // Get JMENANO from either location:
   // - lxplus:/eos/cms/store/group/phys_jetmet/JMENanoRun3/v2p1/JetMET
   // - Hefaistos:/media/DATA/JME_NANO_DATA
-  
-  if (!(dataset=="UL2016BCD" || dataset=="UL2016EF" || 
-	dataset=="UL2016APVMG" ||
-        dataset=="UL2016GH" || dataset=="UL2016MG" || dataset=="UL2016Flat" || 
-	dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
-	dataset=="UL2017E" || dataset=="UL2017F" ||
-	dataset=="UL2017MG" ||
-	dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
-	//dataset=="UL2018D" ||
-	dataset=="UL2018D1" || dataset=="UL2018D2" ||
-	dataset=="UL2018MG" ||
 
-	dataset=="UL2016BCD_ZB" || dataset=="UL2016EF_ZB" ||
-	dataset=="UL2016GH_ZB" ||
-	dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" ||
-	dataset=="UL2017D_ZB" ||
-	dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
-	dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" ||
-	dataset=="UL2018C_ZB" ||
-	dataset=="UL2018D_ZB" ||
+  // Datasets, these can be taken out of the code and put in a file etc.
+  std::unordered_set<std::string> MC_datasets = {"UL2016APVMG",
+     "UL2016MG", "UL2016Flat",
+     "UL2017MG", "UL2018MG",
+     "Summer22Flat", "Summer22MG",
+     "Summer22MG1", "Summer22MG2",
+     "Summer22EEFlat", "Summer22EEMG",
+     "Summer22EEMG1", "Summer22EEMG2",
+     "Summer22EEMG3", "Summer22EEMG4"
+     };
 
-	dataset=="2022C" || dataset=="2022D" ||
-	dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
-	dataset=="2022F1" || dataset=="2022F2" ||
-	dataset=="2023BCv123" || dataset=="2023Cv4" || dataset=="2023D" ||
-	dataset=="2022C_ZB" || dataset=="2022D_ZB" ||
-	dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
-	dataset=="2023BCv123_ZB" || dataset=="2023Cv4_ZB" ||
-	dataset=="2023D_ZB" ||
+  std::unordered_set<std::string> DT_datasets = {"UL2016BCD", 
+  "UL2016EF", "UL2016GH", "UL2017B", "UL2017C", "UL2017D", 
+  "UL2017E", "UL2017F", "UL2018A", "UL2018B", "UL2018C", 
+  "UL2018D1", "UL2018D2", "UL2016BCD_ZB", "UL2016EF_ZB", 
+  "UL2016GH_ZB", "UL2017B_ZB", "UL2017C_ZB", "UL2017D_ZB", 
+  "UL2017E_ZB", "UL2017F_ZB", "UL2018A_ZB", "UL2018B_ZB", 
+  "UL2018C_ZB", "UL2018D_ZB", "2022C", "2022D", "2022E", 
+  "2022F", "2022G", "2022F1", "2022F2", "2023BCv123", "2023Cv4", 
+  "2023D", "2022C_ZB", "2022D_ZB", "2022E_ZB", "2022F_ZB", "2022G_ZB", 
+  "2023BCv123_ZB", "2023Cv4_ZB", "2023D_ZB"
+  };
 
-	dataset=="Summer22Flat" || dataset=="Summer22MG" ||
-	dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
-	dataset=="Summer22EEFlat" || dataset=="Summer22EEMG" ||
-	dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
-	dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4"
-	)) {
+  // Check if dataset is supported
+  if (DT_datasets.find(dataset)==DT_datasets.end() && 
+      MC_datasets.find(dataset)==MC_datasets.end()) {
     cout << "Dataset " << dataset << " not supported" << endl << flush;
-    cout << "Supported datasets are:" << endl
-	 << "UL2016BCD, UL2016EF, UL2016APVMG" << endl
-	 << "UL2016GH, UL2016MG, UL2016Flat," << endl
-	 << "UL2017B, UL2017C, UL2017D, UL2017E, UL2017F" << endl
-	 << "UL2017MG" << endl
-      //<< "UL2018A, UL2018B, UL2018C, UL2018D" << endl
-	 << "UL2018A, UL2018B, UL2018C, UL2018D1, UL2018D2" << endl
-	 << "UL2018MG"
-	 << endl
-      	 << "UL2016BCD_ZB, UL2016EF_ZB, UL2016GH_ZB" << endl
-	 << "UL2017B_ZB, UL2017C_ZB, UL2017D_ZB, UL2017E_ZB, UL2017F_ZB" << endl
-      	 << "UL2018A_ZB, UL2018B_ZB, UL2018C_ZB, UL2018D_ZB" << endl
-	 << endl;
+    cout << "Supported datasets are:" << endl;
+    for (auto it=DT_datasets.begin(); it!=DT_datasets.end(); ++it) {
+      cout << *it << endl;
+    }
+    for (auto it=MC_datasets.begin(); it!=MC_datasets.end(); ++it) {
+      cout << *it << endl;
+    }
+
+  } else{
+    cout << "Dataset " << dataset << " is supported" << endl << flush;
   }
   
+  
   // Settings
-  bool addData =
-    (dataset=="UL2016BCD" || dataset=="UL2016EF" ||
-     dataset=="UL2016GH" ||
-     dataset=="UL2017B" || dataset=="UL2017C" || dataset=="UL2017D" ||
-     dataset=="UL2017E" || dataset=="UL2017F" ||
-     dataset=="UL2018A" || dataset=="UL2018B" || dataset=="UL2018C" ||
-     //dataset=="UL2018D"
-     dataset=="UL2018D1" || dataset=="UL2018D2" ||
-
-     dataset=="UL2016BCD_ZB" || dataset=="UL2016EF_ZB" || dataset=="UL2016GH_ZB" ||
-     dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
-     dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB" ||
-     dataset=="UL2018A_ZB" || dataset=="UL2018B_ZB" || dataset=="UL2018C_ZB" ||
-     dataset=="UL2018D_ZB" ||
-
-     dataset=="2022C" || dataset=="2022D" ||
-     dataset=="2022E" || dataset=="2022F" || dataset=="2022G" ||
-     dataset=="2022F1" || dataset=="2022F2" ||
-     dataset=="2023BCv123" || dataset=="2023Cv4" || dataset=="2023D" ||
-     dataset=="2022C_ZB" || dataset=="2022D_ZB" ||
-     dataset=="2022E_ZB" || dataset=="2022F_ZB" || dataset=="2022G_ZB" ||
-     dataset=="2023BCv123_ZB" || dataset=="2023Cv4_ZB" ||
-     dataset=="2023D_ZB"
-     );
-  bool addMC =
-    (dataset=="UL2016APVMG" ||
-     dataset=="UL2016MG"  || dataset=="UL2016Flat" ||
-     dataset=="UL2017MG"  || dataset=="UL2018MG" ||
-
-     dataset=="Summer22Flat" || dataset=="Summer22MG" ||
-     dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
-     dataset=="Summer22EEFlat" || dataset=="Summer22EEMG" ||
-     dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
-     dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4"
-     ); 
+  // Check if dataset is data or MC
+  bool addData = (DT_datasets.find(dataset)!=DT_datasets.end());
+  bool addMC = (MC_datasets.find(dataset)!=MC_datasets.end());
+  
+  // Maybe also
+  // assert(addData || addMC);
 
   //cout << "Clean old shared objects and link files" << endl << flush;
   //gSystem->Exec("rm *.d");
@@ -167,16 +127,15 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
 #ifdef GPU
   // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
+  // Compile .cc files in CondFormats/JetMETObjects/src
+  std::unordered_set<std::string> files = {"Utilities.cc", "JetCorrectorParameters.cc", "SimpleJetCorrector.cc", "FactorizedJetCorrector.cc",
+  "SimpleJetCorrectionUncertainty.cc", "JetCorrectionUncertainty.cc", "JetResolutionObject.cc", "JetResolution.cc"};
 
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/Utilities.cc+");
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectorParameters.cc+");
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrector.cc+");
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc+");
-  
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+");
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+");
+  for (auto it=files.begin(); it!=files.end(); ++it) {
+    gROOT->ProcessLine(Form(".L CondFormats/JetMETObjects/src/%s+",it->c_str()));
+  }
 
-  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetResolutionObject.cc+");
+  // Also JetResolution.cc from JetMETCorrections
   gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
 
   cout << "Load library in GPU mode" << endl << flush;
@@ -191,7 +150,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   gethostname(hostname, HOST_NAME_MAX);
   bool runGPU = (hostname==string("dx6-flafo-02"));
   bool runLocal = (path=="/Users/voutila/Dropbox/Cern/dijet" ||
-		   path=="/Users/manvouti/Dropbox/Cern/dijet");
+		   path=="/Users/manvouti/Dropbox/Cern/dijet"); // is this necessary? Always running in the dijet folder anyway?
   if (!runLocal) assert(runGPU);
   
   if (addData) {
@@ -226,13 +185,13 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
 
-    bool isMG = (dataset=="UL2016APVMG" || dataset=="UL2016MG" ||
-		 dataset=="UL2017MG" || dataset=="UL2018MG" ||
-		 dataset=="Summer22MG" ||
-		 dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
-		 dataset=="Summer22EEMG" ||
-		 dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
-		 dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4");
+    bool isMG = (dataset.find("MG") != std::string::npos); //(dataset=="UL2016APVMG" || dataset=="UL2016MG" ||
+		 // dataset=="UL2017MG" || dataset=="UL2018MG" ||
+		 // dataset=="Summer22MG" ||
+		 // dataset=="Summer22MG1" || dataset=="Summer22MG2" ||
+		 // dataset=="Summer22EEMG" ||
+		 // dataset=="Summer22EEMG1" || dataset=="Summer22EEMG2" ||
+		 // dataset=="Summer22EEMG3" || dataset=="Summer22EEMG4");
     
     DijetHistosFill filler(c, isMG ? 2 : 1, dataset,version);
     filler.Loop();
