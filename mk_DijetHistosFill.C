@@ -19,6 +19,15 @@
 
 #include <fstream>
 #include <string>
+#include <filesystem>
+#include <iostream>
+#include <stdlib.h>
+
+#include <unistd.h>
+#include <limits.h>
+
+char hostname[HOST_NAME_MAX];
+
 
 #define GPU
 //#define LOCAL
@@ -178,7 +187,9 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   TChain *c = new TChain("Events");
   
   // Automatically figure out where we are running the job
-  bool runGPU = (path=="/media/storage/dijet");
+  // runGPU if hostname is dx6-flafo-02 (Hefaistos)
+  gethostname(hostname, HOST_NAME_MAX);
+  bool runGPU = (hostname==string("dx6-flafo-02"));
   bool runLocal = (path=="/Users/voutila/Dropbox/Cern/dijet" ||
 		   path=="/Users/manvouti/Dropbox/Cern/dijet");
   if (!runLocal) assert(runGPU);
