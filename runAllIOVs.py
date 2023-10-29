@@ -23,7 +23,7 @@ IOV_list= [
     'Summer22MG1','Summer22MG2',
     'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4'
 ]
-version = 'v31'
+version = 'v32'
 
 #os.system("rm *.so *.d *.pcm")
 os.system("root -l -b -q mk_CondFormats.C")

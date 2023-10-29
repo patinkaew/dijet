@@ -627,32 +627,37 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi.txt");
+     //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022D" || dataset=="2022D_ZB") {
      jec = getFJC("",//Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi.txt");
+     //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022E" || dataset=="2022E_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+		  "Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi.txt");
+     //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    //if (dataset=="2022F" || dataset=="2022F_ZB") {
    if (TString(dataset.c_str()).Contains("2022F")) {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+		  "Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi.txt");
+     //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022G" || dataset=="2022G_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
+		  "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi.txt");
+		  //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    
    //22/23 MC
@@ -837,13 +842,13 @@ void DijetHistosFill::Loop()
      {10, 15, 21, 28, 37, 49,
       59, 86, 110, 132, 170, 204, 236, 279, 302, 373, 460, 575,
       638, 737, 846, 967, 1101, 1248,
-      1410, 1588, 1784, 2000, 2238, 2500, 2787, 3103};
+      1410, 1588, 1784, 2000, 2238, 2500, 2787, 3103, 3450, 4037, 5220};
    double nptd = sizeof(vptd)/sizeof(vptd[0])-1;
    // L3Res (gamma+jet) pT binning adapted and extended
    const double vpt[] = {10, 15, 20, 25, 30, 35,
 			 40, 50, 60, 70, 85, 100, 125, 155, 180, 210, 250, 300,
 			 350, 400, 500, 600, 800, 1000, 1200, 1500,
-			 1800, 2100, 2400, 2700, 3000};
+			 1800, 2100, 2400, 2700, 3000, 3500, 4000, 5000};
    const int npt = sizeof(vpt)/sizeof(vpt[0])-1;
 
    // Regular L2Relative eta binning
@@ -862,7 +867,10 @@ void DijetHistosFill::Loop()
    // Current L2Res |eta| binning from Jindrich
    // https://indico.cern.ch/event/1263476/contributions/5311425/attachments/2612023/4513129/L2Res+HDM-March15.pdf
    double vxd[] =
-     {0, 0.261, 0.522, 0.783, 1.044, 1.305, 1.479, 1.653, 1.93, 2.172, 2.322, 2.5, 2.65, 2.853, 2.964, 3.139, 3.489, 3.839, 5.191};
+   //{0, 0.261, 0.522, 0.783, 1.044, 1.305, 1.479, 1.653, 1.93, 2.172, 2.322, 2.5, 2.65, 2.853, 2.964, 3.139, 3.489, 3.839, 5.191};
+   // Newer L2Res |eta| binning from Mikel
+   // https://indico.cern.ch/event/1335203/#7-update-on-l2res-for-2022-rer
+   {0., 0.261, 0.522, 0.783, 1.044, 1.305, 1.479, 1.653, 1.93, 2.172, 2.322, 2.5, 2.65, 2.853, 2.964, 3.139, 3.314, 3.489, 3.839, 4.013, 4.583, 5.191};
    const int nxd = sizeof(vxd)/sizeof(vxd[0])-1;
 
    const int ny = 800;

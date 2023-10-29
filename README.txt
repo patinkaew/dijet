@@ -31,6 +31,9 @@ After producing the jmenano_[data,mc])_out_v[X].root root files and hadding:
 - root -l -b -q DijetHistosL2Res.C+g     [dijet L2Res]
 - root -l -b -q DijetHistosOverlay.C+g   [draw dijet L2Res]
 
+Multijet plotting
+- root -l -b -q minitools/drawMultijet.C+g [draw multijet pTbin+MPF/DB]
+
 Jet veto maps in jecsys3 package:
 - root -l -b -q jecsys3/minitools/doJetVetoV2.C
 - root -l -b -q jecsys3/minitools/drawJetVetoV2.C
@@ -66,19 +69,20 @@ Bugs:
 - MC genWeight seems not to be working. Why? => w was set before reading event
 - Wrong MC: Summer19UL16_V7 -> Summer20UL16_V1
 
+(To do: add 40to70 to Summer22EEMG, filter out bad files). 
+(To-do: Downdload Summer23 and ReReco samples. Not yet done for ZeroBias at least)
+
+// v32. Update HF |eta| binning. Extend pT binning. Add L2Res for CD+EFG. E still prompt. Update 2022C_ZB and 2022D_ZB to re-reco.
+
+// v31b,c. Processeed re-reco 2022C,D (is code already v32 for |eta| binning?)
+
 // v31. Update MC JECs to those used by Mikel (Summer22) and switch off L2L3Residuals. Split Summer22(EE)MGs into 2 or 4, fix 2022F JEC. (Next steps: implement pT-dependent JER SF and run with it. Figure out MPF vs DB.)
-
 // v30. Change PuppiMET to RawPuppiMET for raw MET input. Split 2022F file list into two.
-
 // v29: add Run3 code from Iita. Update JEC, jetvetomaps, JSON, rho branch mapping. Remove or comment out branches not in 2023 tuples. Patch Pileup_pthatmax for isMG.
-
 // v28: add Incjet/h2pteta without pT range preselection.
-
 // v27: Filter out corrupt files from 2018D2 and 2018MG (log files >1MB), as well as other large log files. Switch of HLT_ZeroBias for non-ZB datasets. Move input files to input_files subdirectory to clean up. Add useJERSFvsPt switch and functionality for MC.
-
 // v26(ZB): Add UL2017*_ZB eras for Zero Bias primary data set. v26c also added rest.
 // v26: Fix division by zero bug for Jet_CF[i] that made MPF0 and MPFu corrupted. Add UL2017MG files.
-
 // v25: Improve handling of JER files. Default data set and versioning to "X" and "vX", set version in runAllIOVs.py". Split UL2018D to UL2018D1, UL2018D2 for more balanced running. Set nGenJetMax=100 (was 76 from 2016GH). Add debugFiles option to print out file names.
 
 // v24: Add ability to run over 2016APV, 2016, 2017, 2018. Add IOV and version to output file name. Switch off smearing (to derive JER SF first). Revert to public JEC+JER versions (V7/V3*2, V6/V3, V5/V2) until new Summer20 files verified. Add runAllIOVs.py. Add automatic HT bin event counting. Add MC truth folder.
