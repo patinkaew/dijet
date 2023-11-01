@@ -128,9 +128,6 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   gSystem->AddIncludePath(Form("-I%s/CondFormats/JetMETObjects/interface",path.c_str()));
 
 #ifdef GPU
-  // Hostname
-  
-
   // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
   // Compile .cc files in CondFormats/JetMETObjects/src
   std::unordered_set<std::string> files = {"Utilities.cc", "JetCorrectorParameters.cc", "SimpleJetCorrector.cc", "FactorizedJetCorrector.cc",
@@ -151,7 +148,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   
   // Automatically figure out where we are running the job
   // runGPU if hostname is dx6-flafo-02 (Hefaistos)
-  gethostname(hostname, HOST_NAME_MAX);
+  gethostname(hostname, _POSIX_HOST_NAME_MAX);
 
   bool runGPU = (hostname==string("dx6-flafo-02"));
   bool runLocal = (path=="/Users/voutila/Dropbox/Cern/dijet" ||
