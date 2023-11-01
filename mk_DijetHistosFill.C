@@ -25,8 +25,8 @@
 #include <unistd.h>
 
 // For hostname
+# define __USE_POSIX
 # include <limits.h>
-# include <bits/posix1_lim.h>
 
 char hostname[HOST_NAME_MAX];
 
