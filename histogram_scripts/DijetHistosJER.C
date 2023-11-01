@@ -6,7 +6,7 @@
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
 
-#include "../jecsys2020/tdrstyle_mod15.C"
+#include "../tdrstyle_mod22.C"
 
 TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
 	     double eta1, double eta2, TH1D **h1 = 0, TH1D **h1x = 0);
@@ -20,33 +20,35 @@ void drawDijetHistosJERtest();
 bool scaleJER = false;
 
 // Process several directories in a uniform way
-void DijetHistosJER() {
+void DijetHistosJER(string rootdir="../rootfiles", string hadddir="../haddfiles") {
+
+
   // Run3 files (v29->v30)
   scaleJER = false;
-  DijetHistosJERs("rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_data_cmb_2022E_JME_v30.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2");
-  DijetHistosJERs("rootfiles/jmenano_data_cmb_2023D_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022E_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023D_JME_v30.root","Dijet2");
   //
   scaleJER = true; // something weird with MC RMS
-  DijetHistosJERs("rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2");
   //DijetHistosJERs("rootfiles/jmenano_mc_cmb_Summer22EEMG_v30.root","Dijet2");
   scaleJER = false;
   
-  const char *mc22 = "rootfiles/jmenano_mc_cmb_Summer22MG_v30.root";
-  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2022CD_JME_v30.root",mc22,
+  string mc22 = rootdir + "/jmenano_mc_cmb_Summer22MG_v30.root";
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022CD_JME_v30.root",mc22,
 		     "2022CD_vs_Summer22_v30");
-  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2022E_JME_v30.root",mc22,
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022E_JME_v30.root",mc22,
 		     "2022E_vs_Summer22_v30");
-  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2022FG_JME_v30.root",mc22,
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022FG_JME_v30.root",mc22,
 		     "2022FG_vs_Summer22_v30");
-  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root",mc22,
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023BCv123_JME_v30.root",mc22,
 		     "2023BCv123_vs_Summer22_v30");
-  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root",mc22,
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023Cv4_JME_v30.root",mc22,
 		     "2023Cv4_vs_Summer22_v30");
-  drawDijetHistosJER("rootfiles/jmenano_data_cmb_2023D_JME_v30.root",mc22,
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023D_JME_v30.root",mc22,
 		     "2023D_vs_Summer22_v30");
 
 

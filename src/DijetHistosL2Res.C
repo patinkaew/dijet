@@ -29,22 +29,22 @@ void DijetHistosL2Res() {
   DijetHistosL2Ress("haddfiles/jmenano_data_cmb_Run2_v26c.root","Dijet2","tc");
   //DijetHistosL2Ress("haddfiles/jmenano_data_cmb_UL2017_v26.root","Dijet2");
 
-  // MC before JER SF
+  // MC before JER SFs
   DijetHistosL2Ress("haddfiles/jmenano_mc_cmb_Run2_v26.root","Dijet2");
   DijetHistosL2Ress("haddfiles/jmenano_mc_cmb_Run2_v26.root","Dijet2","pf");
   DijetHistosL2Ress("haddfiles/jmenano_mc_cmb_Run2_v26.root","Dijet2","tc");
-  //DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2017MG_v26.root","Dijet2");
+  //DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2017MG_v26.root","Dijet2");
 
   // MC after JER SF
-  DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root","Dijet2");
-  DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2016MG_v27.root","Dijet2");
-  DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2017MG_v27.root","Dijet2");
-  DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2");
+  DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root","Dijet2");
+  DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2016MG_v27.root","Dijet2");
+  DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2017MG_v27.root","Dijet2");
+  DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2018MG_v27.root","Dijet2");
   //
   DijetHistosL2Ress("haddfiles/jmenano_mc_cmb_Run2_v27.root","Dijet2");
   DijetHistosL2Ress("haddfiles/jmenano_mc_cmb_Run2_v27.root","Dijet2","pf");
   DijetHistosL2Ress("haddfiles/jmenano_mc_cmb_Run2_v27.root","Dijet2","tc");
-  //DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2017MG_v27.root","Dijet2");
+  //DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2017MG_v27.root","Dijet2");
   */
 
   // Process all binning variants (pTavp, pTprobe, pTtag)
@@ -53,15 +53,15 @@ void DijetHistosL2Res() {
     const char *c = (i==0 ? "" : (i==1 ? "pf" : "tc"));
 
     // Run3 (v29->v30)
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022E_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022E_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2",c);
     // 2023
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("rootfiles/jmenano_data_cmb_2023D_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023D_JME_v30.root","Dijet2",c);
     // MC
-    DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2",c);
 
     /*
     // New Run3 files from Iita and Mikael
@@ -81,7 +81,7 @@ void DijetHistosL2Res() {
     //DijetHistosL2Ress("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2022BCv123_v1.root","Dijet2",c);
     */
     // UL2018 reference
-    DijetHistosL2Ress("rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2",c);
+    DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2",c);
   }
   
 }

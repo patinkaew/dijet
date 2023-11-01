@@ -32,7 +32,7 @@ for iov in IOV_list:
     os.system("ls -ltrh rootfiles/jmenano_mc_out_"+iov+"_"+version+".root")
     os.system("ls -ltrh rootfiles/jmenano_data_out_"+iov+"_"+version+".root")
     os.system("ls -ltrh logs/log_"+iov+"_"+version+".txt")
-    os.system("nohup root -l -b -q 'mk_DijetHistosFill.C(\""+iov+"\",\""+version+"\")' > logs/log_"+iov+"_"+version+".txt &")
+    os.system("nohup root -l -b -q 'make/mk_DijetHistosFill.C(\""+iov+"\",\""+version+"\")' > logs/log_"+iov+"_"+version+".txt &")
     print(" => Follow logging with 'tail -f logs/log_"+iov+"_"+version+".txt'")
 #    os.system("fs flush")
 #    wait()

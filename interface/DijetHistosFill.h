@@ -12,12 +12,12 @@
 #include <TFile.h>
 
 
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "../CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "../CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "../CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
-#include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
-#include "JetMETCorrections/Modules/interface/JetResolution.h"
+#include "../CondFormats/JetMETObjects/interface/JetResolutionObject.h"
+#include "../JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include <iostream>
 #include <cstdio>
