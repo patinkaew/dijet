@@ -23,11 +23,14 @@
 #include <stdlib.h>
 
 #include <unistd.h>
-#include <limits.h>
 
-#include <unordered_set>
+// For hostname
+# include <limits.h>
+# include <bits/posix1_lim.h>
 
 char hostname[HOST_NAME_MAX];
+
+#include <unordered_set>
 
 #define GPU
 //#define LOCAL
@@ -126,6 +129,9 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   gSystem->AddIncludePath(Form("-I%s/CondFormats/JetMETObjects/interface",path.c_str()));
 
 #ifdef GPU
+  // Hostname
+  
+
   // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
   // Compile .cc files in CondFormats/JetMETObjects/src
   std::unordered_set<std::string> files = {"Utilities.cc", "JetCorrectorParameters.cc", "SimpleJetCorrector.cc", "FactorizedJetCorrector.cc",
@@ -142,12 +148,12 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   gROOT->ProcessLine(".L DijetHistosFill.C+g");
 #endif
 
-
   TChain *c = new TChain("Events");
   
   // Automatically figure out where we are running the job
   // runGPU if hostname is dx6-flafo-02 (Hefaistos)
   gethostname(hostname, HOST_NAME_MAX);
+
   bool runGPU = (hostname==string("dx6-flafo-02"));
   bool runLocal = (path=="/Users/voutila/Dropbox/Cern/dijet" ||
 		   path=="/Users/manvouti/Dropbox/Cern/dijet"); // is this necessary? Always running in the dijet folder anyway?
