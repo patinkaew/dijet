@@ -629,21 +629,22 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi.txt");
+		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
      //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022D" || dataset=="2022D_ZB") {
      jec = getFJC("",//Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi.txt");
+		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
      //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022E" || dataset=="2022E_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi.txt");
+		  "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
+     //"Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    //if (dataset=="2022F" || dataset=="2022F_ZB") {
@@ -651,14 +652,14 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi.txt");
+		  "Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022G" || dataset=="2022G_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi.txt");
+		  "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi");
 		  //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    
