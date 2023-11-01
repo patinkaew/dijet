@@ -10,7 +10,7 @@
 #include "../CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
 #include "../CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
-#include "../JetMETCorrections/Modules/interface/JetResolutionObject.h"
+#include "../CondFormats/JetMETObjects/interface/JetResolutionObject.h"
 #include "../JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include "../interface/DijetHistosFill.h"
@@ -131,7 +131,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
   // Compile .cc files in CondFormats/JetMETObjects/src
   std::unordered_set<std::string> files = {"Utilities.cc", "JetCorrectorParameters.cc", "SimpleJetCorrector.cc", "FactorizedJetCorrector.cc",
-  "SimpleJetCorrectionUncertainty.cc", "JetCorrectionUncertainty.cc", "JetResolutionObject.cc", "JetResolution.cc"};
+  "SimpleJetCorrectionUncertainty.cc", "JetCorrectionUncertainty.cc", "JetResolutionObject.cc"};
 
   for (auto it=files.begin(); it!=files.end(); ++it) {
     gROOT->ProcessLine(Form(".L ../CondFormats/JetMETObjects/src/%s+",it->c_str()));
