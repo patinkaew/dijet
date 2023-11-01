@@ -25,10 +25,9 @@
 #include <unistd.h>
 
 // For hostname
-# define __USE_POSIX
 # include <limits.h>
 
-char hostname[HOST_NAME_MAX];
+char hostname[_POSIX_HOST_NAME_MAX];
 
 #include <unordered_set>
 
