@@ -3,17 +3,17 @@
 // Created: June 6, 2021
 
 //#include "CondFormats/JetMETObjects/src/Utilities.cc"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "../CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "../CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
+#include "../CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
-#include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "../CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
+#include "../CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
-#include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
-#include "JetMETCorrections/Modules/interface/JetResolution.h"
+#include "../CondFormats/JetMETObjects/interface/JetResolutionObject.h"
+#include "../JetMETCorrections/Modules/interface/JetResolution.h"
 
-#include "DijetHistosFill.h"
+#include "../interface/DijetHistosFill.h"
 
 #include "TSystem.h"
 
@@ -47,20 +47,20 @@ R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+)
 */
 //R__LOAD_LIBRARY(DijetHistosFill.C+g)
 // As in jetphys/mk2_histosFill.C:
-R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectorParameters_cc)
-R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrector_cc)
-R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/FactorizedJetCorrector_cc)
+R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/JetCorrectorParameters_cc)
+R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/SimpleJetCorrector_cc)
+R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/FactorizedJetCorrector_cc)
 
-R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty_cc)
-R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty_cc)
+R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty_cc)
+R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/JetCorrectionUncertainty_cc)
 //
-R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetResolutionObject_cc)
-R__LOAD_LIBRARY(JetMETCorrections/Modules/src/JetResolution_cc)
+R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/JetResolutionObject_cc)
+R__LOAD_LIBRARY(../JetMETCorrections/Modules/src/JetResolution_cc)
 //
-R__LOAD_LIBRARY(DijetHistosFill_C)
+R__LOAD_LIBRARY(../src/DijetHistosFill_C)
 #else
 // (works for 6.26/10)
-R__LOAD_LIBRARY(DijetHistosFill_C.so)
+R__LOAD_LIBRARY(../src/DijetHistosFill_C.so)
 #endif
 
 void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
@@ -124,8 +124,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
   string path = gSystem->pwd();
 
-  gSystem->AddIncludePath(Form("-I%s",path.c_str()));
-  gSystem->AddIncludePath(Form("-I%s/CondFormats/JetMETObjects/interface",path.c_str()));
+  gSystem->AddIncludePath(Form("-I%s/..",path.c_str()));
+  gSystem->AddIncludePath(Form("-I%s/../CondFormats/JetMETObjects/interface",path.c_str()));
 
 #ifdef GPU
   // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
@@ -134,14 +134,14 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   "SimpleJetCorrectionUncertainty.cc", "JetCorrectionUncertainty.cc", "JetResolutionObject.cc", "JetResolution.cc"};
 
   for (auto it=files.begin(); it!=files.end(); ++it) {
-    gROOT->ProcessLine(Form(".L CondFormats/JetMETObjects/src/%s+",it->c_str()));
+    gROOT->ProcessLine(Form(".L ../CondFormats/JetMETObjects/src/%s+",it->c_str()));
   }
 
   // Also JetResolution.cc from JetMETCorrections
-  gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
+  gROOT->ProcessLine(".L ../JetMETCorrections/Modules/src/JetResolution.cc+");
 
   cout << "Load library in GPU mode" << endl << flush;
-  gROOT->ProcessLine(".L DijetHistosFill.C+g");
+  gROOT->ProcessLine(".L ../src/DijetHistosFill.C+g");
 #endif
 
   TChain *c = new TChain("Events");
@@ -167,7 +167,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
 
-    //bool isZB = (dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
+    // bool isZB = (dataset=="UL2017B_ZB" || dataset=="UL2017C_ZB" || dataset=="UL2017D_ZB" ||
     //		 dataset=="UL2017E_ZB" || dataset=="UL2017F_ZB");
     // => decide internally from dataset.Contains("_ZB")
     
