@@ -47,20 +47,20 @@ R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+)
 */
 //R__LOAD_LIBRARY(DijetHistosFill.C+g)
 // As in jetphys/mk2_histosFill.C:
-R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/JetCorrectorParameters_cc)
-R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/SimpleJetCorrector_cc)
-R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/FactorizedJetCorrector_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectorParameters_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrector_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/FactorizedJetCorrector_cc)
 
-R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty_cc)
-R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/JetCorrectionUncertainty_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetCorrectionUncertainty_cc)
 //
-R__LOAD_LIBRARY(../CondFormats/JetMETObjects/src/JetResolutionObject_cc)
-R__LOAD_LIBRARY(../JetMETCorrections/Modules/src/JetResolution_cc)
+R__LOAD_LIBRARY(CondFormats/JetMETObjects/src/JetResolutionObject_cc)
+R__LOAD_LIBRARY(JetMETCorrections/Modules/src/JetResolution_cc)
 //
-R__LOAD_LIBRARY(../src/DijetHistosFill_C)
+R__LOAD_LIBRARY(src/DijetHistosFill_C)
 #else
 // (works for 6.26/10)
-R__LOAD_LIBRARY(../src/DijetHistosFill_C.so)
+R__LOAD_LIBRARY(src/DijetHistosFill_C.so)
 #endif
 
 void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
@@ -124,8 +124,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 
   string path = gSystem->pwd();
 
-  gSystem->AddIncludePath(Form("-I%s/..",path.c_str()));
-  gSystem->AddIncludePath(Form("-I%s/../CondFormats/JetMETObjects/interface",path.c_str()));
+  gSystem->AddIncludePath(Form("-I%s",path.c_str()));
+  gSystem->AddIncludePath(Form("-I%s/CondFormats/JetMETObjects/interface",path.c_str()));
 
 #ifdef GPU
   // Compile these libraries into *.so first with root -l -b -q mk_CondFormats.C
@@ -134,14 +134,14 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
   "SimpleJetCorrectionUncertainty.cc", "JetCorrectionUncertainty.cc", "JetResolutionObject.cc"};
 
   for (auto it=files.begin(); it!=files.end(); ++it) {
-    gROOT->ProcessLine(Form(".L ../CondFormats/JetMETObjects/src/%s+",it->c_str()));
+    gROOT->ProcessLine(Form(".L CondFormats/JetMETObjects/src/%s+",it->c_str()));
   }
 
   // Also JetResolution.cc from JetMETCorrections
-  gROOT->ProcessLine(".L ../JetMETCorrections/Modules/src/JetResolution.cc+");
+  gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
 
   cout << "Load library in GPU mode" << endl << flush;
-  gROOT->ProcessLine(".L ../src/DijetHistosFill.C+g");
+  gROOT->ProcessLine(".L src/DijetHistosFill.C+g");
 #endif
 
   TChain *c = new TChain("Events");
