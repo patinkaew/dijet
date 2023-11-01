@@ -4,18 +4,18 @@
 {
 
   // For JEC
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/Utilities.cc+");
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/JetCorrectorParameters.cc+");
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/SimpleJetCorrector.cc+");
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/Utilities.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectorParameters.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrector.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc+");
   
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+");
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc+");
 
   // For JER
-  gROOT->ProcessLine(".L ../CondFormats/JetMETObjects/src/JetResolutionObject.cc+");
-  gROOT->ProcessLine(".L ../JetMETCorrections/Modules/src/JetResolution.cc+");
+  gROOT->ProcessLine(".L CondFormats/JetMETObjects/src/JetResolutionObject.cc+");
+  gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
 
   // For Dijet code
-  gROOT->ProcessLine(".L ../src/DijetHistosFill.C+g");
+  gROOT->ProcessLine(".L src/DijetHistosFill.C+g");
 }
