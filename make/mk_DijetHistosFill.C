@@ -10,7 +10,7 @@
 #include "../CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
 #include "../CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
-#include "../CondFormats/JetMETObjects/interface/JetResolutionObject.h"
+#include "../JetMETCorrections/Modules/interface/JetResolutionObject.h"
 #include "../JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include "../interface/DijetHistosFill.h"
