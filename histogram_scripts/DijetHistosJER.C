@@ -6,7 +6,7 @@
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
 
-#include "../jecsys2020/tdrstyle_mod15.C"
+#include "../tdrstyle_mod22.C"
 
 TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
 	     double eta1, double eta2, TH1D **h1 = 0, TH1D **h1x = 0);
@@ -20,7 +20,9 @@ void drawDijetHistosJERtest();
 bool scaleJER = false;
 
 // Process several directories in a uniform way
-void DijetHistosJER(string rootdir, string hadddir) {
+void DijetHistosJER(string rootdir="../rootfiles", string hadddir="../haddfiles") {
+
+
   // Run3 files (v29->v30)
   scaleJER = false;
   DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2");
