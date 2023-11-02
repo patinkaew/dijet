@@ -1,5 +1,5 @@
 #define DijetHistosFill_cxx
-#include "DijetHistosFill.h"
+#include "../interface/DijetHistosFill.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -54,6 +54,7 @@ bool debugevent = false; // per-event debug
 // Permit ~0.7 extra scaling to allow for HF L3Res
 const double maxa = 10; // no cut with 10
 
+// UTILITIES
 double DELTAPHI(double phi1, double phi2) {
   double dphi = fabs(phi1-phi2);
   return (dphi <= TMath::Pi() ? dphi : TMath::TwoPi() - dphi);
@@ -72,6 +73,7 @@ struct range {
 };
 std::map<std::string, struct range> mt;
 
+// CLASS DEFINITIONS
 class mctruthHistos {
 public:
 
@@ -213,7 +215,7 @@ FactorizedJetCorrector *getFJC(string l1="", string l2="", string res="",
     res += "_AK4PFPuppi";
 
   // Set default path
-  if (path=="") path = "CondFormats/JetMETObjects/data";
+  if (path=="") path = "../CondFormats/JetMETObjects/data";
   const char *cd = path.c_str();
   const char *cl1 = l1.c_str();
   const char *cl2 = l2.c_str();
@@ -627,21 +629,22 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi.txt");
+		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
      //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022D" || dataset=="2022D_ZB") {
      jec = getFJC("",//Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi.txt");
+		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
      //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022E" || dataset=="2022E_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi.txt");
+		  "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
+     //"Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    //if (dataset=="2022F" || dataset=="2022F_ZB") {
@@ -649,14 +652,14 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi.txt");
+		  "Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022G" || dataset=="2022G_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi.txt");
+		  "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi");
 		  //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    

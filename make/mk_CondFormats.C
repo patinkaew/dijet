@@ -17,5 +17,5 @@
   gROOT->ProcessLine(".L JetMETCorrections/Modules/src/JetResolution.cc+");
 
   // For Dijet code
-  gROOT->ProcessLine(".L DijetHistosFill.C+g");
+  gROOT->ProcessLine(".L src/DijetHistosFill.C+g");
 }
