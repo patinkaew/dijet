@@ -63,6 +63,36 @@ double DELTAR(double phi1, double phi2, double eta1, double eta2) {
   return sqrt(pow(DELTAPHI(phi1,phi2),2) + pow(eta1-eta2,2));
 }
 
+struct JECInfo {
+    FactorizedJetCorrector jec;
+    FactorizedJetCorrector l1rc;
+    std::string jerpath;
+    std::string jerpathsf;
+    FactorizedJetCorrector jersfvspt;
+};
+
+JECInfo getJECInfoForIOV(const std::string& iov) {
+    std::ifstream file("JEC_corrs.txt");
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream ss(line);
+        std::vector<std::string> tokens;
+        std::string token;
+        while (std::getline(ss, token, ',')) {
+            tokens.push_back(token);
+        }
+        if (tokens[0] == iov) {
+            JECInfo info;
+            info.jec = FactorizedJetCorrector(tokens[1], tokens[2]); // Assuming L1 and L2L3 are used to construct jec
+            info.l1rc = FactorizedJetCorrector(tokens[3]); // Assuming L1RC is used to construct l1rc
+            info.jerpath = tokens[4];
+            info.jerpathsf = tokens[5];
+            info.jersfvspt = FactorizedJetCorrector(tokens[6]); // Assuming JERSFvsPT is used to construct jersfvspt
+            return info;
+        }
+    }
+    throw std::runtime_error("IOV not found in JEC_corrs.txt");
+}
 // Hardcoded pT, eta thresholds for each trigger
 // used in e.g. jetvetoHistos
 struct range {
@@ -215,7 +245,7 @@ FactorizedJetCorrector *getFJC(string l1="", string l2="", string res="",
     res += "_AK4PFPuppi";
 
   // Set default path
-  if (path=="") path = "../CondFormats/JetMETObjects/data";
+  if (path=="") path = "CondFormats/JetMETObjects/data";
   const char *cd = path.c_str();
   const char *cl1 = l1.c_str();
   const char *cl2 = l2.c_str();
