@@ -6,7 +6,6 @@ How to RUN on Hefaistos:
   [was: source /work/data/root/bin/thisroot.sh]
 - (rm *.d *.so *.pcm)
 - $ make
-# - cd make
 # - root -l -b -q mk_CondFormats.C
 - #define GPU in mk_DijetHistosFill.C
 => edit (version, IOV_list) and execute 'python runAllIOVs.py'
