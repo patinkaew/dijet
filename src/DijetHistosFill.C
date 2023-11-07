@@ -74,9 +74,6 @@ double DELTAR(double phi1, double phi2, double eta1, double eta2) {
   return sqrt(pow(DELTAPHI(phi1,phi2),2) + pow(eta1-eta2,2));
 }
 
-
-
-
 // Hardcoded pT, eta thresholds for each trigger
 // used in e.g. jetvetoHistos
 struct range {
@@ -317,7 +314,7 @@ CorrectionSet getCorrectionsForDataset(const std::string& dataset) {
 }
 
 
-void DijetHistosFill::Loop()
+void DijetHistosFill::Loop(bool debug_by_run=false, bool debug_by_event=false)
 {
 //   In a ROOT session, you can do:
 //      root> .L DijetHistosFill.C
@@ -343,6 +340,8 @@ void DijetHistosFill::Loop()
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
+   debug = debug_by_run;
+   debugevent = debug_by_event;
 
    //ROOT.EnableImplicitMT(); // From Nico on Skype, to parallelize processing
 
