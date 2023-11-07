@@ -24,9 +24,10 @@ IOV_input = []
 
 parser = argparse.ArgumentParser(description='Run all IOVs')
 
-# The user can pass the IOV list and version as an argument
+# The user can pass the IOV list, version and max number of files as an argument
 parser.add_argument('--IOV_list', nargs='+', default=IOV_input)
 parser.add_argument('--version', default=version)
+parser.add_argument('--max_files', default=9999)
 args = parser.parse_args()
 
 if args.IOV_list:
@@ -50,12 +51,12 @@ print('IOVs to run: ', IOV_input)
 #os.system("rm *.so *.d *.pcm")
 os.system("root -l -b -q mk_CondFormats.C")
 for iov in IOV_input:
-    print("Process DijetHistosFill.C+g for IOV "+iov)
-    os.system("ls -ltrh rootfiles/jmenano_mc_out_"+iov+"_"+version+".root")
-    os.system("ls -ltrh rootfiles/jmenano_data_out_"+iov+"_"+version+".root")
-    os.system("ls -ltrh logs/log_"+iov+"_"+version+".txt")
-    os.system("nohup root -l -b -q 'make/mk_DijetHistosFill.C(\""+iov+"\",\""+version+"\")' > logs/log_"+iov+"_"+version+".txt &")
-    print(" => Follow logging with 'tail -f logs/log_"+iov+"_"+version+".txt'")
+    print(f"Process DijetHistosFill.C+g for IOV {iov}")
+    os.system(f"ls -ltrh rootfiles/jmenano_mc_out_{iov}_{version}.root")
+    os.system(f"ls -ltrh rootfiles/jmenano_data_out_{iov}_{version}.root")
+    os.system(f"ls -ltrh logs/log_{iov}_{version}.txt")
+    os.system(f"nohup root -l -b -q 'make/mk_DijetHistosFill.C(\"{iov}\",\"{version}\",{args.max_files})' > logs/log_{iov}_{version}.txt &")
+    print(f" => Follow logging with 'tail -f logs/log_{iov}_{version}.txt'")
 #    os.system("fs flush")
 #    wait()
 #    time.sleep(sleep_time)

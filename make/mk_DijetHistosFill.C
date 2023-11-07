@@ -63,7 +63,7 @@ R__LOAD_LIBRARY(src/DijetHistosFill_C)
 R__LOAD_LIBRARY(src/DijetHistosFill_C.so)
 #endif
 
-void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
+void mk_DijetHistosFill(string dataset = "X", string version = "vX", int nFilesMax = 9999) {
 
   // Get JMENANO from either location:
   // - lxplus:/eos/cms/store/group/phys_jetmet/JMENanoRun3/v2p1/JetMET
@@ -160,7 +160,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 		 Form("input_files/dataFiles_%s.txt",dataset.c_str()), ios::in);
     string filename;
     cout << "Chaining data files:" << endl << flush;
-    int nFiles(0), nFilesMax(9999);
+    int nFiles(0);
     while (fin >> filename && nFiles<nFilesMax) {
       ++nFiles;
       c->AddFile(filename.c_str());
@@ -180,7 +180,7 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX") {
 		 Form("input_files/mcFiles_%s.txt",dataset.c_str()), ios::in);
     string filename;
     cout << "Chaining MC files:" << endl << flush;
-    int nFiles(0), nFilesMax(9999);
+    int nFiles(0);
     while (fin >> filename && nFiles<nFilesMax) {
       ++nFiles;
       c->AddFile(filename.c_str());
