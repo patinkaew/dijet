@@ -502,6 +502,17 @@ void DijetHistosFill::Loop()
    }
    
    fChain->SetBranchStatus("Flag_METFilters",1);
+  if (isRun3) {
+    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Run_3_recommendations
+    fChain->SetBranchStatus("Flag_goodVertices");
+    fChain->SetBranchStatus("Flag_globalSuperTightHalo2016Filter");
+    fChain->SetBranchStatus("Flag_EcalDeadCellTriggerPrimitiveFilter");
+    fChain->SetBranchStatus("Flag_BadPFMuonFilter");
+    fChain->SetBranchStatus("Flag_BadPFMuonDzFilter");
+    fChain->SetBranchStatus("Flag_hfNoisyHitsFilter");
+    fChain->SetBranchStatus("Flag_eeBadScFilter");
+    fChain->SetBranchStatus("Flag_ecalBadCalibFilter");
+  }
 
    // Trigger studies => TrigObjAK4 later (fixed now)
    bool doTriggerMatch = false;
@@ -1779,17 +1790,16 @@ void DijetHistosFill::Loop()
 
       // Clean code from bad lumisections using JSON file
       if (doJSON) {
+        if (debugevent) cout << "doJSON: Read in branches" << endl << flush;
 
-	if (debugevent) cout << "doJSON: Read in branches" << endl << flush;
-
-	b_run->GetEntry(ientry); 
-	b_luminosityBlock->GetEntry(ientry);
-	
-	// Does the run/LS pass the latest JSON selection?
-	if (_json[run][luminosityBlock]==0) {
-	  ++_nbadevts_json;
-	  continue;
-	}
+        b_run->GetEntry(ientry); 
+        b_luminosityBlock->GetEntry(ientry);
+        
+        // Does the run/LS pass the latest JSON selection?
+        if (_json[run][luminosityBlock]==0) {
+          ++_nbadevts_json;
+          continue;
+        }
       } // doJSON
 
       if (debugevent) cout << "Read in entry" << endl << flush;
@@ -1800,24 +1810,24 @@ void DijetHistosFill::Loop()
 
       double w = (isMC ? genWeight : 1.);
       if (isMG) {
-	int iht = hxsec->FindBin(LHE_HT);
-	double xsec = hxsec->GetBinContent(iht);
-	double nevt = (isRun3 ? hnwgt->GetBinContent(iht) :
-		       hnevt->GetBinContent(iht));
-	double wht = (nevt ? xsec / nevt : 1);
-	w *= wht;
-	hLHE_HT->Fill(LHE_HT); // cross-check hnevt afterwards
-	hLHE_HTw->Fill(LHE_HT, w); // cross-check hnwgt afterwards
-	hHT->Fill(LHE_HT, w); // cross-check HT spectrum smoothness afterwards
+        int iht = hxsec->FindBin(LHE_HT);
+        double xsec = hxsec->GetBinContent(iht);
+        double nevt = (isRun3 ? hnwgt->GetBinContent(iht) :
+                hnevt->GetBinContent(iht));
+        double wht = (nevt ? xsec / nevt : 1);
+        w *= wht;
+        hLHE_HT->Fill(LHE_HT); // cross-check hnevt afterwards
+        hLHE_HTw->Fill(LHE_HT, w); // cross-check hnwgt afterwards
+        hHT->Fill(LHE_HT, w); // cross-check HT spectrum smoothness afterwards
       }
       double rho = Rho_fixedGridRhoFastjetAll;
       
       bool doPtHatFilter = true;
       if (doPtHatFilter && isMC) {
-	if ( isMG && !isRun3 && 2.*Pileup_pthatmax>LHE_HT) continue;
-	if (isMG && isRun3 && 2.*Jet_pt[0]/LHE_HT>2.5/pow(LHE_HT/40.,2)+1.5)
-	  continue; // Run3 MG patch for missing Pileup_pthatmax
-	if (!isMG && Pileup_pthatmax>Generator_binvar) continue;
+        if ( isMG && !isRun3 && 2.*Pileup_pthatmax>LHE_HT) continue;
+        if (isMG && isRun3 && 2.*Jet_pt[0]/LHE_HT>2.5/pow(LHE_HT/40.,2)+1.5)
+          continue; // Run3 MG patch for missing Pileup_pthatmax
+        if (!isMG && Pileup_pthatmax>Generator_binvar) continue;
       }
 
       if (debugevent) cout << "Keep track of run+LS" << endl << flush;
@@ -1827,20 +1837,30 @@ void DijetHistosFill::Loop()
       ++nevt;
       mrunls[run][luminosityBlock] = 1;
 
+      bool pass_METfilter = (isRun3 &&
+        Flag_goodVertices &&
+        Flag_globalSuperTightHalo2016Filter &&
+        Flag_EcalDeadCellTriggerPrimitiveFilter &&
+        Flag_BadPFMuonFilter &&
+        Flag_BadPFMuonDzFilter &&
+        Flag_hfNoisyHitsFilter &&
+        Flag_eeBadScFilter &&
+        Flag_ecalBadCalibFilter);
+
       // Check if any triggers fired and make histogram of them
       if (doTrigger) {
 
-	if (debugevent) cout << "Check trigger" << endl << flush;
+        if (debugevent) cout << "Check trigger" << endl << flush;
 
-	bool fired = false;
-	for (int i = 0; i != ntrg; ++i) {
-	  fired = (fired || (*mtrg[vtrg[i]]));
-	  if (*mtrg[vtrg[i]]) htrg->Fill(i);
-	}
-	if (!fired) {
-	  ++_nbadevts_trg;
-	  continue;
-	}
+        bool fired = false;
+        for (int i = 0; i != ntrg; ++i) {
+          fired = (fired || (*mtrg[vtrg[i]]));
+          if (*mtrg[vtrg[i]]) htrg->Fill(i);
+        }
+        if (!fired) {
+          ++_nbadevts_trg;
+          continue;
+        }
       } // doTrigger
       ++_ngoodevts;
 
@@ -2143,7 +2163,7 @@ void DijetHistosFill::Loop()
 	    double pt = p4.Pt();
 
 	    h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
-	    if (Jet_jetId[i]>=4 && Flag_METFilters>0 &&
+	    if (Jet_jetId[i]>=4 && pass_METfilter >0 && 
 		pt >= h->ptmin && pt < h->ptmax &&
 		abseta >= h->absetamin && abseta < h->absetamax) {
 
@@ -2168,7 +2188,7 @@ void DijetHistosFill::Loop()
 	    incjetHistos *h = mhij[trg];
 	    
 	    h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
-	    if (Jet_jetId[i]>=4 && !Jet_jetveto[i] && Flag_METFilters>0) {
+	    if (Jet_jetId[i]>=4 && !Jet_jetveto[i] && pass_METfilter > 0) {
 	      
 	      h->h2pteta->Fill(p4.Eta(), p4.Pt(), w);
 
@@ -2268,7 +2288,7 @@ void DijetHistosFill::Loop()
       // Use tightLepVeto for JetID
       bool ismultijet =
 	(nlead==1 && nrecoil>=2 && !multijet_vetonear && !multijet_vetofwd &&
-	 fabs(dphirecoil-TMath::Pi())<0.3 && Flag_METFilters>0 &&
+	 fabs(dphirecoil-TMath::Pi())<0.3 && pass_METfilter>0 &&
 	 Jet_pt[0]>30. && fabs(Jet_eta[0])<1.3 && Jet_jetId[0]>=4 &&
 	 Jet_pt[1]>30. && fabs(Jet_eta[1])<2.5 && Jet_jetId[1]>=4 &&
 	 Jet_pt[2]>30. && fabs(Jet_eta[2])<2.5 && Jet_jetId[2]>=4 &&
@@ -2463,7 +2483,7 @@ void DijetHistosFill::Loop()
 			  p4t.Pt()>15. && Jet_jetId[itag]>=4 &&
 			  p4p.Pt()>15. && Jet_jetId[iprobe]>=4 &&
 			  !Jet_jetveto[itag] && !Jet_jetveto[iprobe] && //!
-			  Flag_METFilters>0);
+			  pass_METfilter>0);
 	  // DESY selection. Note tighter asymmetry cut and allJetsGood
 	  bool isdijet2 = (fabs(p4t.Eta())<1.3 && dphi>2.7 &&
 			   fabs((pttag-ptprobe)/(pttag+ptprobe))<0.7 && //!
@@ -2472,7 +2492,7 @@ void DijetHistosFill::Loop()
 			   p4p.Pt()>15. && Jet_jetId[iprobe]>=4 &&
 			   //!Jet_jetveto[itag] && !Jet_jetveto[iprobe] && //!
 			   allJetsGood && //!
-			   Flag_METFilters>0);
+			   pass_METfilter>0);
 
 	  
 	  for (int itrg = 0; itrg != ntrg; ++itrg) {
