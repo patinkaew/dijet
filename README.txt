@@ -6,10 +6,11 @@ How to RUN on Hefaistos:
   [was: source /work/data/root/bin/thisroot.sh]
 - (rm *.d *.so *.pcm)
 - $ make
-# - cd make
 # - root -l -b -q mk_CondFormats.C
 - #define GPU in mk_DijetHistosFill.C
-=> edit (version, IOV_list) and execute 'python runAllIOVs.py'
+- Execute: `$ python runIOVs.py --IOV_list [list of IOVs]`
+- - e.g. `$ python runIOVs.py --IOV_list 2022C_ZB`
+- - Can also use `--IOV_list all` for all IOVs, version X can be passed with `--version v[X]`, for smaller test runs use `--max_files 10` or similar
 [- nohup root -l -b -q mk_DijetHistosFill.C\(\"X\"\) > log.txt & [alternative]]
 + runtime about 10-20h for most files
 [=> edit (version, IOV_list) and execute 'python renameAllIOVs.py' [not yet]]

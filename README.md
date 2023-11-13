@@ -6,7 +6,7 @@ Quick starter guide:
 `root -l -b -q mk_CondFormats.C`
 
 `root -l -b -q mk_DijetHistosFill.C\(\"ERA\"\)\,\(\"VERSION\"\)`  
-[or 'python runAllIOVs.py'] ['hadd' files by hand if using runAllIOVs.py]
+[or 'python runIOVs.py'] ['hadd' files by hand if using runIOVs.py]
 
 `root -l -b -q DijetHistosCombine.C+g`
 

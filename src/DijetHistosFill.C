@@ -17,6 +17,7 @@
 #include <string>
 //#include <utility>
 #include <random>
+#include <sstream>
 
 // MC triggers (slow) or not (faster)
 bool doMCtrigOnly = true;
@@ -53,6 +54,16 @@ bool debugevent = false; // per-event debug
 // Maximum asymmetry of 2/3 corresponds to x2 ratio of tag and probe
 // Permit ~0.7 extra scaling to allow for HF L3Res
 const double maxa = 10; // no cut with 10
+
+// List of MC IOVs
+std::set<std::string> mcIOV = {"Summer22",
+  "Summer22Flat", "Summer22EE", "Summer22EEFlat",
+  "Summer23", "Summer23Flat", "Summer23MG",
+  "Summer23BPIXFlat", "Summer23BPIXMG", "2023BCv123",
+  "2023BCv123_ZB", "2023Cv4", "2023Cv4_ZB", "2023D", "2023D_ZB",
+  "Summer22MG","Summer22EEMG", "Summer22MG1","Summer22MG2",
+  "Summer22EEMG1","Summer22EEMG2","Summer22EEMG3","Summer22EEMG4"
+};
 
 // UTILITIES
 double DELTAPHI(double phi1, double phi2) {
@@ -215,7 +226,7 @@ FactorizedJetCorrector *getFJC(string l1="", string l2="", string res="",
     res += "_AK4PFPuppi";
 
   // Set default path
-  if (path=="") path = "../CondFormats/JetMETObjects/data";
+  if (path=="") path = "CondFormats/JetMETObjects/data";
   const char *cd = path.c_str();
   const char *cl1 = l1.c_str();
   const char *cl2 = l2.c_str();
@@ -246,6 +257,63 @@ FactorizedJetCorrector *getFJC(string l1="", string l2="", string res="",
   return jec;
 } // getFJC
 
+// Struct to hold the correction information
+struct CorrectionSet {
+    FactorizedJetCorrector* jec;
+    FactorizedJetCorrector* jecl1rc;
+    std::string jerPath;
+    std::string jerSfPath;
+    FactorizedJetCorrector* jerSfVsPt;
+};
+
+// Function to read CSV and return correction based on dataset
+CorrectionSet getCorrectionsForDataset(const std::string& dataset) {
+    std::string line;
+    std::map<std::string, CorrectionSet> correctionMap;
+    // Find from the mcIOVs set whether the dataset is MC or not
+    const bool isMC = mcIOV.find(dataset) != mcIOV.end();
+
+    // Open the CSV file
+    std::ifstream file(isMC ? "../JEC_corrs_MC.txt" : "../JEC_corrs_DT.txt");
+
+    // Read the CSV file and fill the map
+    while (getline(file, line)) {
+        std::istringstream s(line);
+        std::string field, iov, l1, l2, l2l3, l1rc, jer, jersf, jersfvspt;
+        
+        // Parse CSV line here. Example:
+        getline(s, iov, ',');
+        getline(s, l1, ',');
+        getline(s, l2, ',');
+        getline(s, l2l3, ',');
+        getline(s, l1rc, ',');
+        getline(s, jer, ',');
+        getline(s, jersf, ',');
+        getline(s, jersfvspt, ',');
+
+        // Create correction set and add to the map
+        CorrectionSet cs;
+        cs.jec = getFJC(l1, l2, l2l3, "");
+        cs.jecl1rc = getFJC(l1rc, "", "");
+        cs.jerPath = jer;
+        cs.jerSfPath = jersf;
+        // If jerSfVsPt is empty, then the correction is not available
+        useJERSFvsPt = jersfvspt != "";
+        cs.jerSfVsPt = getFJC("", jersfvspt, "");
+        correctionMap[iov] = cs;
+    }
+
+    // Look up the dataset in the map and return the CorrectionSet
+    auto it = correctionMap.find(dataset);
+    if (it != correctionMap.end()) {
+        return it->second;
+    }
+
+    // Return empty CorrectionSet if dataset not found
+    return CorrectionSet{};
+}
+
+
 void DijetHistosFill::Loop()
 {
 //   In a ROOT session, you can do:
@@ -272,6 +340,7 @@ void DijetHistosFill::Loop()
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
+
 
    //ROOT.EnableImplicitMT(); // From Nico on Skype, to parallelize processing
 
