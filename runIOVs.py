@@ -21,6 +21,7 @@ IOV_list= [    'UL2016BCD','UL2016EF','UL2016GH',
 
 # Run 3 is all samples with year 2023 and 2022 from the full IOV_list
 run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22' in x]
+run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 
 version = 'v33'
 
@@ -40,6 +41,8 @@ if args.IOV_list:
         IOV_input = IOV_list
     elif 'run3' in args.IOV_list:
         IOV_input = run3_IOV_list
+    elif 'run3DT' in args.IOV_list:
+        IOV_input = run3_DT
     else:
         # Check that all IOVs passed are in the list
         for iov in args.IOV_list:
