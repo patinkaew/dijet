@@ -26,7 +26,7 @@ MC_list_of_lists = [
      'Summer22EEMG3','Summer22EEMG4'],
     ]
 
-version = 'v31'
+version = 'v33'
 
 os.system("ls rootfiles/jmenano_data_out_*_"+version+".root")
 for IOV_list in IOV_list_of_lists:
