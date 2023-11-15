@@ -13,7 +13,7 @@ bad_files = []
 
 # Iterate through each log file
 for filename in os.listdir(log_directory):
-    if filename.startswith('log_') and filename.endswith('v32.txt'):
+    if filename.startswith('log_') and filename.endswith('v33.txt'):
         with open(os.path.join(log_directory, filename), 'r') as log_file:
             lines = log_file.readlines()
             for line in lines:
