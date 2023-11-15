@@ -75,6 +75,7 @@ Bugs:
 (To do: add 40to70 to Summer22EEMG, filter out bad files). 
 (To-do: Downdload Summer23 and ReReco samples. Not yet done for ZeroBias at least)
 
+// v34. L2Residual for Run3
 // v33. Updated Run 3 MET filter flags
 // v32. Update HF |eta| binning. Extend pT binning. Add L2Res for CD+EFG. E still prompt. Update 2022C_ZB and 2022D_ZB to re-reco.
 

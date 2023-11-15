@@ -13,8 +13,7 @@ IOV_list= [    'UL2016BCD','UL2016EF','UL2016GH',
     '2022C','2022D','2022E','2022F1','2022F2','2022G',
     '2022C_ZB','2022D_ZB','2022E_ZB','2022F_ZB','2022G_ZB',
     '2023B', '2023Cv123','2023Cv4','2023D',
-    '2023B', '2023Cv123_ZB','2023Cv4_ZB','2023D_ZB',
-    'Summer22MG','Summer22EEMG',
+    '2023B_ZB', '2023Cv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG1','Summer22MG2',
     'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4'
 ]
@@ -24,7 +23,7 @@ run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22'
 run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
 
-version = 'v33'
+version = 'v34'
 
 IOV_input = []
 

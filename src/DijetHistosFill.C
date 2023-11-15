@@ -709,21 +709,24 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
+		  // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
+     "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi");
      //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022D" || dataset=="2022D_ZB") {
      jec = getFJC("",//Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
+		  // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
+      "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi");
      //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022E" || dataset=="2022E_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
+		  // v33 and prev "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
+      "Run22E-22Sep2023_DATA_L2L3Residual_AK4PFPuppi");
      //"Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
@@ -732,14 +735,16 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi");
+		  //"Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi"
+      "Run22F-Prompt_DATA_L2L3Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022G" || dataset=="2022G_ZB") {
      jec = getFJC("",//Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
 		  //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi");
+		  // "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi"
+      "Run22G-Prompt_DATA_L2L3Residual_AK4PFPuppi");
 		  //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    
@@ -783,25 +788,31 @@ void DijetHistosFill::Loop()
    //		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
    //		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    //}
- 
+  if (dataset=="2023B" || dataset=="2023B_ZB") {
+     jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+		  "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+
    if (dataset=="2023BCv123" || dataset=="2023BCv123_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2023Cv4" || dataset=="2023Cv4_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  "Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
    if (dataset=="2023D" || dataset=="2023D_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  "Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
    if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
