@@ -26,11 +26,11 @@ MC_list_of_lists = [
      'Summer22EEMG3','Summer22EEMG4'],
     ]
 
-version = 'v33'
+version = 'v34'
 
 os.system("ls rootfiles/jmenano_data_out_*_"+version+".root")
 for IOV_list in IOV_list_of_lists:
-    command = "hadd "
+    command = "hadd -f "
     for iov in IOV_list:
         command = command + "rootfiles/jmenano_data_out_"+iov+"_"+version+".root "
     print("\""+command+"\"...")

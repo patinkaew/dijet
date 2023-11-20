@@ -18,7 +18,7 @@ for filename in os.listdir(log_directory):
             lines = log_file.readlines()
             for line in lines:
                 # Check if the line contains "/media/DATA" and "Error"
-                if '/media/DATA' in line and 'Error' in line:
+                if '/media/DATA' in line and (('Error' in line) or ('File: /media/DATA2/NANO_MC' in line)):
                     # Extract the file name from the line
                     file_match = re.search(r'(/media/DATA\S+\.(?:root|txt))', line)
                     if file_match:
