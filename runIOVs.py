@@ -57,6 +57,9 @@ else:
     print('No IOV list passed')
     exit()
     
+if args.version:
+    version = args.version
+    
 print('IOVs to run: ', IOV_input)
 
 #os.system("rm *.so *.d *.pcm")
