@@ -13,6 +13,7 @@ void drawMultijets(string epoch="2022CD", string version="v31");
 void drawMultijet() {
 
   // v30: with L2L3Res
+  /*
   drawMultijets("2022CD","v30");
   drawMultijets("2022E","v30");
   drawMultijets("2022FG","v30");
@@ -27,7 +28,13 @@ void drawMultijet() {
   drawMultijets("2023BCv123","v31");
   drawMultijets("2023Cv4","v31");
   drawMultijets("2023D","v31");
-  
+  */
+  drawMultijets("2022CD","v34");
+  drawMultijets("2022E","v34");
+  drawMultijets("2022FG","v34");
+  drawMultijets("2023BCv123","v34");
+  drawMultijets("2023Cv4","v34");
+  drawMultijets("2023D","v34");
 }
 
 
@@ -39,7 +46,7 @@ void drawMultijets(string epoch, string version) {
   // Load requested data file
   const char *ce = epoch.c_str();
   const char *cv = version.c_str();
-  TFile *fd = new TFile(Form("rootfiles/jmenano_data_cmb_%s_JME_%s.root",ce,cv));
+  TFile *fd = new TFile(Form("../rootfiles/jmenano_data_out_%s_JME_%s.root",ce,cv));
   assert(fd && !fd->IsZombie());
 
   // Find matching MC
@@ -52,7 +59,7 @@ void drawMultijets(string epoch, string version) {
   mc["2023Cv4"] = "Summer22MG";
   mc["2023D"] = "Summer22MG";
   const char *cm = mc[ce];
-  TFile *fm = new TFile(Form("rootfiles/jmenano_mc_out_%s_%s.root",cm,cv));
+  TFile *fm = new TFile(Form("../rootfiles/jmenano_mc_out_%s_%s.root",cm,cv));
   assert(fm && !fm->IsZombie());
 
   // List results to be plotted
@@ -123,24 +130,24 @@ void drawMultijets(string epoch, string version) {
   // Plot results
   for (int i = 0; i != nvd; ++i) {
     const char *ch = vd[i].c_str();
-
+    /*
     c1->cd(1);
     TProfile *pm = (TProfile*)fm->Get(Form("HLT_MC/Multijet/%s",ch)); assert(pm);
     pm->GetXaxis()->SetRangeUser(ptmin,ptmax);
     tdrDraw(pm,"HIST",marker[ch],color[ch],style[ch],-1,kNone);
-    
+    */
     TProfile *p = (TProfile*)fd->Get(Form("Multijet/%s",ch)); assert(p);
     p->GetXaxis()->SetRangeUser(ptmin,ptmax);
     tdrDraw(p,"Pz",marker[ch],color[ch],kSolid);
 
     legd->AddEntry(p,label[ch],"PE");
-    legm->AddEntry(pm,"","L");
+    // legm->AddEntry(pm,"","L");
 
-    c1->cd(2);
-    TH1D *hr = (TH1D*)p->Clone("hr");
-    TH1D *hm = (TH1D*)pm->ProjectionX("hm");
-    hr->Divide(hm);
-    tdrDraw(hr,"Pz",marker[ch],color[ch],kSolid);
+    // c1->cd(2);
+    //TH1D *hr = (TH1D*)p->Clone("hr");
+    // TH1D *hm = (TH1D*)pm->ProjectionX("hm");
+    // hr->Divide(hm);
+    // tdrDraw(hr,"Pz",marker[ch],color[ch],kSolid);
   }
 
   c1->SaveAs(Form("pdf/drawMultijet/drawMultijet_%s_%s.pdf",ce,cv));
