@@ -8,6 +8,8 @@
 
 #include "../tdrstyle_mod22.C"
 
+string version = "v34"
+
 TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
 	     double eta1, double eta2, TH1D **h1 = 0, TH1D **h1x = 0);
 TH1D *getJERZ(TH2D *h2, TH2D *h2x, const char *c = "",
@@ -25,31 +27,31 @@ void DijetHistosJER(string rootdir="../rootfiles", string hadddir="../haddfiles"
 
   // Run3 files (v29->v30)
   scaleJER = false;
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2");
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022E_JME_v30.root","Dijet2");
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2");
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2");
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2");
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023D_JME_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022CD_JME_"+version+".root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022E_JME_"+version+".root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022FG_JME_"+version+".root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023BCv123_JME_"+version+".root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023Cv4_JME_v"+version+"root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023D_JME_"+version+".root","Dijet2");
   //
   scaleJER = true; // something weird with MC RMS
-  DijetHistosJERs(rootdir + "/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_mc_cmb_Summer22MG_"+version+".root","Dijet2");
   //DijetHistosJERs("rootfiles/jmenano_mc_cmb_Summer22EEMG_v30.root","Dijet2");
   scaleJER = false;
   
-  string mc22 = rootdir + "/jmenano_mc_cmb_Summer22MG_v30.root";
-  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022CD_JME_v30.root",mc22,
-		     "2022CD_vs_Summer22_v30");
-  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022E_JME_v30.root",mc22,
-		     "2022E_vs_Summer22_v30");
-  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022FG_JME_v30.root",mc22,
-		     "2022FG_vs_Summer22_v30");
-  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023BCv123_JME_v30.root",mc22,
-		     "2023BCv123_vs_Summer22_v30");
-  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023Cv4_JME_v30.root",mc22,
-		     "2023Cv4_vs_Summer22_v30");
-  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023D_JME_v30.root",mc22,
-		     "2023D_vs_Summer22_v30");
+  string mc22 = rootdir + "/jmenano_mc_cmb_Summer22MG_"+version+".root";
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022CD_JME_"+version+".root",mc22,
+		     "2022CD_vs_Summer22_"+version+"");
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022E_JME_"+version+".root",mc22,
+		     "2022E_vs_Summer22_"+version+"");
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2022FG_JME_"+version+".root",mc22,
+		     "2022FG_vs_Summer22_"+version+"");
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023BCv123_JME_"+version+".root",mc22,
+		     "2023BCv123_vs_Summer22_"+version+"");
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023Cv4_JME_"+version+".root",mc22,
+		     "2023Cv4_vs_Summer22_"+version+"");
+  drawDijetHistosJER(rootdir + "/jmenano_data_cmb_2023D_JME_"+version+".root",mc22,
+		     "2023D_vs_Summer22_"+version+"");
 
 
   //Regarding the pt dependent JER SFs. Here is the pre approval of the DP Note, where we kept a slide for the SFs https://indico.cern.ch/event/1302471/#8-dp-notes-for-run3

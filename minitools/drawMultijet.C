@@ -8,6 +8,8 @@
 
 #include "../tdrstyle_mod22.C"
 
+string version = "v34"
+
 void drawMultijets(string epoch="2022CD", string version="v31");
 
 void drawMultijet() {
@@ -29,12 +31,12 @@ void drawMultijet() {
   drawMultijets("2023Cv4","v31");
   drawMultijets("2023D","v31");
   */
-  drawMultijets("2022CD","v34");
-  drawMultijets("2022E","v34");
-  drawMultijets("2022FG","v34");
-  drawMultijets("2023BCv123","v34");
-  drawMultijets("2023Cv4","v34");
-  drawMultijets("2023D","v34");
+  drawMultijets("2022CD",version);
+  drawMultijets("2022E",version);
+  drawMultijets("2022FG",version);
+  drawMultijets("2023BCv123",version);
+  drawMultijets("2023Cv4",version);
+  drawMultijets("2023D",version);
 }
 
 
