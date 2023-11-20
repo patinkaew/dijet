@@ -28,7 +28,7 @@ Copy files locally for further processing
 Hadd files together as needed (either JetMET+ZB, or parts of IOV)
 - python addAllIOVs.py
 
-After producing the jmenano_[data,mc])_out_v[X].root root files and hadding: 
+After producing the jmenano_[data,mc]_out_v[X].root root files and hadding: 
 - root -l -b -q DijetHistosCombine.C+g   [merge triggers]
 - root -l -b -q DijetHistosJER.C+g       [JER SF]
 - root -l -b -q DijetHistosL2Res.C+g     [dijet L2Res]
