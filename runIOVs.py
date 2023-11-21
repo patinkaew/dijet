@@ -2,6 +2,8 @@
 import os
 import argparse
 
+max_files = 9999
+
 IOV_list= [    'UL2016BCD','UL2016EF','UL2016GH',
    'UL2017B','UL2017C','UL2017D','UL2017E','UL2017F',
     'UL2018A','UL2018B','UL2018C', 'UL2018D',
@@ -45,6 +47,9 @@ if args.IOV_list:
         IOV_input = run3_DT
     elif 'run3MC' in args.IOV_list:
         IOV_input = run3_MC
+    elif 'test' in args.IOV_list:
+        IOV_input = run3_IOV_list
+        max_files = 2
     else:
         # Check that all IOVs passed are in the list
         for iov in args.IOV_list:
@@ -59,6 +64,9 @@ else:
     
 if args.version:
     version = args.version
+
+if args.max_files:
+    max_files = args.max_files
     
 print('IOVs to run: ', IOV_input)
 
@@ -69,7 +77,7 @@ for iov in IOV_input:
     # os.system(f"ls -ltrh rootfiles/jmenano_mc_out_{iov}_{version}.root")
     # os.system(f"ls -ltrh rootfiles/jmenano_data_out_{iov}_{version}.root")
     # os.system(f"ls -ltrh logs/log_{iov}_{version}.txt")
-    os.system(f"nohup root -l -b -q 'make/mk_DijetHistosFill.C(\"{iov}\",\"{version}\",{args.max_files})' > logs/log_{iov}_{version}.txt &")
+    os.system(f"nohup root -l -b -q 'make/mk_DijetHistosFill.C(\"{iov}\",\"{version}\",{max_files})' > logs/log_{iov}_{version}.txt &")
     print(f" => Follow logging with 'tail -f logs/log_{iov}_{version}.txt'")
 #    os.system("fs flush")
 #    wait()
