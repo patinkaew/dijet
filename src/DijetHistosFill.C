@@ -1848,8 +1848,7 @@ void DijetHistosFill::Loop()
       ++nevt;
       mrunls[run][luminosityBlock] = 1;
 
-      bool pass_METfilter = isRun3; 
-      /*&&
+      bool pass_METfilter = (isRun3&&
         Flag_goodVertices &&
         Flag_globalSuperTightHalo2016Filter &&
         Flag_EcalDeadCellTriggerPrimitiveFilter &&
@@ -1858,7 +1857,7 @@ void DijetHistosFill::Loop()
         Flag_hfNoisyHitsFilter &&
         Flag_eeBadScFilter &&
         Flag_ecalBadCalibFilter);
-      */
+
       // Check if any triggers fired and make histogram of them
       if (doTrigger) {
 
