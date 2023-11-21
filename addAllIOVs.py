@@ -21,12 +21,11 @@ IOV_list_of_lists = [
 MC_list_of_lists = [
 #    ['Run2P8','2016P8','2016APVP8','2017P8','2018P8'],
 #    ['Run2QCD','2016QCD','2016QCDAPV','2017QCD','2018QCD'],
-    ['Summer22MG','Summer22MG1','Summer22MG2'],
-    ['Summer22EEMG','Summer22EEMG1','Summer22EEMG2',
-     'Summer22EEMG3','Summer22EEMG4'],
+    ['Summer22MG','Summer22MG1'],
+    ['Summer22EEMG','Summer22EEMG1'],
     ]
-
-version = 'v34'
+# ,'Summer22EEMG2', 'Summer22EEMG3','Summer22EEMG4' ,'Summer22MG2'
+version = 'v34a'
 
 os.system("ls rootfiles/jmenano_data_out_*_"+version+".root")
 for IOV_list in IOV_list_of_lists:

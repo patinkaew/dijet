@@ -1848,7 +1848,8 @@ void DijetHistosFill::Loop()
       ++nevt;
       mrunls[run][luminosityBlock] = 1;
 
-      bool pass_METfilter = (isRun3 &&
+      bool pass_METfilter = isRun3; 
+      /*&&
         Flag_goodVertices &&
         Flag_globalSuperTightHalo2016Filter &&
         Flag_EcalDeadCellTriggerPrimitiveFilter &&
@@ -1857,7 +1858,7 @@ void DijetHistosFill::Loop()
         Flag_hfNoisyHitsFilter &&
         Flag_eeBadScFilter &&
         Flag_ecalBadCalibFilter);
-
+      */
       // Check if any triggers fired and make histogram of them
       if (doTrigger) {
 
@@ -2174,16 +2175,17 @@ void DijetHistosFill::Loop()
 	    double pt = p4.Pt();
 
 	    h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
-	    if (Jet_jetId[i]>=4 && pass_METfilter >0 && 
-		pt >= h->ptmin && pt < h->ptmax &&
-		abseta >= h->absetamin && abseta < h->absetamax) {
+      // Debug
+	    if (Jet_jetId[i]>=4 && pass_METfilter > 0 && 
+        pt >= h->ptmin && pt < h->ptmax &&
+        abseta >= h->absetamin && abseta < h->absetamax) {
 
 	      h->h2pteta_sel->Fill(p4.Eta(), p4.Pt(), w);
 	      h->h2phieta->Fill(p4.Eta(), p4.Phi(), w);
 	      if (doPFComposition) {
-		h->p2chf->Fill(p4.Eta(), p4.Phi(), Jet_chHEF[i], w);
-		h->p2nef->Fill(p4.Eta(), p4.Phi(), Jet_neEmEF[i], w);
-		h->p2nhf->Fill(p4.Eta(), p4.Phi(), Jet_neHEF[i], w);
+          h->p2chf->Fill(p4.Eta(), p4.Phi(), Jet_chHEF[i], w);
+          h->p2nef->Fill(p4.Eta(), p4.Phi(), Jet_neEmEF[i], w);
+          h->p2nhf->Fill(p4.Eta(), p4.Phi(), Jet_neHEF[i], w);
 	      }
 	    }
 	  }
