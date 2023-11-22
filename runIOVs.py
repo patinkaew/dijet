@@ -50,6 +50,7 @@ if args.IOV_list:
     elif 'test' in args.IOV_list:
         IOV_input = run3_IOV_list
         max_files = 2
+        version = version+'_test'
     else:
         # Check that all IOVs passed are in the list
         for iov in args.IOV_list:

@@ -11,7 +11,7 @@
 bool addMPFu2n = true;
 bool addG1toMPF = false;
 bool addG12toMPF = false;
-string id = "v34a";
+string id = "v34b";
 bool drawFullIOVList = false;//true;
 
 // Forward declaration of call
@@ -237,8 +237,8 @@ void drawMultijetVsPtVsIOVs(string so, string var, string name,
   } // for iov
 
   if (id!="")
-      c1->SaveAs(Form("pdf/drawMultijetVsPtVsIOVs_%s_%s.pdf",
+      c1->SaveAs(Form("../pdf/drawMultijetVsPtVsIOVs_%s_%s.pdf",
 		      name.c_str(),id.c_str()));
   else
-    c1->SaveAs(Form("pdf/drawMultijetVsPtVsIOVs_%s.pdf",name.c_str()));
+    c1->SaveAs(Form("../pdf/drawMultijetVsPtVsIOVs_%s.pdf",name.c_str()));
 } // void drawPhotonJetVsPtVsIOVs

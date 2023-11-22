@@ -1,6 +1,6 @@
 // Purpose: overlay DijetHistos with DESY results
 #include "TFile.h"
-#include "../jecsys2020/tdrstyle_mod15.C"
+#include "../tdrstyle_mod22.C"
 #include "TGraphErrors.h"
 #include "TKey.h"
 #include "TLatex.h"
@@ -79,38 +79,38 @@ void DijetHistosOverlay() {
   // Before MC JER SF
   /*
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016APV_v26c.root",
-  			"rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2016APVMG_v26.root",
   			"UL2016APV_ZB_v26c");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016GH_v26c.root",
-  			"rootfiles/jmenano_mc_cmb_UL2016MG_v26.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2016MG_v26.root",
   			"UL2016GH_ZB_v26c");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2017_v26.root",
-  			"rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
   			"UL2017_ZB_v26c");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2018_v26c.root",
-  			"rootfiles/jmenano_mc_cmb_UL2018MG_v26.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2018MG_v26.root",
   			"UL2018_ZB_v26c");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   			"haddfiles/jmenano_mc_cmb_Run2_v26.root",
   			"Run2_ZB_v26c");
   */
   //DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_UL2017_v26.root",
-  //			"rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
+  //			"../rootfiles/jmenano_mc_cmb_UL2017MG_v26.root",
   //			"UL2017_ZB_v26c");
 
   // After MC JER SF
   /*
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016APV_v26c.root",
-  			"rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2016APVMG_v27.root",
   			"UL2016APV_ZB_v27");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2016GH_v26c.root",
-  			"rootfiles/jmenano_mc_cmb_UL2016MG_v27.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2016MG_v27.root",
   			"UL2016GH_ZB_v27");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2017_v26.root",
-  			"rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
   			"UL2017_ZB_v27");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_UL2018_v26c.root",
-  			"rootfiles/jmenano_mc_cmb_UL2018MG_v27.root",
+  			"../rootfiles/jmenano_mc_cmb_UL2018MG_v27.root",
   			"UL2018_ZB_v27");
   DijetHistosOverlayJER("haddfiles/jmenano_data_cmb_Run2_v26c.root",
   			"haddfiles/jmenano_mc_cmb_Run2_v27.root",
@@ -126,19 +126,19 @@ void DijetHistosOverlay() {
   			"Run2_ZB_v27"); // After JER SF
   */
 
-  //DijetHistosOverlayJES("../jecsys3/rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022C_v1_vs_UL18_v26"); // before JER SF
+  //DijetHistosOverlayJES("../jecsys3/../rootfiles/Iita_20230814/jmenano_data_cmb_2022C_v1.root","../rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","2022C_v1_vs_UL18_v26"); // before JER SF
 
-  // Run3 (v29->v34a)
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022CD_JME_v34a.root","rootfiles/jmenano_mc_cmb_Summer22MG_v34a.root","2022CD_v34a");
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022E_JME_v34a.root","rootfiles/jmenano_mc_cmb_Summer22MG_v34a.root","2022E_v34a"); // tbd: 22EE
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2022FG_JME_v34a.root","rootfiles/jmenano_mc_cmb_Summer22MG_v34a.root","2022FG_v34a"); // tbd: 22EE
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023BCv123_JME_v34a.root","rootfiles/jmenano_mc_cmb_Summer22MG_v34a.root","2023BCv123_v34a"); // tbd: 23
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023Cv4_JME_v34a.root","rootfiles/jmenano_mc_cmb_Summer22MG_v34a.root","2023Cv4_v34a"); // tbd: 23
-  DijetHistosOverlayJES("rootfiles/jmenano_data_cmb_2023D_JME_v34a.root","rootfiles/jmenano_mc_cmb_Summer22MG_v34a.root","2023D_v34a"); // tbd: 23
+  // Run3 (v29->v34b)
+  DijetHistosOverlayJES("../rootfiles/jmenano_data_cmb_2022CD_JME_v34b.root","../rootfiles/jmenano_mc_cmb_Summer22MG_v34b.root","2022CD_v34b");
+  DijetHistosOverlayJES("../rootfiles/jmenano_data_cmb_2022E_JME_v34b.root","../rootfiles/jmenano_mc_cmb_Summer22MG_v34b.root","2022E_v34b"); // tbd: 22EE
+  DijetHistosOverlayJES("../rootfiles/jmenano_data_cmb_2022FG_JME_v34b.root","../rootfiles/jmenano_mc_cmb_Summer22MG_v34b.root","2022FG_v34b"); // tbd: 22EE
+  DijetHistosOverlayJES("../rootfiles/jmenano_data_cmb_2023BCv123_JME_v34b.root","../rootfiles/jmenano_mc_cmb_Summer22MG_v34b.root","2023BCv123_v34b"); // tbd: 23
+  DijetHistosOverlayJES("../rootfiles/jmenano_data_cmb_2023Cv4_JME_v34b.root","../rootfiles/jmenano_mc_cmb_Summer22MG_v34b.root","2023Cv4_v34b"); // tbd: 23
+  DijetHistosOverlayJES("../rootfiles/jmenano_data_cmb_2023D_JME_v34b.root","../rootfiles/jmenano_mc_cmb_Summer22MG_v34b.root","2023D_v34b"); // tbd: 23
 
   
   //DijetHistosOverlayJES("haddfiles/jmenano_data_cmb_UL2017_v26.root",
-  //			"rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
+  //			"../rootfiles/jmenano_mc_cmb_UL2017MG_v27.root",
   //			"UL2017_ZB_v27");
 } // DijetHistosOverlay
 
@@ -157,18 +157,18 @@ void DijetHistosOverlays(string obs, string data, string spt,
   const char *cpt = spt.c_str();
 
   TFile *f1(0), *f12(0), *f13(0);
-  if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
-  if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
-  //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
-  //if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb_v21ul16.root","READ");
-  //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
-  //if (data=="data") f1 = new TFile("rootfiles/jmenano_data_cmb.root","READ");
-  //if (data=="mc") f1 = new TFile("rootfiles/jmenano_mc_cmb.root","READ");
+  if (data=="data") f1 = new TFile("../rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  if (data=="mc") f1 = new TFile("../rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  //if (data=="mc") f1 = new TFile("../rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
+  //if (data=="data") f1 = new TFile("../rootfiles/jmenano_data_cmb_v21ul16.root","READ");
+  //if (data=="mc") f1 = new TFile("../rootfiles/jmenano_mc_cmb_v20ul16flatmc.root","READ");
+  //if (data=="data") f1 = new TFile("../rootfiles/jmenano_data_cmb.root","READ");
+  //if (data=="mc") f1 = new TFile("../rootfiles/jmenano_mc_cmb.root","READ");
 
   if (data3) {
-    f1 = new TFile("rootfiles/dijet2_a_dijet_cmb.root","READ");
-    f12 = new TFile("rootfiles/dijet2_b_asymm_cmb.root","READ");
-    f13 = new TFile("rootfiles/dijet2_c_allgood_cmb.root","READ");
+    f1 = new TFile("../rootfiles/dijet2_a_dijet_cmb.root","READ");
+    f12 = new TFile("../rootfiles/dijet2_b_asymm_cmb.root","READ");
+    f13 = new TFile("../rootfiles/dijet2_c_allgood_cmb.root","READ");
     assert(f12 && !f12->IsZombie());
     assert(f13 && !f13->IsZombie());
   }
@@ -217,9 +217,9 @@ void DijetHistosOverlays(string obs, string data, string spt,
   }
   
   
-  // TFile *f2 = new TFile("../jecsys2020/rootfiles/CombinationFiles-Run2016FGH-3.root","READ");
-  //TFile *f2 = new TFile(Form("rootfiles/CombinationFiles-Run2016FGH-%s.root",cpt),"READ");
-  TFile *f2 = new TFile(Form("rootfiles/CombinationFiles-Run2016FGH-%s.root",spt=="PtAve" ? "PtAVP" : cpt),"READ");
+  // TFile *f2 = new TFile("../jecsys2020/../rootfiles/CombinationFiles-Run2016FGH-3.root","READ");
+  //TFile *f2 = new TFile(Form("../rootfiles/CombinationFiles-Run2016FGH-%s.root",cpt),"READ");
+  TFile *f2 = new TFile(Form("../rootfiles/CombinationFiles-Run2016FGH-%s.root",spt=="PtAve" ? "PtAVP" : cpt),"READ");
   assert(f2 && !f2->IsZombie());
 
   f2->cd(data.c_str());//"data");
@@ -407,11 +407,11 @@ void DijetHistosOverlayPtBins(string obs) {
   const char *cera = "2016GH";
 
   TFile *f1(0), *f1m(0), *f1p(0);
-  f1 = new TFile("rootfiles/jmenano_data_cmb_v22ul16.root","READ");
+  f1 = new TFile("../rootfiles/jmenano_data_cmb_v22ul16.root","READ");
   assert(f1 && !f1->IsZombie());
-  f1m = new TFile("rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
+  f1m = new TFile("../rootfiles/jmenano_mc_cmb_v23ul16mg.root","READ");
   assert(f1m && !f1m->IsZombie());
-  //f1p = new TFile("rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
+  //f1p = new TFile("../rootfiles/jmenano_mc_cmb_v23ul16flat.root","READ");
   //assert(f1p && !f1p->IsZombie());
 
   TProfile2D *p2a(0), *p2t(0), *p2p(0);

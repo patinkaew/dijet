@@ -8,7 +8,7 @@
 
 #include "../tdrstyle_mod22.C"
 
-string version = "v34a";
+string version = "v34c";
 
 void drawMultijets(string epoch="2022CD", string version="v31");
 
@@ -30,13 +30,15 @@ void drawMultijet() {
   drawMultijets("2023BCv123","v31");
   drawMultijets("2023Cv4","v31");
   drawMultijets("2023D","v31");
-  */
+
   drawMultijets("2022CD",version);
   drawMultijets("2022E",version);
   drawMultijets("2022FG",version);
   drawMultijets("2023BCv123",version);
   drawMultijets("2023Cv4",version);
   drawMultijets("2023D",version);
+  */
+  drawMultijets("Run3",version);
 }
 
 
@@ -53,13 +55,14 @@ void drawMultijets(string epoch, string version) {
 
   // Find matching MC
   map<string,const char*> mc;
-  mc["2022C"] = "Summer22MG";
-  mc["2022CD"] = "Summer22MG";
-  mc["2022E"] = (version=="v30" ? "Summer22MG" : "Summer22EEMG");
-  mc["2022FG"] = (version=="v30" ? "Summer22MG" : "Summer22EEMG");
-  mc["2023BCv123"] = "Summer22MG";
-  mc["2023Cv4"] = "Summer22MG";
-  mc["2023D"] = "Summer22MG";
+  mc["2022C"] = "Summer22MG1";
+  mc["2022CD"] = "Summer22MG1";
+  mc["2022E"] = (version=="v30" ? "Summer22MG1" : "Summer22EEMG1");
+  mc["2022FG"] = (version=="v30" ? "Summer22MG1" : "Summer22EEMG1");
+  mc["2023BCv123"] = "Summer22MG1";
+  mc["2023Cv4"] = "Summer22MG1";
+  mc["2023D"] = "Summer22MG1";
+  mc["Run3"] = "Summer22MG1";
   const char *cm = mc[ce];
   TFile *fm = new TFile(Form("../rootfiles/jmenano_mc_out_%s_%s.root",cm,cv));
   assert(fm && !fm->IsZombie());
@@ -138,11 +141,13 @@ void drawMultijets(string epoch, string version) {
   // Plot results
   for (int i = 0; i != nvd; ++i) {
     const char *ch = vd[i].c_str();
+
     cout << "Drawing " << ch << endl;
 
     c1->cd(1);
     TProfile *pm = (TProfile*)fm->Get(Form("HLT_MC/Multijet/%s",ch)); assert(pm);
     pm->GetXaxis()->SetRangeUser(ptmin,ptmax);
+    cout << "Drawing first profile" << endl;
     tdrDraw(pm,"HIST",marker[ch],color[ch],style[ch],-1,kNone);
 
     cout << "Drawing second profile" << endl;
