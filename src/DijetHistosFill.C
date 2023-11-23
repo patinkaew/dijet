@@ -504,14 +504,14 @@ void DijetHistosFill::Loop()
    fChain->SetBranchStatus("Flag_METFilters",1);
   if (isRun3) {
     // https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Run_3_recommendations
-    fChain->SetBranchStatus("Flag_goodVertices");
-    fChain->SetBranchStatus("Flag_globalSuperTightHalo2016Filter");
-    fChain->SetBranchStatus("Flag_EcalDeadCellTriggerPrimitiveFilter");
-    fChain->SetBranchStatus("Flag_BadPFMuonFilter");
-    fChain->SetBranchStatus("Flag_BadPFMuonDzFilter");
-    fChain->SetBranchStatus("Flag_hfNoisyHitsFilter");
-    fChain->SetBranchStatus("Flag_eeBadScFilter");
-    fChain->SetBranchStatus("Flag_ecalBadCalibFilter");
+    fChain->SetBranchStatus("Flag_goodVertices", 1);
+    fChain->SetBranchStatus("Flag_globalSuperTightHalo2016Filter", 1);
+    fChain->SetBranchStatus("Flag_EcalDeadCellTriggerPrimitiveFilter", 1);
+    fChain->SetBranchStatus("Flag_BadPFMuonFilter", 1);
+    fChain->SetBranchStatus("Flag_BadPFMuonDzFilter", 1);
+    fChain->SetBranchStatus("Flag_hfNoisyHitsFilter", 1);
+    fChain->SetBranchStatus("Flag_eeBadScFilter", 1);
+    fChain->SetBranchStatus("Flag_ecalBadCalibFilter", 1);
   }
 
    // Trigger studies => TrigObjAK4 later (fixed now)
@@ -1848,6 +1848,7 @@ void DijetHistosFill::Loop()
       ++nevt;
       mrunls[run][luminosityBlock] = 1;
 
+      // MInkä sisällä?
       bool pass_METfilter = (isRun3&&
         Flag_goodVertices &&
         Flag_globalSuperTightHalo2016Filter &&
@@ -1905,7 +1906,7 @@ void DijetHistosFill::Loop()
 	Jet_mass[i] = corr * rawJetMass;
 	Jet_rawFactor[i] = (1.0 - 1.0/corr);
 	// pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
-	Jet_l1rcFactor[i] = (isRun2 ? (1.0-jecl1rc->getCorrection()/corr) : 1);
+	Jet_l1rcFactor[i] = (isRun2 ? (1.0-jecl1rc->getCorrection()/corr) : Jet_rawFactor[i]);
 
 	if (true) { // check jet veto
 	  int i1 = h2jv->GetXaxis()->FindBin(Jet_eta[i]);
@@ -2112,12 +2113,12 @@ void DijetHistosFill::Loop()
 
       // Reset MET vectors
       if (isRun2) {
-	p4rawmet.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
-	p4t1met.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
-	p4m0.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
+        p4rawmet.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
+        p4t1met.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
+        p4m0.SetPtEtaPhiM(ChsMET_pt,0,ChsMET_phi,0);
       }
       else {
-	p4rawmet.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
+	      p4rawmet.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
       	p4t1met.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
       	p4m0.SetPtEtaPhiM(RawPuppiMET_pt,0,RawPuppiMET_phi,0);
 	//p4rawmet.SetPtEtaPhiM(PuppiMET_pt,0,PuppiMET_phi,0);

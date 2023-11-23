@@ -38,7 +38,6 @@ parser.add_argument('--max_files', default=9999)
 args = parser.parse_args()
 
 if args.IOV_list:
-    # if the user passes all, then all IOVs are run
     if 'all' in args.IOV_list:
         IOV_input = IOV_list
     elif 'run3' in args.IOV_list:
