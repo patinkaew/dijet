@@ -25,7 +25,7 @@ run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22'
 run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
 
-version = 'v34'
+version = 'v35'
 
 IOV_input = []
 
@@ -62,10 +62,10 @@ else:
     print('No IOV list passed')
     exit()
     
-if args.version:
+if (args.version) and ('test' not in args.IOV_list):
     version = args.version
 
-if args.max_files:
+if args.max_files and ('test' not in args.IOV_list):
     max_files = args.max_files
     
 print('IOVs to run: ', IOV_input)

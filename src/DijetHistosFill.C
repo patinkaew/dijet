@@ -710,7 +710,9 @@ void DijetHistosFill::Loop()
 		  //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
-     "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi");
+     // "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
+     "Summer22-22Sep2023_Run2022CD_V3_DATA_L2Residual_AK4PFPuppi"
+     );
      //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022D" || dataset=="2022D_ZB") {
@@ -718,7 +720,9 @@ void DijetHistosFill::Loop()
 		  //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
-      "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi");
+      //"Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22-22Sep2023_Run2022CD_V3_DATA_L2Residual_AK4PFPuppi"
+      );
      //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022E" || dataset=="2022E_ZB") {
@@ -726,7 +730,9 @@ void DijetHistosFill::Loop()
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // v33 and prev "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
-      "Run22E-22Sep2023_DATA_L2L3Residual_AK4PFPuppi");
+      // "Run22E-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22EE-22Sep2023_Run2022E_V3_DATA_L2Residual_AK4PFPuppi"
+      );
      //"Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
@@ -736,7 +742,9 @@ void DijetHistosFill::Loop()
 		  //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  //"Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi"
-      "Run22F-Prompt_DATA_L2L3Residual_AK4PFPuppi");
+      // "Run22F-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22EEPrompt22_Run2022F_V3_DATA_L2Residual_AK4PFPuppi"
+      );
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2022G" || dataset=="2022G_ZB") {
@@ -744,7 +752,9 @@ void DijetHistosFill::Loop()
 		  //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi"
-      "Run22G-Prompt_DATA_L2L3Residual_AK4PFPuppi");
+      // "Run22G-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22EEPrompt22_Run2022G_V3_DATA_L2Residual_AK4PFPuppi"
+      );
 		  //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
    
@@ -792,27 +802,35 @@ void DijetHistosFill::Loop()
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22-22Sep2023_Run2022CD_V3_DATA_L2Residual_AK4PFPuppi"
+      );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
    if (dataset=="2023BCv123" || dataset=="2023BCv123_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22Prompt23_Run2023Cv123_V3_DATA_L2Residual_AK4PFPUPPI"
+      );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2023Cv4" || dataset=="2023Cv4_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22Prompt23_Run2023Cv4_V3_DATA_L2Residual_AK4PFPUPPI"
+      );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
    if (dataset=="2023D" || dataset=="2023D_ZB") {
      jec = getFJC("",//Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
-		  "Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi");//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+		  //"Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+      "Summer22Prompt23_Run2023D_V3_DATA_L2Residual_AK4PFPUPPI"
+      );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
    if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
@@ -1773,26 +1791,26 @@ void DijetHistosFill::Loop()
       if (jentry%5000000==0) cout << "n="<<jentry<<endl<<flush;
 
       if (jentry==100000 || jentry==1000000 || jentry==1000000 ||
-	  (jentry%1000000==0 && jentry<10000000) ||
-	  (jentry%10000000==0) || jentry==nentries-1) {
-	if (jentry==0) { laptime.Start(); }
-	if (nentries!=0) {
-	  cout << Form("\nProcessed %lld events (%1.1f%%) in %1.0f sec. "
-		       "(%1.0f sec. for last %d)",
-		       jentry, 100.*jentry/nentries, fulltime.RealTime(),
-		       laptime.RealTime(), nlap);
-	}
-	if (jentry!=0 && nlap!=0) {
-	  cout << Form("\nEstimated runtime:  %1.0f sec. "
-		       " (%1.0f sec. for last %d)\n",
-		       1.*nentries/jentry*fulltime.RealTime(),
-		       1.*nentries/nlap*laptime.RealTime(),nlap) << flush;
-	  laptime.Reset();
-	  nlap = 0;
-	}
-	if (jentry==0) fulltime.Reset(); // Leave out initialization time
-	fulltime.Continue();
-	laptime.Continue();
+	      (jentry%1000000==0 && jentry<10000000) ||
+	      (jentry%10000000==0) || jentry==nentries-1) {
+        if (jentry==0) { laptime.Start(); }
+        if (nentries!=0) {
+          cout << Form("\nProcessed %lld events (%1.1f%%) in %1.0f sec. "
+                "(%1.0f sec. for last %d)",
+                jentry, 100.*jentry/nentries, fulltime.RealTime(),
+                laptime.RealTime(), nlap);
+        }
+        if (jentry!=0 && nlap!=0) {
+          cout << Form("\nEstimated runtime:  %1.0f sec. "
+                " (%1.0f sec. for last %d)\n",
+                1.*nentries/jentry*fulltime.RealTime(),
+                1.*nentries/nlap*laptime.RealTime(),nlap) << flush;
+          laptime.Reset();
+          nlap = 0;
+        }
+        if (jentry==0) fulltime.Reset(); // Leave out initialization time
+        fulltime.Continue();
+        laptime.Continue();
       }
       if (jentry%10000==0) cout << "." << flush;
       ++nlap;
@@ -1848,7 +1866,7 @@ void DijetHistosFill::Loop()
       ++nevt;
       mrunls[run][luminosityBlock] = 1;
 
-      // MInkä sisällä?
+      // Check that MET filters are all true
       bool pass_METfilter = (isRun3&&
         Flag_goodVertices &&
         Flag_globalSuperTightHalo2016Filter &&
@@ -1858,7 +1876,7 @@ void DijetHistosFill::Loop()
         Flag_hfNoisyHitsFilter &&
         Flag_eeBadScFilter &&
         Flag_ecalBadCalibFilter);
-
+        
       // Check if any triggers fired and make histogram of them
       if (doTrigger) {
 
