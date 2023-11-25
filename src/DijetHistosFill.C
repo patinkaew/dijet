@@ -711,7 +711,7 @@ void DijetHistosFill::Loop()
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
      // "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
-     "Summer22-22Sep2023_Run2022CD_V3_DATA_L2Residual_AK4PFPuppi"
+     "Summer22-22Sep2023_Run2022CD_V3_DATA_L2L3Residual_AK4PFPuppi"
      );
      //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
@@ -721,7 +721,7 @@ void DijetHistosFill::Loop()
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
       //"Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22-22Sep2023_Run2022CD_V3_DATA_L2Residual_AK4PFPuppi"
+      "Summer22-22Sep2023_Run2022CD_V3_DATA_L2L3Residual_AK4PFPuppi"
       );
      //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
@@ -731,7 +731,7 @@ void DijetHistosFill::Loop()
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // v33 and prev "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
       // "Run22E-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22EE-22Sep2023_Run2022E_V3_DATA_L2Residual_AK4PFPuppi"
+      "Summer22EE-22Sep2023_Run2022E_V3_DATA_L2L3Residual_AK4PFPuppi"
       );
      //"Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi");
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
@@ -743,7 +743,7 @@ void DijetHistosFill::Loop()
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  //"Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi"
       // "Run22F-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22EEPrompt22_Run2022F_V3_DATA_L2Residual_AK4PFPuppi"
+      "Summer22EEPrompt22_Run2022F_V3_DATA_L2L3Residual_AK4PFPuppi"
       );
      //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
@@ -753,7 +753,7 @@ void DijetHistosFill::Loop()
 		  "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi"
       // "Run22G-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22EEPrompt22_Run2022G_V3_DATA_L2Residual_AK4PFPuppi"
+      "Summer22EEPrompt22_Run2022G_V3_DATA_L2L3Residual_AK4PFPuppi"
       );
 		  //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
    }
@@ -803,7 +803,7 @@ void DijetHistosFill::Loop()
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  //"Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22-22Sep2023_Run2022CD_V3_DATA_L2Residual_AK4PFPuppi"
+      "Summer22-22Sep2023_Run2022CD_V3_DATA_L2L3Residual_AK4PFPuppi"
       );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
@@ -812,7 +812,7 @@ void DijetHistosFill::Loop()
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22Prompt23_Run2023Cv123_V3_DATA_L2Residual_AK4PFPUPPI"
+      "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"
       );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
    if (dataset=="2023Cv4" || dataset=="2023Cv4_ZB") {
@@ -820,7 +820,7 @@ void DijetHistosFill::Loop()
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  //"Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22Prompt23_Run2023Cv4_V3_DATA_L2Residual_AK4PFPUPPI"
+      "Summer22Prompt23_Run2023Cv4_V3_DATA_L2L3Residual_AK4PFPUPPI"
       );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
@@ -829,7 +829,7 @@ void DijetHistosFill::Loop()
 		  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
 		  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
 		  //"Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-      "Summer22Prompt23_Run2023D_V3_DATA_L2Residual_AK4PFPUPPI"
+      "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI"
       );//"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
    }
 
