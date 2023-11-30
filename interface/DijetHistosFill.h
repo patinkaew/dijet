@@ -703,7 +703,7 @@ public :
 
    Int_t           Jet_genJetIdx[nJetMax];   //[nJet]
   //Int_t           Jet_hadronFlavour[nJetMax];   //[nJet] // NanoV10,11
-   Short_t           Jet_hadronFlavour[nJetMax];   //[nJet] // NanoV12
+   UChar_t           Jet_hadronFlavour[nJetMax];   //[nJet] // NanoV12
   //Int_t           Jet_partonFlavour[nJetMax];   //[nJet] // NanoV10,11
    Short_t         Jet_partonFlavour[nJetMax]; //[nJet] // NanoV12
    Int_t           LowPtElectron_genPartIdx[11];   //[nLowPtElectron]
