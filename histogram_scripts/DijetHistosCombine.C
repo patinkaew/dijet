@@ -9,7 +9,7 @@
 #include <iostream>
 
 int debug = 1; // 1=trg, 2=dir, 3=all
-string version = "v35";
+string version = "v35a";
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
