@@ -1090,10 +1090,10 @@ void DijetHistosFill::Loop()
     // TODO: UPDATE FOR RUN 3
     constexpr bool dolumi = true;
     const constexpr array<const char*,yrs> lumifile_ = {
-      "lumicalc/lumibylsul16_80.csv",
-      "lumicalc/lumibylsul17_80.csv",
-      "lumicalc/lumibyls17h.csv",
-      "lumicalc/lumibylsul18_80.csv"
+      "luminosityscripts/csvfiles/lumibylsul16_80.csv",
+      "luminosityscripts/csvfiles/lumibylsul17_80.csv",
+      "luminosityscripts/csvfiles/lumibyls17h.csv",
+      "luminosityscripts/csvfiles/lumibylsul18_80.csv"
     };
     // const constexpr char* lumifile = lumifile_.at(yid);
 
