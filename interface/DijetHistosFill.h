@@ -44,6 +44,8 @@ public :
    string          _filename; // file name for debugging purposes
 
    map<int, map<int, int> > _json;
+   map<int, map<int, float> > _lums;
+   map<int, map<int, float> > _lums2;
 
    Bool_t HLT_MC = kTRUE;
    Bool_t Jet_jetveto[100];
@@ -287,7 +289,7 @@ public :
    Int_t           Jet_electronIdx2[nJetMax];   //[nJet]
    Int_t           Jet_hfadjacentEtaStripsSize[nJetMax];   //[nJet]
    Int_t           Jet_hfcentralEtaStripSize[nJetMax];   //[nJet]
-  //Int_t           Jet_jetId[nJetMax];   //[nJet] // NanoV10,11
+  // Int_t           Jet_jetId[nJetMax];   //[nJet] // NanoV10,11
    UChar_t         Jet_jetId[nJetMax];   //[nJet] // NanoV12
    Int_t           Jet_muonIdx1[nJetMax];   //[nJet]
    Int_t           Jet_muonIdx2[nJetMax];   //[nJet]
