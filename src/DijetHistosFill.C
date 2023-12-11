@@ -1083,6 +1083,20 @@ void DijetHistosFill::Loop()
    map<string, dijetHistos2*> mhdj2;
    map<string, multijetHistos*> mhmj;
 
+
+    // For calculating luminosity on the fly based on .csv file and take only events with non-zero luminosity.
+    // NOTE: 69.2 mb is generally the preferred value for the min bias xsec.
+    // For the avgpu numbers there seems to be an exception: brilcalc is expected to run with the default value of 80 mb.
+    // TODO: UPDATE FOR RUN 3
+    constexpr bool dolumi = true;
+    const constexpr array<const char*,yrs> lumifile_ = {
+      "lumicalc/lumibylsul16_80.csv",
+      "lumicalc/lumibylsul17_80.csv",
+      "lumicalc/lumibyls17h.csv",
+      "lumicalc/lumibylsul18_80.csv"
+    };
+    // const constexpr char* lumifile = lumifile_.at(yid);
+
    for (int itrg = 0; itrg != ntrg; ++itrg) {
      
      if (debug) cout << "Trigger " << vtrg[itrg] << endl << flush;
@@ -1901,43 +1915,42 @@ void DijetHistosFill::Loop()
       bool allJetsGood(true);
       int njet = nJet;
       for (int i  = 0; i != njet; ++i) {
-	
-	double rawJetPt = Jet_pt[i] * (1.0 - Jet_rawFactor[i]);
-	double rawJetMass = Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
-	jec->setJetPt(rawJetPt);
-	jec->setJetEta(Jet_eta[i]);
-	if (isRun2) {
-	  jec->setJetA(Jet_area[i]);
-	  jec->setRho(Rho_fixedGridRhoFastjetAll);
-	  jecl1rc->setJetPt(rawJetPt);
-	  jecl1rc->setJetEta(Jet_eta[i]);
-	  jecl1rc->setJetA(Jet_area[i]);
-	  jecl1rc->setRho(Rho_fixedGridRhoFastjetAll);
-	}
-	//double corr = jec->getCorrection();
-	vector<float> v = jec->getSubCorrections();
-	double corr = v.back();
-	double res = (v.size()>1 ? v[v.size()-1]/v[v.size()-2] : 1.);
-	Jet_RES[i] = 1./res;
-	Jet_deltaJES[i] = (1./corr) / (1.0 - Jet_rawFactor[i]);
-	Jet_pt[i] = corr * rawJetPt;
-	Jet_mass[i] = corr * rawJetMass;
-	Jet_rawFactor[i] = (1.0 - 1.0/corr);
-	// pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
-	Jet_l1rcFactor[i] = (isRun2 ? (1.0-jecl1rc->getCorrection()/corr) : Jet_rawFactor[i]);
+        double rawJetPt = Jet_pt[i] * (1.0 - Jet_rawFactor[i]);
+        double rawJetMass = Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
+        jec->setJetPt(rawJetPt);
+        jec->setJetEta(Jet_eta[i]);
+        if (isRun2) {
+          jec->setJetA(Jet_area[i]);
+          jec->setRho(Rho_fixedGridRhoFastjetAll);
+          jecl1rc->setJetPt(rawJetPt);
+          jecl1rc->setJetEta(Jet_eta[i]);
+          jecl1rc->setJetA(Jet_area[i]);
+          jecl1rc->setRho(Rho_fixedGridRhoFastjetAll);
+        }
+        //double corr = jec->getCorrection();
+        vector<float> v = jec->getSubCorrections();
+        double corr = v.back();
+        double res = (v.size()>1 ? v[v.size()-1]/v[v.size()-2] : 1.);
+        Jet_RES[i] = 1./res;
+        Jet_deltaJES[i] = (1./corr) / (1.0 - Jet_rawFactor[i]);
+        Jet_pt[i] = corr * rawJetPt;
+        Jet_mass[i] = corr * rawJetMass;
+        Jet_rawFactor[i] = (1.0 - 1.0/corr);
+        // pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
+        Jet_l1rcFactor[i] = (isRun2 ? (1.0-jecl1rc->getCorrection()/corr) : Jet_rawFactor[i]);
 
-	if (true) { // check jet veto
-	  int i1 = h2jv->GetXaxis()->FindBin(Jet_eta[i]);
-	  int j1 = h2jv->GetYaxis()->FindBin(Jet_phi[i]);
-	  Jet_jetveto[i] = (h2jv->GetBinContent(i1,j1)>0);
-	} // jet veto
-	else
-	  Jet_jetveto[i] = false;
+        if (true) { // check jet veto
+          int i1 = h2jv->GetXaxis()->FindBin(Jet_eta[i]);
+          int j1 = h2jv->GetYaxis()->FindBin(Jet_phi[i]);
+          Jet_jetveto[i] = (h2jv->GetBinContent(i1,j1)>0);
+        } // jet veto
+        else
+          Jet_jetveto[i] = false;
 
-	// Fail allJetsGood flag if any jet of pT>15 is not good
-	if (!(Jet_jetId[i]>=4 && !Jet_jetveto[i]) && Jet_pt[i]>15.)
-	  allJetsGood = false;
-	// NB: should move this after smearing. Separate loop for type-I MET?
+        // Fail allJetsGood flag if any jet of pT>15 is not good
+        if (!(Jet_jetId[i]>=4 && !Jet_jetveto[i]) && Jet_pt[i]>15.)
+          allJetsGood = false;
+        // NB: should move this after smearing. Separate loop for type-I MET?
       } // for njet
 
       // Apply JER smearing to MC immediately after JEC. Don't change order.
@@ -2952,6 +2965,111 @@ bool DijetHistosFill::LoadJSON(string json)
   PrintInfo(Form("Loaded %d good runs and %d good lumi sections",nrun,nls),true);
   return true;
 } // LoadJSON
+
+// Load luminosity information
+bool DijetHistosFill::LoadLumi()
+{
+  PrintInfo(string("Processing LoadLumi() with ") + lumifile + "...",true);
+
+  // Check lumi against the list of good runs
+  const int a_goodruns[] = {};
+  const int ngoodruns = sizeof(a_goodruns)/sizeof(a_goodruns[0]);
+  set<int> goodruns;
+  if (ngoodruns>0) { // This is an old remnant
+    for (int runidx = 0; runidx != ngoodruns; ++runidx)
+      goodruns.insert(a_goodruns[runidx]);
+
+    for (auto runit = goodruns.begin(); runit != goodruns.end(); ++runit) cout << *runit << ", ";
+    cout << endl;
+  }
+  set<pair<int, int> > nolums;
+
+  ifstream f(lumifile, ios::in);
+  if (!f.is_open()) return false;
+  float secLS = 2.3310e+01;
+  string s;
+  int rn, fill, ls, ifoo;
+  float del, rec, avgpu, energy;
+  char sfoo[512];
+  bool getsuccess1 = static_cast<bool>(getline(f, s, '\n'));
+  if (!getsuccess1) return false;
+  PrintInfo(string("\nstring: ") + s + " !",true);
+
+  // HOX: the lumi file format has been changing. Change the conditions when needed.
+  // TODO: Check validity for Run 3
+  // if (s!="#Data tag : 19v2 , Norm tag: None" and s!="#Data tag : 19v3 , Norm tag: None") return false;
+
+  bool getsuccess2 = static_cast<bool>(getline(f, s, '\n'));
+  if (!getsuccess2) return false;
+  PrintInfo(string("\nstring: ") + s + " !",true);
+  if (s!="#run:fill,ls,time,beamstatus,E(GeV),delivered(/ub),recorded(/ub),avgpu,source") return false;
+
+  int nls(0);
+  double lumsum(0);
+  double lumsum_good(0);
+  double lumsum_json(0);
+  bool skip(false);
+  while (getline(f, s, '\n')) {
+    // Skip if not STABLE BEAMS or wrong number of arguments
+    // STABLE BEAMS alts: ADJUST, BEAM DUMP, FLAT TOP, INJECTION PHYSICS BEAM, N/A, RAMP DOWN, SETUP, SQUEEZE
+    if (sscanf(s.c_str(),"%d:%d,%d:%d,%d/%d/%d %d:%d:%d,STABLE BEAMS,%f,%f,%f,%f,%s",
+        &rn,&fill,&ls,&ifoo,&ifoo,&ifoo,&ifoo,&ifoo,&ifoo,&ifoo,&energy,&del,&rec,&avgpu,sfoo)!=15)
+      skip=true;
+
+    if (debugevent) PrintInfo(Form("Run %d ls %d lumi %f/pb",rn,ls,rec*1e-6),true);
+
+    if (skip) { // The user should know if this happens, since we can choose to use only STABLE BEAMS
+      if (skip) PrintInfo(string("Skipping line (effects the recorded lumi):\n")+s,true);
+      skip = false;
+      continue;
+    }
+
+    if (_lums[rn][ls]!=0) return false;
+    if (_avgpu[rn][ls]!=0) return false;
+    // lumiCalc.py returns lumi in units of mub-1 (=>nb-1=>pb-1)
+    double lum = rec*1e-6;
+    double lum2 = del*1e-6;
+    if (lum==0 and goodruns.find(rn)!=goodruns.end() and (_json[rn][ls]==1)) // The second condition had !jp::dojson or 
+      nolums.insert(pair<int, int>(rn,ls));
+
+    _avgpu[rn][ls] = avgpu; // * 69000. / 78400.; // brilcalc --minBiasXsec patch
+    _lums[rn][ls] = lum;
+    _lums2[rn][ls] = lum2;
+    lumsum += lum;
+    if (goodruns.find(rn)!=goodruns.end()) // Apr 17
+      lumsum_good += lum;
+    if ((!jp::dojson || _json[rn][ls]))
+      lumsum_json += lum;
+    ++nls;
+    if (nls>100000000) return false;
+  }
+
+  PrintInfo(Form("Called LoadLumi() with %s:\nLoaded %lu runs with %d lumi sections containing %f"
+                 " pb-1 of data,\n of which %f pb-1 is in good runs (%f%%)\nThis corresponds to %f"
+                 " hours of data-taking\nThe JSON file contains %f pb-1 (%f%%)",
+                 lumifile,_lums.size(),nls,lumsum,lumsum_good,
+                 100.*lumsum_good/lumsum,nls*secLS/3600,lumsum_json,100.*lumsum_json/lumsum),true);
+
+  // Report any empty lumi section
+  if (nolums.size()!=0) {
+    PrintInfo(Form("Warning, found %lu non-normalizable LS:",nolums.size()),true);
+    for (auto lumit = nolums.begin(); lumit != nolums.end(); ++lumit) {
+      cout << " ["<<lumit->first<<","<<lumit->second;
+      auto lumit2 = lumit;
+      ++lumit2;
+      if (lumit2->first!=lumit->first or lumit2->second!=lumit->second+1) cout << "]";
+      else {
+        for (int lumadd = 0; lumit2!=nolums.end() and lumit2->first==lumit->first and
+                             lumit2->second==lumit->second+lumadd+1; ++lumadd, ++lumit2) {};
+        lumit = --lumit2;
+        cout << "-" << lumit->second << "]";
+      }
+    } // for lumit
+    cout << endl;
+  } // nolums
+  return true;
+} // LoadLumi
+
 
 /*
 bool DijetHistosFill::LoadJSON()
