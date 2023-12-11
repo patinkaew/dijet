@@ -1,0 +1,3 @@
+[submodule "luminosityscripts"]
+	path = luminosityscripts
+	url = https://github.com/lmartika/luminosityscripts.git
