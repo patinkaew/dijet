@@ -3118,38 +3118,51 @@ for (Long64_t jentry = 0; jentry < nentries; jentry++)
   // Lumi
   if (dolumi && mrunls[run][luminosityBlock] == 0)
   {
-    float trpu = _avgpu[run][luminosityBlock];
+    // DOES THIS WORK FOR ALL THE TRIGGERS?
+    // WHAT IS THE INFORMATION WE'RE INTERESTED IN?
+    // INFORMATION ACROSS TRIGGERS COLLECTED WHEN HADDING?
+        for (int itrg = 0; itrg != ntrg; ++itrg)
+        {
 
-    if (debugevent){
-      cout << "Analyze lumi" << endl
-           << flush;
-    }
-    double lum = _lums[run][luminosityBlock];
-    double lum2 = _lums2[run][luminosityBlock];
+          string &trg = vtrg[itrg];
+          if (!(*mtrg[trg]))
+            continue;
 
-    // TODO:
-    // PRESCALE INFORMATION
-    /*
-    double prescale(0);
-    auto ip = _prescales[h->trigname].find(run);
-    if (ip==_prescales[h->trigname].end()) {
-      PrintInfo(Form("No prescale info for trigger %s in run %d!",h->trigname.c_str(),run));
-      assert(false);
-    } else {
-      prescale = ip->second;
-      if (prescale==0) {
-        PrintInfo(Form("Prescale zero for trigger %s in run %d!",h->trigname.c_str(),run));
-        prescale = 1.;
-        assert(false);
-      }
-    }
-    */
-    h->lumsum += lum                    // / prescale;
-    h->lumsum2 += lum2 // / prescale;
-    h->lums[run][luminosityBlock] = 1;
+          lumiHistos *h = mhlumi[trg];
+          float trpu = _avgpu[run][luminosityBlock];
 
-    h->hlumi_vstrpu->Fill(trpu, lum); //  / prescale
-    mrunls[run][luminosityBlock] = 1;
+          if (debugevent){
+            cout << "Analyze lumi" << endl
+                << flush;
+          }
+          double lum = _lums[run][luminosityBlock];
+          double lum2 = _lums2[run][luminosityBlock];
+
+          // TODO:
+          // PRESCALE INFORMATION
+          /*
+          double prescale(0);
+          auto ip = _prescales[h->trigname].find(run);
+          if (ip==_prescales[h->trigname].end()) {
+            PrintInfo(Form("No prescale info for trigger %s in run %d!",h->trigname.c_str(),run));
+            assert(false);
+          } else {
+            prescale = ip->second;
+            if (prescale==0) {
+              PrintInfo(Form("Prescale zero for trigger %s in run %d!",h->trigname.c_str(),run));
+              prescale = 1.;
+              assert(false);
+            }
+          }
+          */
+          // h->lumsum += lum;                    // / prescale;
+          // h->lumsum2 += lum2; // / prescale;
+          // h->lums[run][luminosityBlock] = 1;
+
+          h->hlumi_vstrpu->Fill(trpu, lum); //  / prescale
+          
+        }
+      mrunls[run][luminosityBlock] = 1;
   } // doLumi
   h2mhtvsmet->Fill(p4t1met.Pt(), p4mht.Pt(), w);
 } // for jentry
