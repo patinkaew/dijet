@@ -46,9 +46,12 @@ public :
    map<int, map<int, int> > _json;
    map<int, map<int, float> > _lums;
    map<int, map<int, float> > _lums2;
+   map<int, map<int, float> > _avgpu;
 
    Bool_t HLT_MC = kTRUE;
    Bool_t Jet_jetveto[100];
+
+   
   
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -3529,6 +3532,7 @@ public :
    // Code originally from jetphys/HistosFill.C
    void PrintInfo(string info, bool printcout);
    bool LoadJSON(string json);
+   bool LoadLumi();
 };
 
 #endif
