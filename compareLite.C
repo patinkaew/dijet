@@ -248,9 +248,10 @@ void compareLite(string run="2023D") {
   }
   cout << "\nFound " << mAtoB.size() << " matching entries" << endl;
 
-  /*
-  map<Long64_t, Long64_t> mBtoA;
   Long64_t ntotB = mtB.size();
+  /*
+  // Opposite mapping. Turn off by default to reduce run time (and memory!)
+  map<Long64_t, Long64_t> mBtoA;
   int failsBtoA(0), int nBtoA(0);
   for (IT::const_iterator it = mtB.begin(); it != mtB.end(); ++it) {
 
