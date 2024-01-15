@@ -7,7 +7,7 @@
 // Header file for the classes stored in the TTree if any.
 //#include "ROOT/RVec.hxx"
 //#include "ROOT/RVec.hxx"
-#include "c++/v1/vector"
+//#include "c++/v1/vector"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -188,7 +188,7 @@ void compareLite(string run="2023D") {
     int nFiles(0);
     while (fin >> filename) {
       ++nFiles;
-      c_tA->AddFile(filename.c_str());
+      c_tB->AddFile(filename.c_str());
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
   }
@@ -231,7 +231,7 @@ void compareLite(string run="2023D") {
   cout << "Match TA to TB events" << endl;
   map<Long64_t, Long64_t> mAtoB;
   Long64_t ntotA = mtA.size();
-  int failsAtoB(0);
+  int failsAtoB(0), nAtoB(0);
   typedef map<evtid, pair<Long64_t, Long64_t> > IT;
   for (IT::const_iterator it = mtA.begin(); it != mtA.end(); ++it) {
 
@@ -244,12 +244,14 @@ void compareLite(string run="2023D") {
       cout << "For tA("<<it->first.run()<<","<<it->first.lbn()<<","
 	   <<it->first.evt()<<"), did not find a matching entry in tB" << endl;
     }
+    if (++nAtoB%1000000==0) cout << "." << flush;
   }
-  cout << "Found " << mAtoB.size() << " matching entries" << endl;
+  cout << "\nFound " << mAtoB.size() << " matching entries" << endl;
 
+  /*
   map<Long64_t, Long64_t> mBtoA;
   Long64_t ntotB = mtB.size();
-  int failsBtoA(0);
+  int failsBtoA(0), int nBtoA(0);
   for (IT::const_iterator it = mtB.begin(); it != mtB.end(); ++it) {
 
     if (mtA.find(it->first)!=mtA.end()) {
@@ -261,9 +263,11 @@ void compareLite(string run="2023D") {
       cout << "For tB("<<it->first.run()<<","<<it->first.lbn()<<","
 	   <<it->first.evt()<<"), did not find a matching entry in tA" << endl;
     }
+    if (++nBtoA%1000000==0) cout << "." << flush;
   }
-  cout << "Found " << mBtoA.size() << " matching entries" << endl;
-
+  cout << "\nFound " << mBtoA.size() << " matching entries" << endl;
+  */
+  
   // Set unique branches needed from tree A
   //TBranch *b_flag_tA;//, *b_flag_tB;
   //TBranch *b_jttrg_tA;//, *b_jttrg_tB;
