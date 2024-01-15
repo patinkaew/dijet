@@ -8,7 +8,7 @@
 
 #include "../tdrstyle_mod22.C"
 
-string version = "v35";
+string version = "v35a";
 
 TH1D *getJER(TProfile2D* p2, TProfile2D *p2x,
 	     double eta1, double eta2, TH1D **h1 = 0, TH1D **h1x = 0);
@@ -31,7 +31,7 @@ void DijetHistosJER(string rootdir="../rootfiles", string hadddir="../haddfiles"
   DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022E_JME_"+version+".root","Dijet2");
   DijetHistosJERs(rootdir + "/jmenano_data_cmb_2022FG_JME_"+version+".root","Dijet2");
   DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023BCv123_JME_"+version+".root","Dijet2");
-  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023Cv4_JME_v"+version+"root","Dijet2");
+  DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023Cv4_JME_"+version+".root","Dijet2");
   DijetHistosJERs(rootdir + "/jmenano_data_cmb_2023D_JME_"+version+".root","Dijet2");
   //
   scaleJER = true; // something weird with MC RMS
@@ -438,7 +438,7 @@ void DijetHistosJERs(string file, string dir) {
     
     // Run3 2022+2023
     if (!frc && (s.Contains("202") || s.Contains("Summer22"))) {
-      frc = new TFile("../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
+      frc = new TFile("../../JERCProtoLab/Summer20UL18/JER_noise/RC_noise_UL18.root","READ");
     }
 
 
@@ -553,11 +553,13 @@ void drawDijetHistosJER(string sd, string sm, string era) {
   const char *cera = era.c_str();
   TCanvas *c1 = new TCanvas(Form("c1_%s_%s",c,cera),Form("c1_%s_%s",c,cera),
 			    1200,600);
-  c1->Divide(6,3,0,0);
+  //c1->Divide(6,3,0,0);
+  c1->Divide(6,4,0,0);
   
   TCanvas *c2 = new TCanvas(Form("c2_%s_%s",c,cera),Form("c2_%s_%s",c,cera),
-			    1200,600);
-  c2->Divide(6,3,0,0);
+			    1200,800);
+  //c2->Divide(6,3,0,0);
+  c2->Divide(6,4,0,0);
 
   TLine *l = new TLine();
   l->SetLineStyle(kDashed);
@@ -577,7 +579,8 @@ void drawDijetHistosJER(string sd, string sm, string era) {
 
   for (int i = 1; i != h2jer->GetNbinsX()+1; ++i) {
 
-    c1->cd(min(i,18));
+    //c1->cd(min(i,18));
+    c1->cd(min(i,24));
     gPad->SetLogx();
 
     TH1D *h = tdrHist(Form("h%d_%s_%s",i,c,cera),"JER",0,0.3);
@@ -649,7 +652,8 @@ void drawDijetHistosJER(string sd, string sm, string era) {
       //leg->AddEntry(h1xs,"Est. PU","L");
     }
     
-    c2->cd(min(i,18));
+    //c2->cd(min(i,18));
+    c2->cd(min(i,24));
     gPad->SetLogx();
     
     TH1D *h2 = tdrHist(Form("h2_%d_%s_%s",i,c,cera),"Data/MC",0.8,2.0);
@@ -762,8 +766,8 @@ void drawDijetHistosJER(string sd, string sm, string era) {
     }
   } // for i
 
-  c1->SaveAs(Form("pdf/DijetHistosJER_JERMC_%s.pdf",era.c_str()));
-  c2->SaveAs(Form("pdf/DijetHistosJER_JERSF_%s.pdf",era.c_str()));
+  c1->SaveAs(Form("../pdf/DijetHistosJER/DijetHistosJER_JERMC_%s.pdf",era.c_str()));
+  c2->SaveAs(Form("../pdf/DijetHistosJER/DijetHistosJER_JERSF_%s.pdf",era.c_str()));
 } // drawDijetHistosJER
 
 void drawDijetHistosJERtest() {
