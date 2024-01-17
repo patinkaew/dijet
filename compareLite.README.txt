@@ -1,0 +1,17 @@
+To-do:
+- optimize code for faster access of tree A, i.e. only sort tree B
+- add JEC
+- add jet veto maps
+
+v3. Move t.Start() after GetEntries() for more accure estimate.
+
+v2. Fix 22Sep2023 input file lists. Extend Jet40 low pT range to 10. Progress bar every 100k (was 10k). Drop LS from evtid (just run+event). Loop directly on tree A.
+
+
+v1. 2022CDEFG
+- 22Sep2023 input files .txt and not .txt.22Sep2023.v12
+  - FG used Prompt22, both empty
+  - 22C,D,E identical; 22D differ
+- 19Dec2023 input files had EGamma (though failed)
+- 2022 22Sep2023 lists had ZeroBias included
+- memory use around 30% on Hefaistos 

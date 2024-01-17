@@ -38,20 +38,22 @@ using namespace tools;
 
 class evtid {
 private:
-  UInt_t run_, ls_;
+  UInt_t run_;//, ls_;
   ULong64_t evt_;
 public :
-  evtid() : run_(0), ls_(0), evt_(0) {}
-  evtid(UInt_t run, UInt_t ls, ULong64_t evt) : run_(run), ls_(ls), evt_(evt) {}
+  //evtid() : run_(0), ls_(0), evt_(0) {}
+ evtid() : run_(0), evt_(0) {}
+//evtid(UInt_t run, UInt_t ls, ULong64_t evt) : run_(run), ls_(ls), evt_(evt) {}
+ evtid(UInt_t run, ULong64_t evt) : run_(run), evt_(evt) {}
   bool operator()(evtid const& a, evtid const& b) const {
     if (a.run_ < b.run_) return true;
     if (a.run_ > b.run_) return false;
-    if (a.ls_  < b.ls_)  return true;
-    if (a.ls_  > b.ls_)  return false;
+    //if (a.ls_  < b.ls_)  return true;
+    //if (a.ls_  > b.ls_)  return false;
     return (a.evt_ < b.evt_);
   }
   UInt_t run() const { return run_; }
-  UInt_t lbn() const { return ls_; }
+  //UInt_t lbn() const { return ls_; }
   ULong64_t evt() const { return evt_; }
 };
 
@@ -138,6 +140,7 @@ void compareLite(string run="2023D") {
   
   
   // Set branches to sort events
+  // Update: skip sorting here to make code faster
   TBranch *b_run_tA, *b_lbn_tA, *b_evt_tA;
   UInt_t run_tA, lbn_tA;
   ULong64_t evt_tA;
@@ -145,31 +148,32 @@ void compareLite(string run="2023D") {
   c_tA->SetBranchAddress("luminosityBlock",&lbn_tA,&b_lbn_tA);
   c_tA->SetBranchAddress("event",&evt_tA,&b_evt_tA);
 
-  cout << "Sort TA entries" << endl << flush;
-  map<evtid, pair<Long64_t, Long64_t>, evtid> mtA;
-  Long64_t nentries = c_tA->GetEntries();//Fast();
-  cout << "..Processing " << nentries << " entries" << endl << flush;
+  //cout << "Sort TA entries" << endl << flush;
+  //map<evtid, pair<Long64_t, Long64_t>, evtid> mtA;
+  //Long64_t nentries = c_tA->GetEntries();//Fast();
+  //cout << "..Processing " << nentries << " entries" << endl << flush;
+  //cout << "..Found " << nentries << " entries" << endl << flush;
 
-  Long64_t nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
-    Long64_t ientry = c_tA->LoadTree(jentry);
-    if (ientry < 0) break;
-    //nb = c_tA->GetEntry(jentry);   nbytes += nb;
-    b_run_tA->GetEntry(ientry);
-    b_lbn_tA->GetEntry(ientry);
-    b_evt_tA->GetEntry(ientry);
-    assert(run_tA);
-    assert(lbn_tA);
-    assert(evt_tA);
+  //Long64_t nbytes = 0, nb = 0;
+  //for (Long64_t jentry=0; jentry<nentries; jentry++) {
+  //Long64_t ientry = c_tA->LoadTree(jentry);
+  //if (ientry < 0) break;
+  // //nb = c_tA->GetEntry(jentry);   nbytes += nb;
+  //b_run_tA->GetEntry(ientry);
+  //b_lbn_tA->GetEntry(ientry);
+  //b_evt_tA->GetEntry(ientry);
+  //assert(run_tA);
+  //assert(lbn_tA);
+  //assert(evt_tA);
 
-    mtA[evtid(run_tA, lbn_tA, evt_tA)]
-      = pair<Long64_t, Long64_t>(jentry, ientry);
+  //mtA[evtid(run_tA, lbn_tA, evt_tA)]
+  //  = pair<Long64_t, Long64_t>(jentry, ientry);
 
-    if (jentry%1000000==0) cout << "." << flush;
-  }
-  cout << endl;
-  cout << "Found " << mtA.size() << " unique entries" << endl;
-  cout << endl;
+  //if (jentry%1000000==0) cout << "." << flush;
+  //}
+  //cout << endl;
+  //cout << "Found " << mtA.size() << " unique entries" << endl;
+  //cout << endl;
 
 
   // Book TB tree (22Sep2023)
@@ -182,7 +186,7 @@ void compareLite(string run="2023D") {
     //LoadJSON("rootfiles/Cert_Collisions2023_366442_370790_Golden.json");
 
     string filename = Form("input_files/dataFiles_%s.txt.22Sep2023.v12",crun);
-    ifstream fin(Form("input_files/dataFiles_%s.txt",crun), ios::in);
+    ifstream fin(filename.c_str(), ios::in);
     
     cout << "Chaining data files for B: " << filename << endl << flush;
     int nFiles(0);
@@ -202,24 +206,26 @@ void compareLite(string run="2023D") {
   c_tB->SetBranchAddress("event",&evt_tB,&b_evt_tB);
 
   cout << "Sort TB entries" << endl << flush;
-  map<evtid, pair<Long64_t, Long64_t>, evtid> mtB;
-  nentries = c_tB->GetEntries();//Fast();
-  cout << "..Processing " << nentries << " entries" << endl << flush;
+  //map<evtid, pair<Long64_t, Long64_t>, evtid> mtB;
+  map<evtid, Long64_t, evtid> mtB;
+  Long64_t ntotB = c_tB->GetEntries();//Fast();
+  cout << "..Processing " << ntotB << " entries in tree B" << endl << flush;
 
-  nbytes = 0, nb = 0;
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  //nbytes = 0, nb = 0;
+  for (Long64_t jentry=0; jentry<ntotB; jentry++) {
     Long64_t ientry = c_tB->LoadTree(jentry);
     if (ientry < 0) break;
     //nb = c_tB->GetEntry(jentry);   nbytes += nb;
     b_run_tB->GetEntry(ientry);
-    b_lbn_tB->GetEntry(ientry);
+    //b_lbn_tB->GetEntry(ientry);
     b_evt_tB->GetEntry(ientry);
     assert(run_tB);
-    assert(lbn_tB);
+    //assert(lbn_tB);
     assert(evt_tB);
 
-    mtB[evtid(run_tB, lbn_tB, evt_tB)]
-      = pair<Long64_t, Long64_t>(jentry, ientry);
+    //mtB[evtid(run_tB, lbn_tB, evt_tB)]
+    //= pair<Long64_t, Long64_t>(jentry, ientry);
+    mtB[evtid(run_tB, evt_tB)] = jentry;
 
     if (jentry%1000000==0) cout << "." << flush;
   }
@@ -228,29 +234,29 @@ void compareLite(string run="2023D") {
   cout << endl;
 
   // Use sorted events to find matching ones
-  cout << "Match TA to TB events" << endl;
-  map<Long64_t, Long64_t> mAtoB;
-  Long64_t ntotA = mtA.size();
+  //cout << "Match TA to TB events" << endl;
+  //map<Long64_t, Long64_t> mAtoB;
+  //Long64_t ntotA = mtA.size();
   int failsAtoB(0), nAtoB(0);
-  typedef map<evtid, pair<Long64_t, Long64_t> > IT;
-  for (IT::const_iterator it = mtA.begin(); it != mtA.end(); ++it) {
+  //typedef map<evtid, pair<Long64_t, Long64_t> > IT;
+  //for (IT::const_iterator it = mtA.begin(); it != mtA.end(); ++it) {
 
-    if (mtB.find(it->first)!=mtB.end()) {
-      assert(mAtoB.find(it->second.first)==mAtoB.end());
-      mAtoB[it->second.first] = mtB[it->first].first;
-    }
-    else if (++failsAtoB<10) {
-      
-      cout << "For tA("<<it->first.run()<<","<<it->first.lbn()<<","
-	   <<it->first.evt()<<"), did not find a matching entry in tB" << endl;
-    }
-    if (++nAtoB%1000000==0) cout << "." << flush;
-  }
-  cout << "\nFound " << mAtoB.size() << " matching entries" << endl;
+  //if (mtB.find(it->first)!=mtB.end()) {
+  //  assert(mAtoB.find(it->second.first)==mAtoB.end());
+  //  mAtoB[it->second.first] = mtB[it->first].first;
+  //}
+  //else if (++failsAtoB<10) {
+  //  
+    //    cout << "For tA("<<it->first.run()<<","<<it->first.lbn()<<","
+    //	   <<it->first.evt()<<"), did not find a matching entry in tB" << endl;
+    //}
+    //if (++nAtoB%1000000==0) cout << "." << flush;
+  //}
+  //cout << "\nFound " << mAtoB.size() << " matching entries" << endl;
 
-  Long64_t ntotB = mtB.size();
   /*
   // Opposite mapping. Turn off by default to reduce run time (and memory!)
+  Long64_t ntotB = mtB.size();
   map<Long64_t, Long64_t> mBtoA;
   int failsBtoA(0), int nBtoA(0);
   for (IT::const_iterator it = mtB.begin(); it != mtB.end(); ++it) {
@@ -506,17 +512,27 @@ void compareLite(string run="2023D") {
 
   curdir->cd();
   
-  TStopwatch t;
-  t.Start();
-
   int nev = 0;
   int ngood = 0;
   int nmatch = 0;
   //int nj = 0;
-  for (map<Long64_t,Long64_t>::const_iterator it = mAtoB.begin();
-       it != mAtoB.end(); ++it) {
 
-    if (++nev%10000==0) cout << "." << flush;
+  // Looping events in order of event number (possible slow_
+  //for (map<Long64_t,Long64_t>::const_iterator it = mAtoB.begin();
+  //   it != mAtoB.end(); ++it) {
+
+  // Loop tree A in order of entries and skip entries missing in tree B
+  // as consecutive reading of tree A should be (much?) faster
+  Long64_t ntotA = c_tA->GetEntries();//Fast();
+  cout << "..Processing " << ntotA << " entries in tree A to match in tree B"
+       << endl << flush;
+
+  TStopwatch t;
+  t.Start();
+
+  for (Long64_t jentrytA = 0; jentrytA < ntotA; jentrytA++) {
+
+    if (++nev%100000==0) cout << "." << flush;
     if (nev%nsample!=0) continue;
     if (nev>frac*ntotA) continue;
 
@@ -531,16 +547,29 @@ void compareLite(string run="2023D") {
     }
 
     // Load matching entries
-    Long64_t jentrytA = it->first;
-    Long64_t jentrytB = it->second;
-    
-    if (jentrytA<0 || jentrytA>=ntotA) continue;
+    //Long64_t jentrytA = it->first;
+    //Long64_t jentrytB = it->second;
+
+    // Load entry from tree A
+    //if (jentrytA<0 || jentrytA>=ntotA) continue;
     Long64_t ientrytA = c_tA->LoadTree(jentrytA);
     if (ientrytA < 0) break;
     c_tA->GetEntry(jentrytA);
-    if (jentrytB<0 || jentrytB>=ntotB) continue;
+
+    // Find matching entry in tree B
+    Long64_t jentrytB = mtB[evtid(run_tA, evt_tA)];
+    if (jentrytB==0) {
+      if (++failsAtoB<10) {
+	cout << "\nFor tA("<<run_tA<<","<<evt_tA<<";"<<lbn_tA
+	     <<"), did not find a matching entry in tB" << endl;
+      }
+      continue;
+    }
+
+    // Load entry from tree B
+    //if (jentrytB<0 || jentrytB>=ntotB) continue;
     Long64_t ientrytB = c_tB->LoadTree(jentrytB);
-    if (ientrytA < 0) break;
+    if (ientrytB < 0) break;
     c_tB->GetEntry(jentrytB);
 
     // Temporary patch for missing MET filters
@@ -632,7 +661,7 @@ void compareLite(string run="2023D") {
 	       (HLT_PFJet140 && pttag>196) ||
 	       (HLT_PFJet80  && pttag>114) ||
 	       (HLT_PFJet60  && pttag>84) ||
-	       (HLT_PFJet40  && pttag>37));
+	       (HLT_PFJet40  && pttag>10));
 	    //{10,15, 21, 28, 37, 49, 64, 84, 114, 153, 196, 245, 300, 395, 468,
 	    //548, 638, 790, 967, 1172, 1410, 1684, 2000, 2500, 3000, 3500,
 	    //4000, 4500, 5000, 6000};
@@ -658,7 +687,7 @@ void compareLite(string run="2023D") {
 	     (HLT_PFJet140 && ptave>196) ||
 	     (HLT_PFJet80  && ptave>114) ||
 	     (HLT_PFJet60  && ptave>84) ||
-	     (HLT_PFJet40  && ptave>37));
+	     (HLT_PFJet40  && ptave>10));
 	  bool trigB =
 	    ((HLT_PFJet500 && ptB>638) ||
 	     (HLT_PFJet450 && ptB>548) ||
@@ -669,7 +698,7 @@ void compareLite(string run="2023D") {
 	     (HLT_PFJet140 && ptB>196) ||
 	     (HLT_PFJet80  && ptB>114) ||
 	     (HLT_PFJet60  && ptB>84) ||
-	     (HLT_PFJet40  && ptB>37));
+	     (HLT_PFJet40  && ptB>10));
 	  bool trigA =
 	    ((HLT_PFJet500 && pt>638) ||
 	     (HLT_PFJet450 && pt>548) ||
@@ -680,7 +709,7 @@ void compareLite(string run="2023D") {
 	     (HLT_PFJet140 && pt>196) ||
 	     (HLT_PFJet80  && pt>114) ||
 	     (HLT_PFJet60  && pt>84) ||
-	     (HLT_PFJet40  && pt>37));
+	     (HLT_PFJet40  && pt>10));
 
 	  // Look at good probe jets in barrel in good events
 	  if (fabs(eta)<1.3 && fabs(etaB)<1.3 &&
