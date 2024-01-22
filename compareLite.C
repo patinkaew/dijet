@@ -116,13 +116,11 @@ void compareLite(string run="2023D") {
   cout <<         "======================" << endl << flush;
 
   // Book tree tA (19Dec2023)
-  // Also set JSON filter and jesAfix
+  // Also set JSON filter
   double jesAfix(1.);
   TChain *c_tA = new TChain("Events");
   cout << "A is 19Dec2023" << endl;
-  //if (run=="2023BCv123" || run=="2023CCv4" || run=="2023D") {
   {
-    //c_tA->AddFile("../data/dijet/data/JetMET0_Run2023D-19Dec2023-v1-NanoV12.root");
     LoadJSON("rootfiles/Cert_Collisions2022_355100_362760_Golden.json");
     LoadJSON("rootfiles/Cert_Collisions2023_366442_370790_Golden.json");
 
@@ -148,43 +146,10 @@ void compareLite(string run="2023D") {
   c_tA->SetBranchAddress("luminosityBlock",&lbn_tA,&b_lbn_tA);
   c_tA->SetBranchAddress("event",&evt_tA,&b_evt_tA);
 
-  //cout << "Sort TA entries" << endl << flush;
-  //map<evtid, pair<Long64_t, Long64_t>, evtid> mtA;
-  //Long64_t nentries = c_tA->GetEntries();//Fast();
-  //cout << "..Processing " << nentries << " entries" << endl << flush;
-  //cout << "..Found " << nentries << " entries" << endl << flush;
-
-  //Long64_t nbytes = 0, nb = 0;
-  //for (Long64_t jentry=0; jentry<nentries; jentry++) {
-  //Long64_t ientry = c_tA->LoadTree(jentry);
-  //if (ientry < 0) break;
-  // //nb = c_tA->GetEntry(jentry);   nbytes += nb;
-  //b_run_tA->GetEntry(ientry);
-  //b_lbn_tA->GetEntry(ientry);
-  //b_evt_tA->GetEntry(ientry);
-  //assert(run_tA);
-  //assert(lbn_tA);
-  //assert(evt_tA);
-
-  //mtA[evtid(run_tA, lbn_tA, evt_tA)]
-  //  = pair<Long64_t, Long64_t>(jentry, ientry);
-
-  //if (jentry%1000000==0) cout << "." << flush;
-  //}
-  //cout << endl;
-  //cout << "Found " << mtA.size() << " unique entries" << endl;
-  //cout << endl;
-
-
   // Book TB tree (22Sep2023)
   TChain *c_tB = new TChain("Events");
   cout << "B is 22Sep2023" << endl;
-  //if (run=="2023D") {
   {
-    //c_tB->AddFile("../data/dijet/data/JetMET0_Run2023D-19Dec2023-v1-NanoV12.root"); // test tree A duplicate
-    //c_tB->Add("../data/dijet/data/JetMET0_Run2023D-22Sep2023-v1-NanoV12.root");
-    //LoadJSON("rootfiles/Cert_Collisions2023_366442_370790_Golden.json");
-
     string filename = Form("input_files/dataFiles_%s.txt.22Sep2023.v12",crun);
     ifstream fin(filename.c_str(), ios::in);
     
@@ -233,54 +198,6 @@ void compareLite(string run="2023D") {
   cout << "Found " << mtB.size() << " unique entries" << endl;
   cout << endl;
 
-  // Use sorted events to find matching ones
-  //cout << "Match TA to TB events" << endl;
-  //map<Long64_t, Long64_t> mAtoB;
-  //Long64_t ntotA = mtA.size();
-  int failsAtoB(0), nAtoB(0);
-  //typedef map<evtid, pair<Long64_t, Long64_t> > IT;
-  //for (IT::const_iterator it = mtA.begin(); it != mtA.end(); ++it) {
-
-  //if (mtB.find(it->first)!=mtB.end()) {
-  //  assert(mAtoB.find(it->second.first)==mAtoB.end());
-  //  mAtoB[it->second.first] = mtB[it->first].first;
-  //}
-  //else if (++failsAtoB<10) {
-  //  
-    //    cout << "For tA("<<it->first.run()<<","<<it->first.lbn()<<","
-    //	   <<it->first.evt()<<"), did not find a matching entry in tB" << endl;
-    //}
-    //if (++nAtoB%1000000==0) cout << "." << flush;
-  //}
-  //cout << "\nFound " << mAtoB.size() << " matching entries" << endl;
-
-  /*
-  // Opposite mapping. Turn off by default to reduce run time (and memory!)
-  Long64_t ntotB = mtB.size();
-  map<Long64_t, Long64_t> mBtoA;
-  int failsBtoA(0), int nBtoA(0);
-  for (IT::const_iterator it = mtB.begin(); it != mtB.end(); ++it) {
-
-    if (mtA.find(it->first)!=mtA.end()) {
-      assert(mBtoA.find(it->second.first)==mBtoA.end());
-      mBtoA[it->second.first] = mtA[it->first].first;
-    }
-    else if (++failsBtoA<10) {
-      
-      cout << "For tB("<<it->first.run()<<","<<it->first.lbn()<<","
-	   <<it->first.evt()<<"), did not find a matching entry in tA" << endl;
-    }
-    if (++nBtoA%1000000==0) cout << "." << flush;
-  }
-  cout << "\nFound " << mBtoA.size() << " matching entries" << endl;
-  */
-  
-  // Set unique branches needed from tree A
-  //TBranch *b_flag_tA;//, *b_flag_tB;
-  //TBranch *b_jttrg_tA;//, *b_jttrg_tB;
-  //TBranch *b_jttrg500_tA, *b_jttrg450_tA, *b_jttrg400_tA, *b_jttrg320_tA;
-  //TBranch *b_jttrg260_tA, *b_jttrg200_tA, *b_jttrg140_tA, *b_jttrg140_tA;
-  //TBranch *b_jttrg80_tA, *b_jttrg60_tA, *b_jttrg40_tA;
 
   // Jet triggers
   TBranch        *b_HLT_PFJet40;
@@ -314,11 +231,6 @@ void compareLite(string run="2023D") {
   TBranch *b_jtjes_tA, *b_jtjes_tB;
 
   // Set unique branches needed from tree A
-  //Bool_t flag_tA;//, flag_tB;
-  //Bool_t jttrg_tA;//, jttrg_tB;
-  //Bool_t jttrg500_tA, jttrg450_tA, jttrg400_tA, jttrg320_tA;
-  //Bool_t jttrg260_tA, jttrg200_tA, jttrg140_tA, jttrg140_tA;
-  //Bool_t jttrg80_tA, jttrg60_tA, jttrg40_tA;
 
   // Jet triggers
   Bool_t          HLT_PFJet40;
@@ -393,9 +305,11 @@ void compareLite(string run="2023D") {
   c_tB->SetBranchAddress("Jet_rawFactor",jtjes_tB,&b_jtjes_tB);
   
   const int nsample = 1;//100; // 0.5h
+  const int nsample2 = 100;
   const float frac = 1;//0.01;
   cout << "Pairing TA and TB" << endl << flush;
   cout << "Sampling 1/"<<nsample<<" of events" << endl << flush;
+  cout << "Sampling 1/100"<<nsample<<" prescaled of events" << endl << flush;
   cout << "Keeping first "<<frac*100<<"% of events" << endl << flush;
 
   // Speed up processing by selecting only used branches for tree A
@@ -406,7 +320,6 @@ void compareLite(string run="2023D") {
   c_tA->SetBranchStatus("run",1);
   c_tA->SetBranchStatus("luminosityBlock",1);
   c_tA->SetBranchStatus("event",1);
-  //c_tA->SetBranchStatus("HLT_PFJet500",1);
 
   // Jet triggers
   c_tA->SetBranchStatus("HLT_PFJet40",1);
@@ -440,11 +353,6 @@ void compareLite(string run="2023D") {
 
   // Speed up processing by selecting only used branches for tree B
   c_tB->SetBranchStatus("*",0);  // disable all branches
-  //c_tB->SetBranchStatus("Flag_Run3",1);
-  //c_tB->SetBranchStatus("run",1);
-  //c_tB->SetBranchStatus("luminosityBlock",1);
-  //c_tB->SetBranchStatus("event",1);
-  //c_tB->SetBranchStatus("HLT_PFJet500",1);
 
   // Activate tree B common branches
   c_tB->SetBranchStatus("nJet",1);
@@ -478,12 +386,28 @@ void compareLite(string run="2023D") {
      548, 638, 790, 967, 1172, 1410, 1684, 2000, 2500, 3000, 3500,
      4000, 4500, 5000, 6000};
   int nx = sizeof(vx)/sizeof(vx[0])-1;
+
+  // Regular L2Relative eta binning
+  double vy[] =
+      {-5.191,
+       -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489,
+       -3.314, -3.139, -2.964, -2.853, -2.65, -2.5, -2.322, -2.172, -2.043,
+       -1.93, -1.83, -1.74, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218,
+       -1.131, -1.044, -0.957, -0.879, -0.783, -0.696, -0.609, -0.522, -0.435,
+       -0.348, -0.261, -0.174, -0.087, 0, 0.087, 0.174, 0.261, 0.348, 0.435,
+       0.522, 0.609, 0.696, 0.783, 0.879, 0.957, 1.044, 1.131, 1.218, 1.305,
+       1.392, 1.479, 1.566, 1.653, 1.74, 1.83, 1.93, 2.043, 2.172, 2.322, 2.5,
+       2.65, 2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191,
+       4.363, 4.538, 4.716, 4.889, 5.191};
+  const int ny = sizeof(vy) / sizeof(vy[0]) - 1;
   
   // Open file for outputting results
   TFile *f = new TFile(Form("rootfiles/compareLite_%s.root",run.c_str()),
 		       "RECREATE");
+  f->mkdir("2D");
 
   // Tag-and-probe method
+  f->cd();
   TProfile *pta_tp = new TProfile("pta_tp",";p_{T,tag};p_{T,A}",nx,vx);
   TProfile *pa_tp = new TProfile("pa_tp",";p_{T,tag};p_{T,A}/p_{T,tag}",nx,vx);
   TProfile *pb_tp = new TProfile("pb_tp",";p_{T,tag};p_{T,B}/p_{T,tag}",nx,vx);
@@ -493,8 +417,20 @@ void compareLite(string run="2023D") {
   TH2D *h2b_tp =new TH2D("h2b_tp",";p_{T,tag};p_{T,B}/p_{T,tag}",nx,vx,400,-1,3);
   TH2D *h2d_tp =new TH2D("h2d_tp",";p_{T,tag};"
 			 "0.5*(p_{T,B}-p_{T,A})/p_{T,tag}",nx,vx,600,-3,3);
+
+  f->cd("2D");
+  TProfile2D *p2ta_tp = new TProfile2D("p2ta_tp",";p_{T,tag};#eta_{A};p_{T,A}",
+				       nx,vx,ny,vy);
+  TProfile2D *p2a_tp = new TProfile2D("p2a_tp",";p_{T,tag};#eta_{A};"
+				      "p_{T,A}/p_{T,tag};",nx,vx,ny,vy);
+  TProfile2D *p2b_tp = new TProfile2D("p2b_tp",";p_{T,tag};#eta_{A};"
+				      "p_{T,B}/p_{T,tag};",nx,vx,ny,vy);
+  TProfile2D *p2d_tp = new TProfile2D("p2d_tp",";p_{T,tag};#eta_{A};"
+				      "(p_{T,B}-p_{T,A})/p_{T,tag};",
+				      nx,vx,ny,vy);
   
   // Direct match method in two variants
+  f->cd();
   TProfile *pjesa_dm = new TProfile("pjesa_dm",";p_{T,A};JES(A)",nx,vx);
   TProfile *pjesb_dm = new TProfile("pjesb_dm",";p_{T,B};JES(B)",nx,vx);
   TProfile *pta_dm = new TProfile("pta_dm",";p_{T,A};p_{T,A}",nx,vx);
@@ -510,12 +446,32 @@ void compareLite(string run="2023D") {
   TH2D *h2d_dm = new TH2D("h2d_dm",";(p_{T,B}+p_{T,A})/2;"
 			  "(p_{T,B}-p_{T,A})/(p_{T,B}+p_{T,A})",nx,vx,600,-3,3);
 
+  f->cd("2D");
+  TProfile2D *p2jesa_dm = new TProfile2D("p2jesa_dm",";p_{T,A};#eta_{A};JES(A)",
+					 nx,vx,ny,vy);
+  TProfile2D *p2jesb_dm = new TProfile2D("p2jesb_dm",";p_{T,B};#eta_{A};JES(B)",
+					 nx,vx,ny,vy);
+  TProfile2D *p2ta_dm = new TProfile2D("p2ta_dm",";p_{T,A};#eta_{A};p_{T,A}",
+				       nx,vx,ny,vy);
+  TProfile2D *p2a_dm = new TProfile2D("p2a_dm",";p_{T,A};#eta_{A};"
+				      "p_{T,B}/p_{T,A}",nx,vx,ny,vy);
+  TProfile2D *p2tb_dm = new TProfile2D("p2tb_dm",";p_{T,B};#eta_{A};p_{T,A}",
+				       nx,vx,ny,vy);
+  TProfile2D *p2b_dm = new TProfile2D("p2b_dm",";p_{T,B};#eta_{A};"
+				      "p_{T,A}/p_{T,B}",nx,vx,ny,vy);
+  TProfile2D *p2td_dm = new TProfile2D("p2td_dm",";(p_{T,B}+p_{T,A})/2;"
+				       "#eta_{A};p_{T,A}",nx,vx,ny,vy);
+  TProfile2D *p2d_dm = new TProfile2D("p2d_dm",";(p_{T,B}+p_{T,A})/2;#eta_{A};"
+				      "(p_{T,B}-p_{T,A})/(p_{T,B}+p_{T,A})",
+				      nx,vx,ny,vy);
+
   curdir->cd();
   
   int nev = 0;
+  int npre = 0;
   int ngood = 0;
   int nmatch = 0;
-  //int nj = 0;
+  int failsAtoB = 0;
 
   // Looping events in order of event number (possible slow_
   //for (map<Long64_t,Long64_t>::const_iterator it = mAtoB.begin();
@@ -527,8 +483,10 @@ void compareLite(string run="2023D") {
   cout << "..Processing " << ntotA << " entries in tree A to match in tree B"
        << endl << flush;
 
-  TStopwatch t;
+  TStopwatch t, tlap;
   t.Start();
+  tlap.Start();
+  int nlap = 25000000; // 25M
 
   for (Long64_t jentrytA = 0; jentrytA < ntotA; jentrytA++) {
 
@@ -536,14 +494,27 @@ void compareLite(string run="2023D") {
     if (nev%nsample!=0) continue;
     if (nev>frac*ntotA) continue;
 
-    if (nev==1 || nev==10000 || nev==100000 || nev==1000000 || nev==5000000){
+    // ETA estimate based on all events so far
+    if (nev==100 || nev==10000 || nev==100000 || nev==1000000 || nev==5000000 ||
+	(nev>5000000 && nev%25000000==0)) {
       cout << endl
 	   << Form("Processed %ld events (%1.1f%%) in %1.0f sec. ETA:",
 		   (long int)nev, 100.*nev/ntotA,
 		   t.RealTime()) << endl;
-      TDatime now; now.Set(now.Convert()+t.RealTime()*ntotA/nev);
+      TDatime now; now.Set(now.Convert()+t.RealTime()*(ntotA-nev)/nev);
       now.Print();
       t.Continue();
+    }
+    // ETA estimate based on last 25M events
+    if (nev>5000000 && nev%25000000==0) {
+      cout << endl
+	   << Form("Last lap %ld events (%1.1f%%) in %1.0f sec. ETA:",
+		   (long int)nlap, 100.*nlap/ntotA,
+		   tlap.RealTime()) << endl;
+      TDatime now; now.Set(now.Convert()+tlap.RealTime()*(ntotA-nev)/nlap);
+      now.Print();
+      tlap.Reset();
+      tlap.Continue();
     }
 
     // Load matching entries
@@ -554,6 +525,15 @@ void compareLite(string run="2023D") {
     //if (jentrytA<0 || jentrytA>=ntotA) continue;
     Long64_t ientrytA = c_tA->LoadTree(jentrytA);
     if (ientrytA < 0) break;
+
+    // Sample prescaled triggers before reading full tree
+    bool keeppre((++npre)%nsample2==0);
+    if (!keeppre) {
+      b_HLT_PFJet500->GetEntry(ientrytA);
+      if (!HLT_PFJet500) continue;
+    }
+
+    // Read full tree
     c_tA->GetEntry(jentrytA);
 
     // Find matching entry in tree B
@@ -571,10 +551,6 @@ void compareLite(string run="2023D") {
     Long64_t ientrytB = c_tB->LoadTree(jentrytB);
     if (ientrytB < 0) break;
     c_tB->GetEntry(jentrytB);
-
-    // Temporary patch for missing MET filters
-    //flag_tA = true;
-    //flag_tB = true;
 
     // MET filters
     bool flag_tA =
@@ -653,15 +629,17 @@ void compareLite(string run="2023D") {
 	    //bool trigger = true; // pttag>600
 	    bool trigger =
 	      ((HLT_PFJet500 && pttag>638) ||
-	       (HLT_PFJet450 && pttag>548) ||
-	       (HLT_PFJet400 && pttag>468) ||
-	       (HLT_PFJet320 && pttag>395) ||
-	       (HLT_PFJet260 && pttag>300) ||
-	       (HLT_PFJet200 && pttag>245) ||
-	       (HLT_PFJet140 && pttag>196) ||
-	       (HLT_PFJet80  && pttag>114) ||
-	       (HLT_PFJet60  && pttag>84) ||
-	       (HLT_PFJet40  && pttag>10));
+	       (keeppre && 
+		((HLT_PFJet450 && pttag>548) ||
+		 (HLT_PFJet400 && pttag>468) ||
+		 (HLT_PFJet320 && pttag>395) ||
+		 (HLT_PFJet260 && pttag>300) ||
+		 (HLT_PFJet200 && pttag>245) ||
+		 (HLT_PFJet140 && pttag>196) ||
+		 (HLT_PFJet80  && pttag>114) ||
+		 (HLT_PFJet60  && pttag>84) ||
+		 (HLT_PFJet40  && pttag>10)))
+	       );
 	    //{10,15, 21, 28, 37, 49, 64, 84, 114, 153, 196, 245, 300, 395, 468,
 	    //548, 638, 790, 967, 1172, 1410, 1684, 2000, 2500, 3000, 3500,
 	    //4000, 4500, 5000, 6000};
@@ -679,40 +657,46 @@ void compareLite(string run="2023D") {
 	  // Direct match probe trigger selections
 	  bool trigD =
 	    ((HLT_PFJet500 && ptave>638) ||
-	     (HLT_PFJet450 && ptave>548) ||
-	     (HLT_PFJet400 && ptave>468) ||
-	     (HLT_PFJet320 && ptave>395) ||
-	     (HLT_PFJet260 && ptave>300) ||
-	     (HLT_PFJet200 && ptave>245) ||
-	     (HLT_PFJet140 && ptave>196) ||
-	     (HLT_PFJet80  && ptave>114) ||
-	     (HLT_PFJet60  && ptave>84) ||
-	     (HLT_PFJet40  && ptave>10));
+	     (keeppre &&
+	      ((HLT_PFJet450 && ptave>548) ||
+	       (HLT_PFJet400 && ptave>468) ||
+	       (HLT_PFJet320 && ptave>395) ||
+	       (HLT_PFJet260 && ptave>300) ||
+	       (HLT_PFJet200 && ptave>245) ||
+	       (HLT_PFJet140 && ptave>196) ||
+	       (HLT_PFJet80  && ptave>114) ||
+	       (HLT_PFJet60  && ptave>84) ||
+	       (HLT_PFJet40  && ptave>10)))
+	     );
 	  bool trigB =
 	    ((HLT_PFJet500 && ptB>638) ||
-	     (HLT_PFJet450 && ptB>548) ||
-	     (HLT_PFJet400 && ptB>468) ||
-	     (HLT_PFJet320 && ptB>395) ||
-	     (HLT_PFJet260 && ptB>300) ||
-	     (HLT_PFJet200 && ptB>245) ||
-	     (HLT_PFJet140 && ptB>196) ||
-	     (HLT_PFJet80  && ptB>114) ||
-	     (HLT_PFJet60  && ptB>84) ||
-	     (HLT_PFJet40  && ptB>10));
+	     (keeppre &&
+	      ((HLT_PFJet450 && ptB>548) ||
+	       (HLT_PFJet400 && ptB>468) ||
+	       (HLT_PFJet320 && ptB>395) ||
+	       (HLT_PFJet260 && ptB>300) ||
+	       (HLT_PFJet200 && ptB>245) ||
+	       (HLT_PFJet140 && ptB>196) ||
+	       (HLT_PFJet80  && ptB>114) ||
+	       (HLT_PFJet60  && ptB>84) ||
+	       (HLT_PFJet40  && ptB>10)))
+	      );
 	  bool trigA =
 	    ((HLT_PFJet500 && pt>638) ||
-	     (HLT_PFJet450 && pt>548) ||
-	     (HLT_PFJet400 && pt>468) ||
-	     (HLT_PFJet320 && pt>395) ||
-	     (HLT_PFJet260 && pt>300) ||
-	     (HLT_PFJet200 && pt>245) ||
-	     (HLT_PFJet140 && pt>196) ||
-	     (HLT_PFJet80  && pt>114) ||
-	     (HLT_PFJet60  && pt>84) ||
-	     (HLT_PFJet40  && pt>10));
+	     (keeppre &&
+	      ((HLT_PFJet450 && pt>548) ||
+	       (HLT_PFJet400 && pt>468) ||
+	       (HLT_PFJet320 && pt>395) ||
+	       (HLT_PFJet260 && pt>300) ||
+	       (HLT_PFJet200 && pt>245) ||
+	       (HLT_PFJet140 && pt>196) ||
+	       (HLT_PFJet80  && pt>114) ||
+	       (HLT_PFJet60  && pt>84) ||
+	       (HLT_PFJet40  && pt>10)))
+	     );
 
 	  // Look at good probe jets in barrel in good events
-	  if (fabs(eta)<1.3 && fabs(etaB)<1.3 &&
+	  if (//fabs(eta)<1.3 && fabs(etaB)<1.3 &&
 	      idtightA && idtightB &&
 	      flag_tA && //flag_tB &&
 	      pt > 0.5*ptB && ptB > 0.5*pt
@@ -721,30 +705,54 @@ void compareLite(string run="2023D") {
 
 	    // Tag-and-probe method
 	    if (istp) {
-	      pta_tp->Fill(pttag, pt);
-	      pa_tp->Fill(pttag, pt / pttag);
-	      pb_tp->Fill(pttag, ptB / pttag);
-	      pd_tp->Fill(pttag, 0.5*(ptB-pt) / pttag);
 	      
-	      h2a_tp->Fill(pttag, pt / pttag);
-	      h2b_tp->Fill(pttag, ptB / pttag);
-	      h2d_tp->Fill(pttag, 0.5*(ptB-pt) / pttag);
+	      // 1D variants
+	      if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
+		pta_tp->Fill(pttag, pt);
+		pa_tp->Fill(pttag, pt / pttag);
+		pb_tp->Fill(pttag, ptB / pttag);
+		pd_tp->Fill(pttag, 0.5*(ptB-pt) / pttag);
+		
+		h2a_tp->Fill(pttag, pt / pttag);
+		h2b_tp->Fill(pttag, ptB / pttag);
+		h2d_tp->Fill(pttag, 0.5*(ptB-pt) / pttag);
+	      }
+		
+	      // 2D variants
+	      p2ta_tp->Fill(pttag, eta, pt);
+	      p2a_tp->Fill(pttag, eta, pt / pttag);
+	      p2b_tp->Fill(pttag, eta, ptB / pttag);
+	      p2d_tp->Fill(pttag, eta, 0.5*(ptB-pt) / pttag);
 	    } //istp
 
 	    // Direct matching method
-	    if (trigA) pjesa_dm->Fill(pt, jes);
-	    if (trigB) pjesb_dm->Fill(ptB, jesB);
+	    // 1D variants
+	    if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
+	      if (trigA) pjesa_dm->Fill(pt, jes);
+	      if (trigB) pjesb_dm->Fill(ptB, jesB);
 	      
-	    if (trigA) pta_dm->Fill(pt, pt);
-	    if (trigA) pa_dm->Fill(pt, ptB / pt);
-	    if (trigB) ptb_dm->Fill(ptB, pt);
-	    if (trigB) pb_dm->Fill(ptB, pt / ptB);
-	    if (trigD) ptd_dm->Fill(ptave, pt);
-	    if (trigD) pd_dm->Fill(ptave, 0.5*(ptB-pt) / ptave);
+	      if (trigA) pta_dm->Fill(pt, pt);
+	      if (trigA) pa_dm->Fill(pt, ptB / pt);
+	      if (trigB) ptb_dm->Fill(ptB, pt);
+	      if (trigB) pb_dm->Fill(ptB, pt / ptB);
+	      if (trigD) ptd_dm->Fill(ptave, pt);
+	      if (trigD) pd_dm->Fill(ptave, 0.5*(ptB-pt) / ptave);
+	      
+	      if (trigA) h2a_dm->Fill(pt, ptB / pt);
+	      if (trigB) h2b_dm->Fill(ptB, pt / ptB);
+	      if (trigD) h2d_dm->Fill(ptave, 0.5*(ptB-pt) / ptave);
+	    }
 	    
-	    if (trigA) h2a_dm->Fill(pt, ptB / pt);
-	    if (trigB) h2b_dm->Fill(ptB, pt / ptB);
-	    if (trigD) h2d_dm->Fill(ptave, 0.5*(ptB-pt) / ptave);
+	    // 2D variants
+	    if (trigA) p2jesa_dm->Fill(pt, eta, jes);
+	    if (trigB) p2jesb_dm->Fill(ptB, eta, jesB);
+	      
+	    if (trigA) p2ta_dm->Fill(pt, eta, pt);
+	    if (trigA) p2a_dm->Fill(pt, eta, ptB / pt);
+	    if (trigB) p2tb_dm->Fill(ptB, eta, pt);
+	    if (trigB) p2b_dm->Fill(ptB, eta, pt / ptB);
+	    if (trigD) p2td_dm->Fill(ptave, eta, pt);
+	    if (trigD) p2d_dm->Fill(ptave, eta, 0.5*(ptB-pt) / ptave);
 	  } // good barrel probe
 	} // dr match
       } // for j
