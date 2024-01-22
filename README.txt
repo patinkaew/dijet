@@ -72,6 +72,7 @@ Bugs:
 (To-do: Downdload Summer23 and ReReco samples. Not yet done for ZeroBias at least)
 (To-do: QG SFs and response)
 
+// v35b. Turned off jet smearing
 // v35. Added new L2L3Residuals along with L2Residuals. Fixed Flag_ filter introduced in v33
 // v34. L2L3Residual for Run3
 // v33. Updated Run 3 MET filter flags

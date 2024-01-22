@@ -4,7 +4,7 @@ import argparse
 
 max_files = 9999
 
-IOV_list= [    'UL2016BCD','UL2016EF','UL2016GH',
+IOV_list= ['UL2016BCD','UL2016EF','UL2016GH',
    'UL2017B','UL2017C','UL2017D','UL2017E','UL2017F',
     'UL2018A','UL2018B','UL2018C', 'UL2018D',
     'UL2018D1','UL2018D2',
@@ -12,10 +12,10 @@ IOV_list= [    'UL2016BCD','UL2016EF','UL2016GH',
     'UL2016BCD_ZB','UL2016EF_ZB','UL2016GH_ZB',
     'UL2017B_ZB','UL2017C_ZB','UL2017D_ZB','UL2017E_ZB','UL2017F_ZB',
     'UL2018A_ZB','UL2018B_ZB','UL2018C_ZB', 'UL2018D_ZB',
-    '2022C','2022D','2022E','2022F1','2022F2','2022G',
+    '2022C','2022D','2022E', '2022F', '2022G', # '2022F1','2022F2',
     '2022C_ZB','2022D_ZB','2022E_ZB','2022F_ZB','2022G_ZB',
-    '2023BCv123','2023Cv4','2023D',
-    '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
+    '2023Cv123', '2023BCv123','2023Cv4','2023D',
+#     '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG1','Summer22MG2',
     'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4'
 ]
@@ -25,7 +25,7 @@ run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22'
 run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
 
-version = 'v35'
+version = 'v35b_22Sep2023'
 
 IOV_input = []
 
