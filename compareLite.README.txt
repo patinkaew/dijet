@@ -1,0 +1,26 @@
+To-do:
+- add JEC on-the-fly from text files for tree A and B
+- add jet veto maps for two leading jets for tree A
+- add startup time estimate as well?
+- monitor composition (CHF, NHF, NEF) difference for tree A and B ("PF" folder)
+
+v4. Add 2D analysis. Add sampling for prescaled triggers.
+
+v3. Move t.Start() after GetEntries() for more accure estimate. Add ETA also every 25M events. Add tlap for another ETA estimate.
+
+Processing times so far:
+- v3: 23Cv4 (211M/7.7/8.3h), 23D (145M/4.8h/5.1h), 22C (185M/4.4/4.8h),
+      22D (101M/2.3/2.5h), 22E (140M/3.5/3.8h)
+- v2: 23Cv123 (384M/11.6/13.1h), 22G (84M/1.9/2.0h), 22F (507M/12.0/13.1h);
+- v1: 22E (139M/3.5/3.9h), 22D (100M/2.2/2.5h), 22C (183M/4.3/4.8h)
+- v0: 23D (145M/3.4h/3.7h)
+
+v2. Fix 22Sep2023 input file lists. Extend Jet40 low pT range to 10. Progress bar every 100k (was 10k). Drop LS from evtid (just run+event). Loop directly on tree A.
+
+v1. 2022CDE(FG)
+- 22Sep2023 input files .txt and not .txt.22Sep2023.v12
+  - FG used Prompt22, both empty
+  - 22C,D,E identical; 23D differ
+- 19Dec2023 input files had EGamma (though failed)
+- 2022 22Sep2023 lists had ZeroBias included
+- memory use around 30% on Hefaistos 
