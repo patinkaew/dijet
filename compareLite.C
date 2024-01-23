@@ -36,6 +36,9 @@ using namespace tools;
 
 //bool patchJESA = true;
 
+bool OneRun = true; //for fast testing
+bool doPFComposition = true;
+
 class evtid {
 private:
   UInt_t run_;//, ls_;
@@ -106,6 +109,63 @@ bool LoadJSON(string json) {
 } // LoadJSON
 
 
+// Helper function to retrieve FactorizedJetCorrector
+FactorizedJetCorrector *getFJC(string l1 = "", string l2 = "", string res = "",
+                               string path = "")
+{
+
+  // Set default jet algo
+  if (l1 != "" && !(TString(l1.c_str()).Contains("_AK")))
+    l1 += "_AK4PFPuppi";
+  if (l2 != "" && !(TString(l2.c_str()).Contains("_AK")))
+    l2 += "_AK4PFPuppi";
+  if (res != "" && !(TString(res.c_str()).Contains("_AK")))
+    res += "_AK4PFPuppi";
+
+  // Set default path
+  if (path == "")
+    path = "CondFormats/JetMETObjects/data";
+  const char *cd = path.c_str();
+  const char *cl1 = l1.c_str();
+  const char *cl2 = l2.c_str();
+  const char *cres = res.c_str();
+  string s("");
+
+  vector<JetCorrectorParameters> v;
+  if (l1 != "")
+  {
+    s = Form("%s/%s.txt", cd, cl1);
+    cout << s << endl
+         << flush;
+    JetCorrectorParameters *pl1 = new JetCorrectorParameters(s);
+    v.push_back(*pl1);
+  }
+  if (l2 != "")
+  {
+    s = Form("%s/%s.txt", cd, cl2);
+    cout << s << endl
+         << flush;
+    JetCorrectorParameters *pl2 = new JetCorrectorParameters(s);
+    v.push_back(*pl2);
+  }
+  if (res != "")
+  {
+    s = Form("%s/%s.txt", cd, cres);
+    cout << s << endl
+         << flush;
+    JetCorrectorParameters *pres = new JetCorrectorParameters(s);
+    v.push_back(*pres);
+  }
+  FactorizedJetCorrector *jec = new FactorizedJetCorrector(v);
+
+  return jec;
+} // getFJC
+
+FactorizedJetCorrector *jec = getFJC("",
+				     "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",
+				     "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI"); 
+//assert(jec);
+
 void compareLite(string run="2023D") {
 
   TDirectory *curdir = gDirectory;
@@ -124,9 +184,11 @@ void compareLite(string run="2023D") {
     LoadJSON("rootfiles/Cert_Collisions2022_355100_362760_Golden.json");
     LoadJSON("rootfiles/Cert_Collisions2023_366442_370790_Golden.json");
 
-    string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.v12",crun);
+
+    string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.%sv12", crun, OneRun==true ? "OneRun." : "");
     ifstream fin(filename.c_str(), ios::in);
 
+    //string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.v12",crun);
     cout << "Chaining data files for A: " << filename << endl << flush;
     int nFiles(0);
     while (fin >> filename) {
@@ -136,7 +198,11 @@ void compareLite(string run="2023D") {
     cout << "Chained " << nFiles <<  " files" << endl << flush;
   }
   
-  
+  // Set up jet veto maps
+  TFile *fjv = new TFile("rootfiles/jetveto2023D.root","READ"); assert(fjv);
+  TH2D *h2jv = h2jv = (TH2D*)fjv->Get("jetvetomap"); assert(h2jv);
+
+
   // Set branches to sort events
   // Update: skip sorting here to make code faster
   TBranch *b_run_tA, *b_lbn_tA, *b_evt_tA;
@@ -150,7 +216,7 @@ void compareLite(string run="2023D") {
   TChain *c_tB = new TChain("Events");
   cout << "B is 22Sep2023" << endl;
   {
-    string filename = Form("input_files/dataFiles_%s.txt.22Sep2023.v12",crun);
+    string filename = Form("input_files/dataFiles_%s.txt.22Sep2023.%sv12", crun, OneRun==true ? "OneRun." : "");
     ifstream fin(filename.c_str(), ios::in);
     
     cout << "Chaining data files for B: " << filename << endl << flush;
@@ -227,8 +293,16 @@ void compareLite(string run="2023D") {
   TBranch *b_jtpt_tA, *b_jtpt_tB;
   TBranch *b_jteta_tA, *b_jteta_tB;
   TBranch *b_jtphi_tA, *b_jtphi_tB;
+  TBranch *b_jtA_tA, *b_jtA_tB;
   TBranch *b_jtid_tA, *b_jtid_tB;
   TBranch *b_jtjes_tA, *b_jtjes_tB;
+  TBranch *b_rho_tA, *b_rho_tB;
+  TBranch *b_jtchHEF_tA,  *b_jtchHEF_tB;
+  TBranch *b_jtneHEF_tA,  *b_jtneHEF_tB;
+  TBranch *b_jtneEmEF_tA, *b_jtneEmEF_tB;
+  TBranch *b_jtchEmEF_tA, *b_jtchEmEF_tB;
+  TBranch *b_jtmuEF_tA,   *b_jtmuEF_tB;
+  
 
   // Set unique branches needed from tree A
 
@@ -256,6 +330,7 @@ void compareLite(string run="2023D") {
   Bool_t          Flag_ecalBadCalibFilter;
 
   // Set common branches needed from both trees
+  Float_t rho_tA, rho_tB;
   Int_t njt_tA, njt_tB;
   //Int_t npv_tA(0), npv_tB(0);
   //
@@ -263,16 +338,32 @@ void compareLite(string run="2023D") {
   Float_t jtpt_tA[njt], jtpt_tB[njt];
   Float_t jteta_tA[njt], jteta_tB[njt];
   Float_t jtphi_tA[njt], jtphi_tB[njt];
+  Float_t jtA_tA[njt], jtA_tB[njt];
   UChar_t jtid_tA[njt], jtid_tB[njt];
   Float_t jtjes_tA[njt], jtjes_tB[njt];
 
+  // PF composition
+  Float_t jtchHEF_tA[njt], jtchHEF_tB[njt];
+  Float_t jtneHEF_tA[njt], jtneHEF_tB[njt];
+  Float_t jtneEmEF_tA[njt], jtneEmEF_tB[njt];
+  Float_t jtchEmEF_tA[njt], jtchEmEF_tB[njt];
+  Float_t jtmuEF_tA[njt], jtmuEF_tB[njt];
+    
   // Book tree A common branches
+  c_tA->SetBranchAddress("Rho_fixedGridRhoFastjetAll",&rho_tA,&b_rho_tA);
   c_tA->SetBranchAddress("nJet",&njt_tA,&b_njt_tA);
   c_tA->SetBranchAddress("Jet_pt",jtpt_tA,&b_jtpt_tA);
   c_tA->SetBranchAddress("Jet_eta",jteta_tA,&b_jteta_tA);
   c_tA->SetBranchAddress("Jet_phi",jtphi_tA,&b_jtphi_tA);
+  c_tA->SetBranchAddress("Jet_area",jtA_tA,&b_jtA_tA);
   c_tA->SetBranchAddress("Jet_jetId",jtid_tA,&b_jtid_tA);
   c_tA->SetBranchAddress("Jet_rawFactor",jtjes_tA,&b_jtjes_tA);
+
+  c_tA->SetBranchAddress("Jet_chHEF",  jtchHEF_tA,  &b_jtchHEF_tA );  // h+
+  c_tA->SetBranchAddress("Jet_neHEF",  jtneHEF_tA,  &b_jtneHEF_tA );  // h0
+  c_tA->SetBranchAddress("Jet_neEmEF", jtneEmEF_tA, &b_jtneEmEF_tA); // gamma
+  c_tA->SetBranchAddress("Jet_chEmEF", jtchEmEF_tA, &b_jtchEmEF_tA); // e
+  c_tA->SetBranchAddress("Jet_muEF",   jtmuEF_tA,   &b_jtmuEF_tA  );   // mu
 
   // Jet triggers
   c_tA->SetBranchAddress("HLT_PFJet40", &HLT_PFJet40, &b_HLT_PFJet40);
@@ -297,19 +388,28 @@ void compareLite(string run="2023D") {
   c_tA->SetBranchAddress("Flag_ecalBadCalibFilter", &Flag_ecalBadCalibFilter, &b_Flag_ecalBadCalibFilter);
   
   // Book tree B unique branches
+  c_tB->SetBranchAddress("Rho_fixedGridRhoFastjetAll",&rho_tB,&b_rho_tB);
   c_tB->SetBranchAddress("nJet",&njt_tB,&b_njt_tB);
   c_tB->SetBranchAddress("Jet_pt",jtpt_tB,&b_jtpt_tB);
   c_tB->SetBranchAddress("Jet_eta",jteta_tB,&b_jteta_tB);
   c_tB->SetBranchAddress("Jet_phi",jtphi_tB,&b_jtphi_tB);
+  c_tB->SetBranchAddress("Jet_area",jtA_tB,&b_jtA_tB);
   c_tB->SetBranchAddress("Jet_jetId",jtid_tB,&b_jtid_tB);
   c_tB->SetBranchAddress("Jet_rawFactor",jtjes_tB,&b_jtjes_tB);
+
+  c_tB->SetBranchAddress("Jet_chHEF",  jtchHEF_tB,  &b_jtchHEF_tB );  // h+
+  c_tB->SetBranchAddress("Jet_neHEF",  jtneHEF_tB,  &b_jtneHEF_tB );  // h0
+  c_tB->SetBranchAddress("Jet_neEmEF", jtneEmEF_tB, &b_jtneEmEF_tB); // gamma
+  c_tB->SetBranchAddress("Jet_chEmEF", jtchEmEF_tB, &b_jtchEmEF_tB); // e
+  c_tB->SetBranchAddress("Jet_muEF",   jtmuEF_tB,   &b_jtmuEF_tB  );   // mu
+
   
   const int nsample = 1;//100; // 0.5h
   const int nsample2 = 100;
   const float frac = 1;//0.01;
   cout << "Pairing TA and TB" << endl << flush;
   cout << "Sampling 1/"<<nsample<<" of events" << endl << flush;
-  cout << "Sampling 1/100"<<nsample<<" prescaled of events" << endl << flush;
+  cout << "Sampling 1/"<<nsample2<<" of prescaled triggers (to be double-checked)" << endl << flush;
   cout << "Keeping first "<<frac*100<<"% of events" << endl << flush;
 
   // Speed up processing by selecting only used branches for tree A
@@ -350,6 +450,7 @@ void compareLite(string run="2023D") {
   c_tA->SetBranchStatus("Jet_phi",1);
   c_tA->SetBranchStatus("Jet_jetId",1);
   c_tA->SetBranchStatus("Jet_rawFactor",1);
+  c_tA->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
 
   // Speed up processing by selecting only used branches for tree B
   c_tB->SetBranchStatus("*",0);  // disable all branches
@@ -361,7 +462,25 @@ void compareLite(string run="2023D") {
   c_tB->SetBranchStatus("Jet_phi",1);
   c_tB->SetBranchStatus("Jet_jetId",1);
   c_tB->SetBranchStatus("Jet_rawFactor",1);
+  c_tB->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
 
+
+
+  if (doPFComposition)
+  {
+    c_tA->SetBranchStatus("Jet_chHEF", 1);  // h+
+    c_tA->SetBranchStatus("Jet_neHEF", 1);  // h0
+    c_tA->SetBranchStatus("Jet_neEmEF", 1); // gamma
+    c_tA->SetBranchStatus("Jet_chEmEF", 1); // e
+    c_tA->SetBranchStatus("Jet_muEF", 1);   // mu
+    c_tB->SetBranchStatus("Jet_chHEF", 1);  // h+
+    c_tB->SetBranchStatus("Jet_neHEF", 1);  // h0
+    c_tB->SetBranchStatus("Jet_neEmEF", 1); // gamma
+    c_tB->SetBranchStatus("Jet_chEmEF", 1); // e
+    c_tB->SetBranchStatus("Jet_muEF", 1);   // mu
+  }
+
+  
   // Results of interest
   // pT binning from JEC?
   /*
@@ -405,6 +524,32 @@ void compareLite(string run="2023D") {
   TFile *f = new TFile(Form("rootfiles/compareLite_%s.root",run.c_str()),
 		       "RECREATE");
   f->mkdir("2D");
+  f->mkdir("PF");
+
+  // stub PF composition plots
+  f->cd("PF");
+  TProfile *pchHEFa_tp = new TProfile("pchHEFa_tp",";p_{T,tag};chHEF_{A}",nx,vx);
+  TProfile *pchHEFb_tp = new TProfile("pchHEFb_tp",";p_{T,tag};chHEF_{B}",nx,vx);
+  TProfile *pchHEFabAbsDiff_tp = new TProfile("pchHEFabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B})",nx,vx);
+  TProfile *pneHEFa_tp = new TProfile("pneHEFa_tp",";p_{T,tag};neHEF_{A}",nx,vx);
+  TProfile *pneHEFb_tp = new TProfile("pneHEFb_tp",";p_{T,tag};neHEF_{B}",nx,vx);
+  TProfile *pneHEFabAbsDiff_tp = new TProfile("pneHEFabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B})",nx,vx);
+  TProfile *pneEmEFa_tp = new TProfile("pneEmEFa_tp",";p_{T,tag};neEmEF_{A}",nx,vx);
+  TProfile *pneEmEFb_tp = new TProfile("pneEmEFb_tp",";p_{T,tag};neEmEF_{B}",nx,vx);
+  TProfile *pneEmEFabAbsDiff_tp = new TProfile("pneEmEFabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B})",nx,vx);
+
+  
+  TProfile2D *p2chHEFa_tp = new TProfile2D("p2chHEFa_tp",";p_{T,tag};#eta_{A};chHEF_{A}",nx,vx,ny,vy);
+  TProfile2D *p2chHEFb_tp = new TProfile2D("p2chHEFb_tp",";p_{T,tag};#eta_{A};chHEF_{B}",nx,vx,ny,vy);
+  TProfile2D *p2chHEFabAbsDiff_tp = new TProfile2D("p2chHEFabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2neHEFa_tp = new TProfile2D("p2neHEFa_tp",";p_{T,tag};#eta_{A};neHEF_{A}",nx,vx,ny,vy);
+  TProfile2D *p2neHEFb_tp = new TProfile2D("p2neHEFb_tp",";p_{T,tag};#eta_{A};neHEF_{B}",nx,vx,ny,vy);
+  TProfile2D *p2neHEFabAbsDiff_tp = new TProfile2D("p2neHEFabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2neEmEFa_tp = new TProfile2D("p2neEmEFa_tp",";p_{T,tag};#eta_{A};neEmEF_{A}",nx,vx,ny,vy);
+  TProfile2D *p2neEmEFb_tp = new TProfile2D("p2neEmEFb_tp",";p_{T,tag};#eta_{A};neEmEF_{B}",nx,vx,ny,vy);
+  TProfile2D *p2neEmEFabAbsDiff_tp = new TProfile2D("p2neEmEFabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B})",nx,vx,ny,vy);
+
+
 
   // Tag-and-probe method
   f->cd();
@@ -470,6 +615,7 @@ void compareLite(string run="2023D") {
   int nev = 0;
   int npre = 0;
   int ngood = 0;
+  int njetveto(0);
   int nmatch = 0;
   int failsAtoB = 0;
 
@@ -563,30 +709,93 @@ void compareLite(string run="2023D") {
        Flag_eeBadScFilter ||
        Flag_ecalBadCalibFilter);
     
+    bool pass_veto = true;
+    if (true) { // jet veto
+      for (int i = 0; i != min(2,int(njt_tA)); ++i) {
+	double phi = jtphi_tA[i];
+	double eta = jteta_tA[i];
+	int i1 = h2jv->GetXaxis()->FindBin(eta);
+	int j1 = h2jv->GetYaxis()->FindBin(phi);
+	if (h2jv->GetBinContent(i1,j1)>0) {
+	  pass_veto = false;
+	}
+    }
+    }     // jet veto
+    if (pass_veto)++njetveto;
+    else continue;
+
+      
+
     // Does the run/LS pass the latest JSON selection?
     if (_json[run_tA][lbn_tA]==0) {
       continue;
     }
     else
       ++ngood;
-    
+
+    double rhoA = rho_tA;
+    double rhoB = rho_tB;
+    //cout << rhoA << "; " << rhoB <<endl;;
+
     // Loop over two leading jets to find probe pairs
     for (int i = 0; i != min(2,int(njt_tA)); ++i) {
+
       
       double pt = jtpt_tA[i];
       double jes = (1-jtjes_tA[i]);
+      double rawpt = pt * jes; 
       double eta = jteta_tA[i];
       double phi = jtphi_tA[i];
       bool idtightA = (jtid_tA[i]>=4);
+      double chHEF = jtchHEF_tA[i];
+      double chHE = chHEF*rawpt;
+      double neHEF = jtneHEF_tA[i];
+      double neHE = neHEF*rawpt;
+      double neEmEF = jtneEmEF_tA[i];
+      double neEmE = neEmEF*rawpt;
+
+      // Quick and dirty JEC reapplication for jets considered here
+      jec->setJetPt(rawpt);
+      jec->setJetEta(eta);
+      jec->setJetA(jtA_tA[i]);
+      jec->setRho(rho_tA);
+      vector<float> v = jec->getSubCorrections();
+      double corr = v.back();
+      jtpt_tA[i] = corr * rawpt;
+      //cout << pt << " and after: " << jtpt_tA[i]  << endl;
+      pt  = jtpt_tA[i]; //update local value
+      jtjes_tA[i] = (1.0 - 1.0/corr);
+      jes  = jtjes_tA[i]; //update local value
+
 
       bool hasmatch = false;
       for (int j = 0; j != min(2,int(njt_tB)) && !hasmatch; ++j) {
 	
 	double ptB = jtpt_tB[j];
 	double jesB = (1-jtjes_tB[j]);
+	double rawptB = ptB * jesB;
 	double etaB = jteta_tB[j];
 	double phiB = jtphi_tB[j];
 	bool idtightB = (jtid_tB[j]>=4);
+	double chHEFB = jtchHEF_tB[i];
+	double chHEB = chHEFB*rawptB;
+	double neHEFB = jtneHEF_tB[i];
+	double neHEB = neHEFB*rawptB;
+	double neEmEFB = jtneEmEF_tB[i];
+	double neEmEB = neEmEFB*rawptB;
+
+	// Quick and dirty JEC reapplication for jets considered here
+	jec->setJetPt(rawptB);
+	jec->setJetEta(etaB);
+	jec->setJetA(jtA_tB[i]);
+	jec->setRho(rho_tB);
+	vector<float> vB = jec->getSubCorrections();
+	double corrB = vB.back();
+	jtpt_tB[i] = corrB * rawptB; //update tree array
+	ptB  = jtpt_tB[i]; //update local value
+	jtjes_tB[i] = (1.0 - 1.0/corrB); //update tree array
+	jesB  = jtjes_tB[i]; //update local value
+
 	
 	// Match probe jets with deltaR<R/cone2
 	double dr = tools::oplus(delta_eta(eta,etaB),delta_phi(phi,phiB));
@@ -723,6 +932,32 @@ void compareLite(string run="2023D") {
 	      p2a_tp->Fill(pttag, eta, pt / pttag);
 	      p2b_tp->Fill(pttag, eta, ptB / pttag);
 	      p2d_tp->Fill(pttag, eta, 0.5*(ptB-pt) / pttag);
+
+	      if(doPFComposition){
+		if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
+		  pchHEFa_tp->Fill(pttag,chHEF);
+		  pchHEFb_tp->Fill(pttag,chHEFB);
+		  pchHEFabAbsDiff_tp->Fill(pttag,chHE-chHEB);
+		  pneHEFa_tp->Fill(pttag,neHEF);
+		  pneHEFb_tp->Fill(pttag,neHEFB);
+		  pneHEFabAbsDiff_tp->Fill(pttag,neHE-neHEB);
+		  pneEmEFa_tp->Fill(pttag,neEmEF);
+		  pneEmEFb_tp->Fill(pttag,neEmEFB);
+		  pneEmEFabAbsDiff_tp->Fill(pttag,neEmE-neEmEB);
+		}
+
+		p2chHEFa_tp->Fill(pttag,eta, chHEF);
+		p2chHEFb_tp->Fill(pttag, eta, chHEFB);
+		p2chHEFabAbsDiff_tp->Fill(pttag, eta, chHE-chHEB);
+		p2neHEFa_tp->Fill(pttag,eta, neHEF);
+		p2neHEFb_tp->Fill(pttag, eta, neHEFB);
+		p2neHEFabAbsDiff_tp->Fill(pttag, eta, neHE-neHEB);
+		p2neEmEFa_tp->Fill(pttag,eta, neEmEF);
+		p2neEmEFb_tp->Fill(pttag, eta, neEmEFB);
+		p2neEmEFabAbsDiff_tp->Fill(pttag, eta, neEmE-neEmEB);
+		  
+	      }
+	      
 	    } //istp
 
 	    // Direct matching method
@@ -758,9 +993,10 @@ void compareLite(string run="2023D") {
       } // for j
     } // for i
   } // for events
-  cout << endl << "Found " << nev << " matching events"// << endl;
+  cout << endl << "Found " << nev << " matching events" << endl;
     //<< " of which " << nj << " had same number of jets" << endl;
-       << " of which " << ngood << " passed JSON selection" << endl;
+      cout << " of which " << njetveto << " passed jet veto map enforced to (up to) two leading jets" << endl;
+      cout << " of which " << ngood << " passed JSON selection" << endl;
   cout << "Found " << nmatch << " matching jets in these events" << endl;
     
   cout << "Output stored to " << f->GetName() << endl;
