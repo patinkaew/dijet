@@ -161,10 +161,164 @@ FactorizedJetCorrector *getFJC(string l1 = "", string l2 = "", string res = "",
   return jec;
 } // getFJC
 
-FactorizedJetCorrector *jec = getFJC("",
-				     "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",
-				     "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI"); 
-//assert(jec);
+
+FactorizedJetCorrector *selectJECEra(string dataset="2023D") //factorized from DijetHistosFill logic for now and only 2022/2023 data
+{
+  FactorizedJetCorrector *jec(0);
+  // 2022
+  //  Align JECs with
+  //  https://indico.cern.ch/event/1335203/#7-update-on-l2res-for-2022-rer
+  if (dataset == "2022C" || dataset == "2022C_ZB")
+  {
+    jec = getFJC("",                                       // Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                           //"Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+                                                           // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
+                 // "Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22-22Sep2023_Run2022CD_V3_DATA_L2L3Residual_AK4PFPuppi");
+    //"");//"Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  if (dataset == "2022D" || dataset == "2022D_ZB")
+  {
+    jec = getFJC("",                                       // Winter22Run3_RunD_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                           //"Winter22Run3_RunD_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+                                                           // v33 and prev "Summer22_RunCD_V2_MPF_L2Residual_AK4PFPuppi");
+                 //"Run22CD-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22-22Sep2023_Run2022CD_V3_DATA_L2L3Residual_AK4PFPuppi");
+    //"");//"Winter22Run3_RunD_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  if (dataset == "2022E" || dataset == "2022E_ZB")
+  {
+    jec = getFJC("",                                             // Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
+                                                                 //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+                                                                 // v33 and prev "Summer22EE_RunE_V2_MPF_L2Residual_AK4PFPuppi");
+                 // "Run22E-22Sep2023_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22EE-22Sep2023_Run2022E_V3_DATA_L2L3Residual_AK4PFPuppi");
+    //"Summer22EEPrompt22_RunE_V2_L2Residual_AK4PFPuppi");
+    //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  // if (dataset=="2022F" || dataset=="2022F_ZB") {
+  if (TString(dataset.c_str()).Contains("2022F"))
+  {
+    jec = getFJC("",                                             // Summer22EEPrompt22_RunF_V1_DATA_L1FastJet_AK4PFPuppi",
+                                                                 //"Summer22EEPrompt22_RunF_V1_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+                                                                 //"Summer22EEPrompt22_RunF_V2_L2Residual_AK4PFPuppi"
+                 // "Run22F-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22EEPrompt22_Run2022F_V3_DATA_L2L3Residual_AK4PFPuppi");
+    //"");//"Summer22EEPrompt22_RunF_V1_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  if (dataset == "2022G" || dataset == "2022G_ZB")
+  {
+    jec = getFJC("",                                             // Summer22EEPrompt22_RunG_V1_DATA_L1FastJet_AK4PFPuppi",
+                                                                 //"Summer22EEPrompt22_RunG_V1_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22EEVetoRun3_V1_MC_L2Relative_AK4PUPPI", // Mikel
+                                                                 // "Summer22EEPrompt22_RunG_V2_L2Residual_AK4PFPuppi"
+                 // "Run22G-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22EEPrompt22_Run2022G_V3_DATA_L2L3Residual_AK4PFPuppi");
+    //"");//"Summer22EEPrompt22_RunG_V1_DATA_L2L3Residual_AK4PFPuppi");
+  }
+
+  // 2023
+  // if (dataset=="2023B" || dataset=="2023B_ZB") {
+  // jec = getFJC("Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+  //		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+  //		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  // }
+  if (dataset == "2023B" || dataset == "2023B_ZB")
+  {
+    jec = getFJC("",                                                                 // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                                     //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                           // Mikel
+                                                                                     //"Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22-22Sep2023_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+
+  if (dataset == "2023BCv123" || dataset == "2023BCv123_ZB")
+  {
+    jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                                   //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
+                                                                                   // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  if (dataset == "2023Cv123" || dataset == "2023Cv123_ZB")
+  {
+    jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                                   //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
+                                                                                   // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  if (dataset == "2023Cv4" || dataset == "2023Cv4_ZB")
+  {
+    jec = getFJC("",                                                             // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                                 //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                       // Mikel
+                                                                                 //"Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22Prompt23_Run2023Cv4_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  if (dataset == "2023C") // quick fix in order to process Dec19 Run C which is not split. Use v123 JEC everywhere
+  {
+    jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                                   //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
+                                                                                   // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+
+  if (dataset == "2023D" || dataset == "2023D_ZB")
+  {
+    jec = getFJC("",                                                           // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                               //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                     // Mikel
+                                                                               //"Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+  }
+  return jec;
+}
+
+TH2D *getjvm(string dataset = ""){
+  TFile *fjv(0);
+  if (dataset == "2022C" || dataset == "2022D" || dataset == "2022C_ZB" ||
+      dataset == "2022D_ZB" || dataset == "Summer22" ||
+      dataset == "Summer22Flat" ||
+      TString(dataset.c_str()).Contains("Summer22MG"))
+    fjv = new TFile("rootfiles/jetveto2022CD.root", "READ");
+  if (dataset == "2022E" || dataset == "2022F" || dataset == "2022G" ||
+      dataset == "2022F1" || dataset == "2022F2" ||
+      dataset == "2022E_ZB" || dataset == "2022F_ZB" || dataset == "2022G_ZB" ||
+      dataset == "Summer22EE" ||
+      dataset == "Summer22EEFlat" ||
+      TString(dataset.c_str()).Contains("Summer22EEMG"))
+    fjv = new TFile("rootfiles/jetveto2022EFG.root", "READ");
+  if (dataset == "2023B" || dataset == "2023C" || dataset == "2023BCv123" ||
+      dataset == "2023Cv123" || dataset == "2023Cv4" ||
+      dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
+      dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB")
+    fjv = new TFile("rootfiles/jetveto2023BC.root", "READ");
+  if (dataset == "2023D" || dataset == "2023D_ZB")
+    fjv = new TFile("rootfiles/jetveto2023D.root", "READ");
+  assert(fjv);
+  TH2D *h2jv(0);
+
+  if (dataset == "2022C" || dataset == "2022D" || dataset == "2022C_ZB" ||
+      dataset == "2022D_ZB" || dataset == "2022E" || dataset == "2022F" || dataset == "2022G" ||
+      dataset == "2022F1" || dataset == "2022F2" ||
+      dataset == "2022E_ZB" || dataset == "2022F_ZB" || dataset == "2022G_ZB" ||
+      dataset == "2023B" || dataset == "2023C" || dataset == "2023BCv123" ||
+      dataset == "2023Cv123" || dataset == "2023Cv4" ||
+      dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
+      dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
+      dataset == "2023D" || dataset == "2023D_ZB")
+    h2jv = (TH2D *)fjv->Get("jetvetomap");
+  assert(h2jv);
+  return h2jv;
+}
+
+
 
 void compareLite(string run="2023D") {
 
@@ -197,10 +351,16 @@ void compareLite(string run="2023D") {
     }
     cout << "Chained " << nFiles <<  " files" << endl << flush;
   }
+
+
+  //Set up JEC; factorized from DijetHistosFill to a separate function for now  
+  FactorizedJetCorrector *jec = selectJECEra(run); 
+  FactorizedJetCorrector *jecb = jec; //same corrector for tree b as of now
+  assert(jec);
   
   // Set up jet veto maps
-  TFile *fjv = new TFile("rootfiles/jetveto2023D.root","READ"); assert(fjv);
-  TH2D *h2jv = h2jv = (TH2D*)fjv->Get("jetvetomap"); assert(h2jv);
+  // run selection factorized from DijetHistosFill to a separate function for now
+  TH2D *h2jv = getjvm(run);
 
 
   // Set branches to sort events
@@ -405,7 +565,7 @@ void compareLite(string run="2023D") {
 
   
   const int nsample = 1;//100; // 0.5h
-  const int nsample2 = 100;
+  const int nsample2 = 1;//100;
   const float frac = 1;//0.01;
   cout << "Pairing TA and TB" << endl << flush;
   cout << "Sampling 1/"<<nsample<<" of events" << endl << flush;
@@ -448,6 +608,7 @@ void compareLite(string run="2023D") {
   c_tA->SetBranchStatus("Jet_pt",1);
   c_tA->SetBranchStatus("Jet_eta",1);
   c_tA->SetBranchStatus("Jet_phi",1);
+  c_tA->SetBranchStatus("Jet_area",1);
   c_tA->SetBranchStatus("Jet_jetId",1);
   c_tA->SetBranchStatus("Jet_rawFactor",1);
   c_tA->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
@@ -460,6 +621,7 @@ void compareLite(string run="2023D") {
   c_tB->SetBranchStatus("Jet_pt",1);
   c_tB->SetBranchStatus("Jet_eta",1);
   c_tB->SetBranchStatus("Jet_phi",1);
+  c_tB->SetBranchStatus("Jet_area",1);
   c_tB->SetBranchStatus("Jet_jetId",1);
   c_tB->SetBranchStatus("Jet_rawFactor",1);
   c_tB->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
@@ -530,24 +692,30 @@ void compareLite(string run="2023D") {
   f->cd("PF");
   TProfile *pchHEFa_tp = new TProfile("pchHEFa_tp",";p_{T,tag};chHEF_{A}",nx,vx);
   TProfile *pchHEFb_tp = new TProfile("pchHEFb_tp",";p_{T,tag};chHEF_{B}",nx,vx);
-  TProfile *pchHEFabAbsDiff_tp = new TProfile("pchHEFabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B})",nx,vx);
+  TProfile *pchHEabAbsDiff_tp = new TProfile("pchHEabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B})",nx,vx);
+  TProfile *pchHEabAbsDiffn_tp = new TProfile("pchHEabAbsDiffn_tp",";p_{T,tag};((p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B}))/p_{T,tag}",nx,vx);
   TProfile *pneHEFa_tp = new TProfile("pneHEFa_tp",";p_{T,tag};neHEF_{A}",nx,vx);
   TProfile *pneHEFb_tp = new TProfile("pneHEFb_tp",";p_{T,tag};neHEF_{B}",nx,vx);
-  TProfile *pneHEFabAbsDiff_tp = new TProfile("pneHEFabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B})",nx,vx);
+  TProfile *pneHEabAbsDiff_tp = new TProfile("pneHEabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B})",nx,vx);
+  TProfile *pneHEabAbsDiffn_tp = new TProfile("pneHEabAbsDiffn_tp",";p_{T,tag};((p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B}))/p_{T,tag}",nx,vx);
   TProfile *pneEmEFa_tp = new TProfile("pneEmEFa_tp",";p_{T,tag};neEmEF_{A}",nx,vx);
   TProfile *pneEmEFb_tp = new TProfile("pneEmEFb_tp",";p_{T,tag};neEmEF_{B}",nx,vx);
-  TProfile *pneEmEFabAbsDiff_tp = new TProfile("pneEmEFabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B})",nx,vx);
+  TProfile *pneEmEabAbsDiff_tp = new TProfile("pneEmEabAbsDiff_tp",";p_{T,tag};(p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B})",nx,vx);
+  TProfile *pneEmEabAbsDiffn_tp = new TProfile("pneEmEabAbsDiffn_tp",";p_{T,tag};((p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B}))/p_{T,tag}",nx,vx);
 
   
   TProfile2D *p2chHEFa_tp = new TProfile2D("p2chHEFa_tp",";p_{T,tag};#eta_{A};chHEF_{A}",nx,vx,ny,vy);
   TProfile2D *p2chHEFb_tp = new TProfile2D("p2chHEFb_tp",";p_{T,tag};#eta_{A};chHEF_{B}",nx,vx,ny,vy);
-  TProfile2D *p2chHEFabAbsDiff_tp = new TProfile2D("p2chHEFabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2chHEabAbsDiff_tp = new TProfile2D("p2chHEabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2chHEabAbsDiffn_tp = new TProfile2D("p2chHEabAbsDiffn_tp",";p_{T,tag};#eta_{A};((p_{T,raw,A}*chHEF_{A})-(p_{T,raw,B}*chHEF_{B}))/p_{T,tag}",nx,vx,ny,vy);
   TProfile2D *p2neHEFa_tp = new TProfile2D("p2neHEFa_tp",";p_{T,tag};#eta_{A};neHEF_{A}",nx,vx,ny,vy);
   TProfile2D *p2neHEFb_tp = new TProfile2D("p2neHEFb_tp",";p_{T,tag};#eta_{A};neHEF_{B}",nx,vx,ny,vy);
-  TProfile2D *p2neHEFabAbsDiff_tp = new TProfile2D("p2neHEFabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2neHEabAbsDiff_tp = new TProfile2D("p2neHEabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2neHEabAbsDiffn_tp = new TProfile2D("p2neHEabAbsDiffn_tp",";p_{T,tag};#eta_{A};((p_{T,raw,A}*neHEF_{A})-(p_{T,raw,B}*neHEF_{B}))/p_{T,tag}",nx,vx,ny,vy);
   TProfile2D *p2neEmEFa_tp = new TProfile2D("p2neEmEFa_tp",";p_{T,tag};#eta_{A};neEmEF_{A}",nx,vx,ny,vy);
   TProfile2D *p2neEmEFb_tp = new TProfile2D("p2neEmEFb_tp",";p_{T,tag};#eta_{A};neEmEF_{B}",nx,vx,ny,vy);
-  TProfile2D *p2neEmEFabAbsDiff_tp = new TProfile2D("p2neEmEFabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2neEmEabAbsDiff_tp = new TProfile2D("p2neEmEabAbsDiff_tp",";p_{T,tag};#eta_{A};(p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B})",nx,vx,ny,vy);
+  TProfile2D *p2neEmEabAbsDiffn_tp = new TProfile2D("p2neEmEabAbsDiffn_tp",";p_{T,tag};#eta_{A};((p_{T,raw,A}*neEmEF_{A})-(p_{T,raw,B}*neEmEF_{B}))/p_{T,tag}",nx,vx,ny,vy);
 
 
 
@@ -765,7 +933,7 @@ void compareLite(string run="2023D") {
       //cout << pt << " and after: " << jtpt_tA[i]  << endl;
       pt  = jtpt_tA[i]; //update local value
       jtjes_tA[i] = (1.0 - 1.0/corr);
-      jes  = jtjes_tA[i]; //update local value
+      jes  = 1-jtjes_tA[i]; //update local value
 
 
       bool hasmatch = false;
@@ -785,16 +953,16 @@ void compareLite(string run="2023D") {
 	double neEmEB = neEmEFB*rawptB;
 
 	// Quick and dirty JEC reapplication for jets considered here
-	jec->setJetPt(rawptB);
-	jec->setJetEta(etaB);
-	jec->setJetA(jtA_tB[i]);
-	jec->setRho(rho_tB);
-	vector<float> vB = jec->getSubCorrections();
+	jecb->setJetPt(rawptB);
+	jecb->setJetEta(etaB);
+	jecb->setJetA(jtA_tB[i]);
+	jecb->setRho(rho_tB);
+	vector<float> vB = jecb->getSubCorrections();
 	double corrB = vB.back();
 	jtpt_tB[i] = corrB * rawptB; //update tree array
 	ptB  = jtpt_tB[i]; //update local value
 	jtjes_tB[i] = (1.0 - 1.0/corrB); //update tree array
-	jesB  = jtjes_tB[i]; //update local value
+	jesB  = 1-jtjes_tB[i]; //update local value
 
 	
 	// Match probe jets with deltaR<R/cone2
@@ -937,24 +1105,30 @@ void compareLite(string run="2023D") {
 		if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
 		  pchHEFa_tp->Fill(pttag,chHEF);
 		  pchHEFb_tp->Fill(pttag,chHEFB);
-		  pchHEFabAbsDiff_tp->Fill(pttag,chHE-chHEB);
+		  pchHEabAbsDiff_tp->Fill(pttag,chHE-chHEB);
+		  pchHEabAbsDiffn_tp->Fill(pttag,(chHE-chHEB)/pttag);
 		  pneHEFa_tp->Fill(pttag,neHEF);
 		  pneHEFb_tp->Fill(pttag,neHEFB);
-		  pneHEFabAbsDiff_tp->Fill(pttag,neHE-neHEB);
+		  pneHEabAbsDiff_tp->Fill(pttag,neHE-neHEB);
+		  pneHEabAbsDiffn_tp->Fill(pttag,(neHE-neHEB)/pttag);
 		  pneEmEFa_tp->Fill(pttag,neEmEF);
 		  pneEmEFb_tp->Fill(pttag,neEmEFB);
-		  pneEmEFabAbsDiff_tp->Fill(pttag,neEmE-neEmEB);
+		  pneEmEabAbsDiff_tp->Fill(pttag,neEmE-neEmEB);
+		  pneEmEabAbsDiffn_tp->Fill(pttag,(neEmE-neEmEB)/pttag);
 		}
 
 		p2chHEFa_tp->Fill(pttag,eta, chHEF);
 		p2chHEFb_tp->Fill(pttag, eta, chHEFB);
-		p2chHEFabAbsDiff_tp->Fill(pttag, eta, chHE-chHEB);
+		p2chHEabAbsDiff_tp->Fill(pttag, eta, chHE-chHEB);
+		p2chHEabAbsDiffn_tp->Fill(pttag, eta, (chHE-chHEB)/pttag);
 		p2neHEFa_tp->Fill(pttag,eta, neHEF);
 		p2neHEFb_tp->Fill(pttag, eta, neHEFB);
-		p2neHEFabAbsDiff_tp->Fill(pttag, eta, neHE-neHEB);
+		p2neHEabAbsDiff_tp->Fill(pttag, eta, neHE-neHEB);
+		p2neHEabAbsDiffn_tp->Fill(pttag, eta, (neHE-neHEB)/pttag);
 		p2neEmEFa_tp->Fill(pttag,eta, neEmEF);
 		p2neEmEFb_tp->Fill(pttag, eta, neEmEFB);
-		p2neEmEFabAbsDiff_tp->Fill(pttag, eta, neEmE-neEmEB);
+		p2neEmEabAbsDiff_tp->Fill(pttag, eta, neEmE-neEmEB);
+		p2neEmEabAbsDiffn_tp->Fill(pttag, eta, (neEmE-neEmEB)/pttag);
 		  
 	      }
 	      
@@ -1009,5 +1183,7 @@ void compareLite(string run="2023D") {
   cout << "Processing used " << t.RealTime() << "s real time ("
        << t.RealTime()/3600. << "h)" << endl;
   cout << endl << endl;
-
+  cout << "Processing ended at: ";
+  TDatime now; now.Print();
+  
 }
