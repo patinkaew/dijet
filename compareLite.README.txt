@@ -1,7 +1,9 @@
 To-do:
-- add JEC on-the-fly from text files for tree A and B
-- add jet veto maps for two leading jets for tree A
 - add startup time estimate as well?
+
+v5.
+- added JEC on-the-fly from text files for tree A and B (same txt-files for now)
+- added jet veto maps for two leading jets for tree A
 - monitor composition (CHF, NHF, NEF) difference for tree A and B ("PF" folder)
 
 v4. Add 2D analysis. Add sampling for prescaled triggers.
