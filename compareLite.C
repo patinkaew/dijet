@@ -34,7 +34,8 @@
 using namespace std;
 using namespace tools;
 
-//bool patchJESA = true;
+bool patchJESA = true;
+bool patchJESB = true;
 
 bool OneRun = true; //for fast testing
 bool doPFComposition = true;
@@ -818,10 +819,55 @@ void compareLite(string run="2023D") {
     else
       ++ngood;
 
-    double rhoA = rho_tA;
-    double rhoB = rho_tB;
+    //double rhoA = rho_tA;
+    //double rhoB = rho_tB;
     //cout << rhoA << "; " << rhoB <<endl;;
 
+    // Redo JEC for tree A and treeB
+    if (patchJESA) {
+
+      for (int i = 0; i != njt_tA; ++i) {
+
+	// Calculate new JEC
+	double rawpt = jtpt_tA[i] * (1-jtjes_tA[i]);
+	//double rawmass = jtmass_tA[i] * (1-jtjes_tA[i]);
+	jec->setJetPt(rawpt);
+	jec->setJetEta(jteta_tA[i]);
+	jec->setJetA(jtA_tA[i]);
+	jec->setRho(rho_tA);
+	//vector<float> v = jec->getSubCorrections();
+	//double corr = v.back();
+	double corr = jec->getCorrection();
+
+	// Apply corrections to original branches so downstream code stays same
+	jtpt_tA[i] = corr * rawpt;
+	//jtmass_tA[i] = corr * rawmass;
+	jtjes_tA[i] = (1.0 - 1.0/corr);
+      } // for njt_tA
+    } // redoJES_A
+    
+    if (patchJESB) {
+
+      for (int i = 0; i != njt_tB; ++i) {
+
+	// Calculate new JEC
+	double rawpt = jtpt_tB[i] * (1-jtjes_tB[i]);
+	//double rawmass = jtmass_tB[i] * (1-jtjes_tB[i]);
+	jec->setJetPt(rawpt);
+	jec->setJetEta(jteta_tB[i]);
+	jec->setJetA(jtA_tB[i]);
+	jec->setRho(rho_tB);
+	//vector<float> v = jec->getSubCorrections();
+	//double corr = v.back();
+	double corr = jec->getCorrection();
+
+	// Apply corrections to original branches so downstream code stays same
+	jtpt_tB[i] = corr * rawpt;
+	//jtmass_tB[i] = corr * rawmass;
+	jtjes_tB[i] = (1.0 - 1.0/corr);
+      } // for njt_tB
+    } // redoJES_B
+    
     // Loop over two leading jets to find probe pairs
     for (int i = 0; i != min(2,int(njt_tA)); ++i) {
 
@@ -832,26 +878,13 @@ void compareLite(string run="2023D") {
       double eta = jteta_tA[i];
       double phi = jtphi_tA[i];
       bool idtightA = (jtid_tA[i]>=4);
+
       double chHEF = jtchHEF_tA[i];
       double chHE = chHEF*rawpt;
       double neHEF = jtneHEF_tA[i];
       double neHE = neHEF*rawpt;
       double neEmEF = jtneEmEF_tA[i];
       double neEmE = neEmEF*rawpt;
-
-      // Quick and dirty JEC reapplication for jets considered here
-      jec->setJetPt(rawpt);
-      jec->setJetEta(eta);
-      jec->setJetA(jtA_tA[i]);
-      jec->setRho(rho_tA);
-      vector<float> v = jec->getSubCorrections();
-      double corr = v.back();
-      jtpt_tA[i] = corr * rawpt;
-      //cout << pt << " and after: " << jtpt_tA[i]  << endl;
-      pt  = jtpt_tA[i]; //update local value
-      jtjes_tA[i] = (1.0 - 1.0/corr);
-      jes  = 1-jtjes_tA[i]; //update local value
-
 
       bool hasmatch = false;
       for (int j = 0; j != min(2,int(njt_tB)) && !hasmatch; ++j) {
@@ -862,6 +895,7 @@ void compareLite(string run="2023D") {
 	double etaB = jteta_tB[j];
 	double phiB = jtphi_tB[j];
 	bool idtightB = (jtid_tB[j]>=4);
+	
 	double chHEFB = jtchHEF_tB[i];
 	double chHEB = chHEFB*rawptB;
 	double neHEFB = jtneHEF_tB[i];
@@ -869,19 +903,6 @@ void compareLite(string run="2023D") {
 	double neEmEFB = jtneEmEF_tB[i];
 	double neEmEB = neEmEFB*rawptB;
 
-	// Quick and dirty JEC reapplication for jets considered here
-	jecb->setJetPt(rawptB);
-	jecb->setJetEta(etaB);
-	jecb->setJetA(jtA_tB[i]);
-	jecb->setRho(rho_tB);
-	vector<float> vB = jecb->getSubCorrections();
-	double corrB = vB.back();
-	jtpt_tB[i] = corrB * rawptB; //update tree array
-	ptB  = jtpt_tB[i]; //update local value
-	jtjes_tB[i] = (1.0 - 1.0/corrB); //update tree array
-	jesB  = 1-jtjes_tB[i]; //update local value
-
-	
 	// Match probe jets with deltaR<R/cone2
 	double dr = tools::oplus(delta_eta(eta,etaB),delta_phi(phi,phiB));
 	if (dr < 0.20) {
