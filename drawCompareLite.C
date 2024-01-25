@@ -114,7 +114,8 @@ void drawCompareLite(string run = "2023D") {
   if (true) { // without patchJESA
     if (run=="2022CD_v2")    { h->GetYaxis()->SetRangeUser(0.94,1.09); }
     if (run=="2022E_v2")     { h->GetYaxis()->SetRangeUser(0.94,1.09); }
-    
+
+    if (run=="2022FG_v2")    { h->GetYaxis()->SetRangeUser(0.98,1.18); }
     if (run=="2022F_v2")     { h->GetYaxis()->SetRangeUser(0.98,1.18); }
     if (run=="2022G_v2")     { h->GetYaxis()->SetRangeUser(0.98,1.18); }
 
@@ -229,13 +230,16 @@ void drawCompareLiteIOVs() {
   TDirectory *curdir = gDirectory;
 
   string sA = "19Dec2023";
-  string sB = "Prompt23";//"22Sep";
+  string sB = "22Sep2023";//Prompt23";//"22Sep";
   const char *cA = sA.c_str();
   const char *cB = sB.c_str();
   
   double xmin = 15;//600;
   double xmax = 4000;//3500;
 
+  TFile *fout = new TFile(Form("rootfiles/compareLite_%s_vs_%s.root",
+			       sB.c_str(),sA.c_str()), "RECREATE");
+  
   TFile *f2 = new TFile("../l1tau/compareLite/HB_SiPM_down_1M.root","READ"); // hbsipm
   assert(f2 && !f2->IsZombie());
   TH1D *h2 = (TH1D*)f2->Get("RjetPuppi_sipmNonlinDn"); assert(h2);
@@ -254,8 +258,8 @@ void drawCompareLiteIOVs() {
   
   // Background canvas
   TH1D *h = tdrHist("h","#LTp_{T}(B)#GT / #LTp_{T}(A)#GT",// 0.92,1.07,
-		    0.92,1.10,
-		    //0.92,1.20,
+		    //0.92,1.10,
+		    0.92,1.20,
 		    "#LTp_{T}(A)#GT (GeV)",xmin,xmax);
   
   lumi_136TeV = "Run3 ";
@@ -274,7 +278,7 @@ void drawCompareLiteIOVs() {
   t->DrawLatex(0.50,0.20,Form("A: %s",cA));
   t->DrawLatex(0.50,0.16,"Direct match vs (A+B)/2");
 
-  string viov[] = {"2022CD", "2022E", //"2022FG",
+  string viov[] = {"2022CD", "2022E", "2022FG",
 		   "2022F", "2022G",
   		   "2023Cv123", "2023Cv4", "2023D", "Run3"};
   const int niov = sizeof(viov)/sizeof(viov[0]);
@@ -294,7 +298,7 @@ void drawCompareLiteIOVs() {
   color["2022CD"] = kGreen+2;
   color["2022E"] = kCyan+2;
   color["2022FG"] = kRed;
-  color["2022F"] = kRed;
+  color["2022F"] = kRed+1;
   color["2022G"] = kRed+2;
   color["2023Cv123"] = kOrange+2;
   color["2023Cv4"] = kBlue;
@@ -304,6 +308,7 @@ void drawCompareLiteIOVs() {
   map<string, double> scale;
   scale["2022CD"] = 1./1.025;
   scale["2022E"] = 1.;
+  scale["2022FG"] = 1./1.065;
   scale["2022F"] = 1./1.060;
   scale["2022G"] = 1./1.070;
   scale["2023Cv123"] = 1./1.025;
@@ -312,18 +317,31 @@ void drawCompareLiteIOVs() {
   scale["Run3"] = 1./1.025;
   
   map<string, const char*> legend;
+  /*
   legend["2022CD"] = "2022CD + 2.5%";
   legend["2022E"] = "2022E";
+  legend["2022FG"] = "2022FG + 6.5%";
   legend["2022F"] = "2022F + 6.0%";
   legend["2022G"] = "2022G + 7.0%";
   legend["2023Cv123"] = "2023Cv123 + 2.5%";//+6.0% (not updated)";
   legend["2023Cv4"] = "2023Cv4";
   legend["2023D"] = "2023D - 0.5%";
   legend["Run3"] = "Run3 +2.5%";
-
+  */
+    legend["2022CD"] = "2022CD";
+  legend["2022E"] = "2022E";
+  legend["2022FG"] = "2022FG";
+  legend["2022F"] = "2022F";
+  legend["2022G"] = "2022G";
+  legend["2023Cv123"] = "2023Cv123";
+  legend["2023Cv4"] = "2023Cv4";
+  legend["2023D"] = "2023D";
+  legend["Run3"] = "Run3";
+  
   map<string, const char*> file;
   file["2022CD"] = "2022CD_v2";
   file["2022E"] = "2022E_v2";
+  file["2022FG"] = "2022FG_v2";
   file["2022F"] = "2022F_v2";
   file["2022G"] = "2022G_v2";
   file["2023Cv123"] = "2023Cv123_v2";
@@ -356,7 +374,7 @@ void drawCompareLiteIOVs() {
     TProfile *ptd_dm = (TProfile*)f->Get("ptd_dm"); assert(ptd_dm);
     TProfile *pd_dm = (TProfile*)f->Get("pd_dm"); assert(pd_dm);
     TGraphErrors *g = directaverage(ptd_dm,pd_dm);
-    scaleGraph(g,scale[run]);
+    //scaleGraph(g,scale[run]);
 
     TProfile *pjesa = (TProfile*)f->Get("pjesa_dm"); assert(pjesa);
     TProfile *pjesb = (TProfile*)f->Get("pjesb_dm"); assert(pjesb);
@@ -368,6 +386,16 @@ void drawCompareLiteIOVs() {
     if (run=="Run3") {
       grun3 = g;
       g->SetLineWidth(2);
+    }
+
+    if (true) { // Save output after some cleaning
+      fout->cd();
+      g = (TGraphErrors*)g->Clone(Form("djes_%s",crun));
+      for (int i = g->GetN()-1; i != -1; --i) {
+	if (g->GetY()[i]<0.9) g->RemovePoint(i);
+      }
+      g->Write(Form("djes_%s",crun));
+      curdir->cd();
     }
   }
   
@@ -383,4 +411,5 @@ void drawCompareLiteIOVs() {
   f1->Draw("SAME");
 
   c1->SaveAs(Form("pdf/drawCompareLite_%s_vs_%s_IOVs.pdf",cB,cA));
-}
+  fout->Close();
+} //drawCompareLite
