@@ -75,6 +75,7 @@ TGraphErrors *directaverage(TProfile *pt, TProfile *p) {
   return g;
 } // directmatch
 
+bool scaleData = true;
 void scaleGraph(TGraphErrors *g, double scale) {
   for (int i = 0; i != g->GetN(); ++i) {
     g->SetPoint(i, g->GetX()[i], g->GetY()[i]*scale);
@@ -251,6 +252,19 @@ void drawCompareLiteIOVs() {
       h2p->SetBinContent(i, h2->GetBinContent(i)+0.015);
   }
 
+  //TFile *f3 = new TFile("../jecsys3/rootfiles/MC_Run3Summer22_PFCutVariation.root","READ"); // MC
+  TFile *f3 = new TFile("../jecsys3/rootfiles/DATA_PromptReco-Run2022G-JetMET_PFCutVariation.root","READ"); // DATA
+  assert(f3 && !f3->IsZombie());
+  //TH1D *h3 = (TH1D*)f3->Get("RjetPuppi_hcalPFCutsUp"); assert(h3); // MC
+  TH1D *h3 = (TH1D*)f3->Get("Rjet"); assert(h3); // DATA
+  //name["hhpfc"] = "Puppi_hcalPFCutsUp";
+
+  TH1D *h2p3 = (TH1D*)h2p->Clone("h2p3");
+  for (int i = 1; i != h2p->GetNbinsX()+1; ++i) {
+    h2p3->SetBinContent(i,h2p->GetBinContent(i) *
+			h3->Interpolate(h2p->GetBinCenter(i)));
+  }
+  
   // Fit function from jecsys3/globalFitSettings.h (+1.5%)
   // Run3 wrong SiPM non-linearity corrections for data (1M variant)
   // {"hbsipm","Rjet","-17.81+log(x)*(15.9+log(x)*(-4.719+log(x)*(0.3464+log(x)*(0.08054+log(x)*(-0.01553+log(x)*0.0007183)))))"},
@@ -317,27 +331,29 @@ void drawCompareLiteIOVs() {
   scale["Run3"] = 1./1.025;
   
   map<string, const char*> legend;
-  /*
-  legend["2022CD"] = "2022CD + 2.5%";
-  legend["2022E"] = "2022E";
-  legend["2022FG"] = "2022FG + 6.5%";
-  legend["2022F"] = "2022F + 6.0%";
-  legend["2022G"] = "2022G + 7.0%";
-  legend["2023Cv123"] = "2023Cv123 + 2.5%";//+6.0% (not updated)";
-  legend["2023Cv4"] = "2023Cv4";
-  legend["2023D"] = "2023D - 0.5%";
-  legend["Run3"] = "Run3 +2.5%";
-  */
+  if (scaleData) {
+    legend["2022CD"] = "2022CD+2.5%";
+    legend["2022E"] = "2022E";
+    legend["2022FG"] = "2022FG+6.5%";
+    legend["2022F"] = "2022F+6.0%";
+    legend["2022G"] = "2022G+7.0%";
+    legend["2023Cv123"] = "2023Cv123+2.5%";//+6.0% (not updated)";
+    legend["2023Cv4"] = "2023Cv4";
+    legend["2023D"] = "2023D-0.5%";
+    legend["Run3"] = "Run3+2.5%";
+  }
+  else {
     legend["2022CD"] = "2022CD";
-  legend["2022E"] = "2022E";
-  legend["2022FG"] = "2022FG";
-  legend["2022F"] = "2022F";
-  legend["2022G"] = "2022G";
-  legend["2023Cv123"] = "2023Cv123";
-  legend["2023Cv4"] = "2023Cv4";
-  legend["2023D"] = "2023D";
-  legend["Run3"] = "Run3";
-  
+    legend["2022E"] = "2022E";
+    legend["2022FG"] = "2022FG";
+    legend["2022F"] = "2022F";
+    legend["2022G"] = "2022G";
+    legend["2023Cv123"] = "2023Cv123";
+    legend["2023Cv4"] = "2023Cv4";
+    legend["2023D"] = "2023D";
+    legend["Run3"] = "Run3";
+  }
+    
   map<string, const char*> file;
   file["2022CD"] = "2022CD_v2";
   file["2022E"] = "2022E_v2";
@@ -350,15 +366,30 @@ void drawCompareLiteIOVs() {
   file["Run3"] = "Run3_v2";
 
   //TLegend *leg = tdrLeg(0.40,0.90-0.042*(niov+1),0.65,0.90);
-  TLegend *leg = tdrLeg(0.35,0.90-0.035*(niov+1),0.60,0.90);
+  TLegend *leg(0);
+  if (scaleData)
+    leg = tdrLeg(0.32,0.90-0.035*(niov+0),0.57,0.90);
+  else
+    leg = tdrLeg(0.35,0.90-0.035*(niov+0),0.60,0.90);
+
   leg->SetTextSize(0.040);
+
+  TLegend *leg2 = tdrLeg(0.60,0.90-0.035*(3),0.85,0.90);
+  leg2->SetTextSize(0.040);
   
-  tdrDraw(h2p,"Pz",kFullCircle,kGreen+2);
+  tdrDraw(h2p,"Pz",kFullCircle,kGreen+1);
+  tdrDraw(h3,"Pz",kFullCircle,kGreen+2); h3->SetMarkerSize(0.9); // hhpfc
+  tdrDraw(h2p3,"Pz",kFullCircle,kGreen+3); h2p3->SetMarkerSize(0.8);
   f1s->SetLineColor(kGreen+2);
   f1s->SetLineWidth(2);
   f1s->Draw("SAME");
-  leg->AddEntry(h2p,"MC prediction + 1.5%","PLE");
+  //leg->AddEntry(h2p,"MC prediction + 1.5%","PLE");
+  leg2->AddEntry(h2p,"MC SiPM + 1.5%","PLE");
+  leg2->AddEntry(h3,"22G HcalPFcuts","PLE");
+  leg2->AddEntry(h2p3,"Both","PLE");
   h2p->SetLineWidth(2);
+  h3->SetLineWidth(2);
+  h2p3->SetLineWidth(2);
   
   // Draw direcct match results
   TGraphErrors *grun3(0);
@@ -374,7 +405,7 @@ void drawCompareLiteIOVs() {
     TProfile *ptd_dm = (TProfile*)f->Get("ptd_dm"); assert(ptd_dm);
     TProfile *pd_dm = (TProfile*)f->Get("pd_dm"); assert(pd_dm);
     TGraphErrors *g = directaverage(ptd_dm,pd_dm);
-    //scaleGraph(g,scale[run]);
+    if (scaleData) scaleGraph(g,scale[run]);
 
     TProfile *pjesa = (TProfile*)f->Get("pjesa_dm"); assert(pjesa);
     TProfile *pjesb = (TProfile*)f->Get("pjesb_dm"); assert(pjesb);
@@ -410,6 +441,9 @@ void drawCompareLiteIOVs() {
   grun3->Fit(f1,"RN");
   f1->Draw("SAME");
 
-  c1->SaveAs(Form("pdf/drawCompareLite_%s_vs_%s_IOVs.pdf",cB,cA));
+  if (scaleData)
+    c1->SaveAs(Form("pdf/drawCompareLite_%s_vs_%s_IOVs_scaled.pdf",cB,cA));
+  else
+    c1->SaveAs(Form("pdf/drawCompareLite_%s_vs_%s_IOVs.pdf",cB,cA));
   fout->Close();
 } //drawCompareLite
