@@ -43,10 +43,12 @@ public :
    static const bool debugFiles = true;
    string          _filename; // file name for debugging purposes
 
+   map<string, map<int, int> > _prescales;
    map<int, map<int, int> > _json;
    map<int, map<int, float> > _lums;
    map<int, map<int, float> > _lums2;
    map<int, map<int, float> > _avgpu;
+//    map<string, TH1D*> _pudist;
 
    Bool_t HLT_MC = kTRUE;
    Bool_t Jet_jetveto[100];
@@ -242,7 +244,7 @@ public :
   //UChar_t         GenJetAK8ForJEC_nConstituents[45];   //[nGenJetAK8ForJEC]
 
    static const int nJetMax = 100;
-   UInt_t          nJet;
+   Int_t          nJet;
    Float_t         Jet_area[nJetMax];   //[nJet]
    //   Float_t         Jet_btagCSVV2[nJetMax];   //[nJet]
    //   Float_t         Jet_btagDeepB[nJetMax];   //[nJet]

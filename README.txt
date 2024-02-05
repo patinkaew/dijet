@@ -72,6 +72,7 @@ Bugs:
 (To-do: Downdload Summer23 and ReReco samples. Not yet done for ZeroBias at least)
 (To-do: QG SFs and response)
 
+// v36. Changed output file structure. Luminosity per trigger histogram (h_lumivstrpu) added
 // v35b. Turned off jet smearing. For 19Dec reco added a separation in JEC for 2023C.
 // v35. Added new L2L3Residuals along with L2Residuals. Fixed Flag_ filter introduced in v33
 // v34. L2L3Residual for Run3

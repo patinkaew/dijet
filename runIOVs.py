@@ -14,7 +14,7 @@ IOV_list= ['UL2016BCD','UL2016EF','UL2016GH',
     'UL2018A_ZB','UL2018B_ZB','UL2018C_ZB', 'UL2018D_ZB',
     '2022C','2022D','2022E', '2022F', '2022G', # '2022F1','2022F2',
     '2022C_ZB','2022D_ZB','2022E_ZB','2022F_ZB','2022G_ZB',
-    '2023Cv123', '2023Cv4', '2023D', # , '2023BCv123'
+    '2023Cv4', '2023D', '2023BCv123', # '2023Cv123', 
 #     '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG1','Summer22MG2',
     'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4'
@@ -25,7 +25,7 @@ run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22'
 run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
 
-version = 'v35b_19Dec2023'
+version = 'v35b_22Sep2023'
 
 IOV_input = []
 
@@ -47,8 +47,8 @@ if args.IOV_list:
     elif 'run3MC' in args.IOV_list:
         IOV_input = run3_MC
     elif 'test' in args.IOV_list:
-        IOV_input = run3_IOV_list
-        max_files = 2
+        IOV_input = run3_IOV_list[1:5]
+        max_files = 4
         version = version+'_test'
     else:
         # Check that all IOVs passed are in the list
@@ -70,15 +70,21 @@ if args.max_files and ('test' not in args.IOV_list):
     
 print('IOVs to run: ', IOV_input)
 
-# os.system("rm *.so *.d *.pcm")
-# os.system("root -l -b -q mk_CondFormats.C")
+# Check that the version directory exists, if not create it
+if not os.path.exists('rootfiles/'+version):
+    os.makedirs('rootfiles/'+version)
+
+if not os.path.exists('logs/'+version):
+    os.makedirs('logs/'+version)
+
 for iov in IOV_input:
     print(f"Process DijetHistosFill.C+g for IOV {iov}")
     # os.system(f"ls -ltrh rootfiles/jmenano_mc_out_{iov}_{version}.root")
     # os.system(f"ls -ltrh rootfiles/jmenano_data_out_{iov}_{version}.root")
     # os.system(f"ls -ltrh logs/log_{iov}_{version}.txt")
-    os.system(f"nohup root -l -b -q 'make/mk_DijetHistosFill.C(\"{iov}\",\"{version}\",{max_files})' > logs/log_{iov}_{version}.txt &")
-    print(f" => Follow logging with 'tail -f logs/log_{iov}_{version}.txt'")
+    os.system(f"nohup root -l -b -q 'make/mk_DijetHistosFill.C(\"{iov}\",\"{version}\",{max_files})' > logs/{version}/log_{iov}_{version}.txt &")
+    print(f" => Follow logging with 'tail -f logs/{version}/log_{iov}_{version}.txt'")
+
 #    os.system("fs flush")
 #    wait()
 #    time.sleep(sleep_time)
