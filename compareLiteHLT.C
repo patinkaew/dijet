@@ -349,6 +349,7 @@ void compareLiteHLT(string run="2023D") {
 
 
   // Jet triggers
+  /*
   TBranch        *b_HLT_PFJet40;
   TBranch        *b_HLT_PFJet60;
   TBranch        *b_HLT_PFJet80;
@@ -360,7 +361,9 @@ void compareLiteHLT(string run="2023D") {
   TBranch        *b_HLT_PFJet450;
   TBranch        *b_HLT_PFJet500;
   TBranch        *b_HLT_PFJet550;
-
+  */
+  TBranch        *b_HLT_ZeroBias;
+  
   // Set branches for MET filters
   TBranch          *b_Flag_goodVertices;
   TBranch          *b_Flag_globalSuperTightHalo2016Filter;
@@ -390,6 +393,7 @@ void compareLiteHLT(string run="2023D") {
   // Set unique branches needed from tree A
 
   // Jet triggers
+  /*
   Bool_t          HLT_PFJet40;
   Bool_t          HLT_PFJet60;
   Bool_t          HLT_PFJet80;
@@ -401,7 +405,9 @@ void compareLiteHLT(string run="2023D") {
   Bool_t          HLT_PFJet450;
   Bool_t          HLT_PFJet500;
   Bool_t          HLT_PFJet550;
-
+  */
+  Bool_t          HLT_ZeroBias;
+  
   // Set MET filters
   Bool_t          Flag_goodVertices;
   Bool_t          Flag_globalSuperTightHalo2016Filter;
@@ -449,6 +455,7 @@ void compareLiteHLT(string run="2023D") {
   c_tA->SetBranchAddress("Jet_muEF",   jtmuEF_tA,   &b_jtmuEF_tA  );   // mu
 
   // Jet triggers
+  /*
   c_tA->SetBranchAddress("HLT_PFJet40", &HLT_PFJet40, &b_HLT_PFJet40);
   c_tA->SetBranchAddress("HLT_PFJet60", &HLT_PFJet60, &b_HLT_PFJet60);
   c_tA->SetBranchAddress("HLT_PFJet80", &HLT_PFJet80, &b_HLT_PFJet80);
@@ -459,6 +466,8 @@ void compareLiteHLT(string run="2023D") {
   c_tA->SetBranchAddress("HLT_PFJet400", &HLT_PFJet400, &b_HLT_PFJet400);
   c_tA->SetBranchAddress("HLT_PFJet450", &HLT_PFJet450, &b_HLT_PFJet450);
   c_tA->SetBranchAddress("HLT_PFJet500", &HLT_PFJet500, &b_HLT_PFJet500);
+  */
+  c_tA->SetBranchAddress("HLT_ZeroBias", &HLT_ZeroBias, &b_HLT_ZeroBias);
   
   // MET filters
   c_tA->SetBranchAddress("Flag_goodVertices", &Flag_goodVertices, &b_Flag_goodVertices);
@@ -488,11 +497,11 @@ void compareLiteHLT(string run="2023D") {
 
   
   const int nsample = 1;//100; // 0.5h
-  const int nsample2 = 1;//100;
+  //const int nsample2 = 1;//100;
   const float frac = 1;//0.01;
   cout << "Pairing TA and TB" << endl << flush;
   cout << "Sampling 1/"<<nsample<<" of events" << endl << flush;
-  cout << "Sampling 1/"<<nsample2<<" of prescaled triggers (to be double-checked)" << endl << flush;
+  //cout << "Sampling 1/"<<nsample2<<" of prescaled triggers (to be double-checked)" << endl << flush;
   cout << "Keeping first "<<frac*100<<"% of events" << endl << flush;
 
   // Speed up processing by selecting only used branches for tree A
@@ -505,6 +514,7 @@ void compareLiteHLT(string run="2023D") {
   c_tA->SetBranchStatus("event",1);
 
   // Jet triggers
+  /*
   c_tA->SetBranchStatus("HLT_PFJet40",1);
   c_tA->SetBranchStatus("HLT_PFJet60",1);
   c_tA->SetBranchStatus("HLT_PFJet80",1);
@@ -515,7 +525,9 @@ void compareLiteHLT(string run="2023D") {
   c_tA->SetBranchStatus("HLT_PFJet400",1);
   c_tA->SetBranchStatus("HLT_PFJet450",1);
   c_tA->SetBranchStatus("HLT_PFJet500",1);
-     
+  */
+  c_tA->SetBranchStatus("HLT_ZeroBias",1);
+  
   // MET Filters
   c_tA->SetBranchStatus("Flag_goodVertices", 1);
   c_tA->SetBranchStatus("Flag_globalSuperTightHalo2016Filter", 1);
@@ -704,7 +716,7 @@ void compareLiteHLT(string run="2023D") {
   curdir->cd();
   
   int nev = 0;
-  int npre = 0;
+  //int npre = 0;
   int ngood = 0;
   int njetveto(0);
   int nmatch = 0;
@@ -764,11 +776,11 @@ void compareLiteHLT(string run="2023D") {
     if (ientrytA < 0) break;
 
     // Sample prescaled triggers before reading full tree
-    bool keeppre((++npre)%nsample2==0);
-    if (!keeppre) {
-      b_HLT_PFJet500->GetEntry(ientrytA);
-      if (!HLT_PFJet500) continue;
-    }
+    //bool keeppre((++npre)%nsample2==0);
+    //if (!keeppre) {
+    //b_HLT_PFJet500->GetEntry(ientrytA);
+    //if (!HLT_PFJet500) continue;
+    //}
 
     // Read full tree
     if (partialB) {
@@ -934,6 +946,7 @@ void compareLiteHLT(string run="2023D") {
 
 	  // Tag selection
 	  bool istp(false);
+	  bool istagtrig(false);
 	  double pttag(0);
 	  if (i<2 && j<2 && njt_tA>1 && njt_tB>1) {
 
@@ -962,7 +975,7 @@ void compareLiteHLT(string run="2023D") {
 	    double alphatag = (alphaTA>0 && alphaTB>0 ?
 			       0.5*(alphaTA+alphaTB) : max(alphaTA,alphaTB));
 
-	    bool trigger = true; // pttag>600
+	    bool trigger = (HLT_ZeroBias && pttagB>40.);
 	    /*
 	    bool trigger =
 	      ((HLT_PFJet500 && pttag>638) ||
@@ -990,10 +1003,11 @@ void compareLiteHLT(string run="2023D") {
 	    istp = (dphitag>2.7 && alphatag<0.3 && fabs(etatag)<1.3 &&
 		    pt/pttag<1.35 && ptB/pttag<1.35 &&
 		    pt/pttag>0.45 && ptB/pttag>0.45 && trigger);
+	    istagtrig = trigger;
 	  } // tag selection
 
 	  // Direct match probe trigger selections
-	  bool trigD = true;
+	  bool trigD = (HLT_ZeroBias && istagtrig);
 	  /*
 	  bool trigD =
 	    ((HLT_PFJet500 && ptave>638) ||
@@ -1009,7 +1023,7 @@ void compareLiteHLT(string run="2023D") {
 	       (HLT_PFJet40  && ptave>10)))
 	     );
 	  */
-	  bool trigB = true;
+	  bool trigB = (HLT_ZeroBias && (ptB>40. || istagtrig));
 	  /*
 	  bool trigB =
 	    ((HLT_PFJet500 && ptB>638) ||
@@ -1025,7 +1039,7 @@ void compareLiteHLT(string run="2023D") {
 	       (HLT_PFJet40  && ptB>10)))
 	      );
 	  */
-	  bool trigA = true;
+	  bool trigA = (HLT_ZeroBias && istagtrig);
 	  /*
 	  bool trigA =
 	    ((HLT_PFJet500 && pt>638) ||
