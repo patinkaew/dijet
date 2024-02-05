@@ -256,8 +256,8 @@ class lumiHistos
 public:
   string trg;
   int trgpt;
-  TH1D *lumsum, *lumsum2, *lum, *lum2; // lum is recorded, lum2 delivered
-  TH2D *hlumi_vstrpu;
+  float lumsum, lumsum2, lum, lum2; // lum is recorded, lum2 delivered
+  TH1D *htrglumi;
 };
 
 // Helper function to retrieve FactorizedJetCorrector
@@ -835,31 +835,17 @@ void DijetHistosFill::Loop()
   //		  "Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
   //		  "Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   // }
-  if (dataset == "2023B" || dataset == "2023B_ZB")
+
+  if (dataset == "2023B" || dataset == "2023B_ZB" || dataset == "2023BCv123" || 
+      dataset == "2023BCv123_ZB" || dataset == "2023Cv123" || dataset == "2023Cv123_ZB")
   {
-    jec = getFJC("",                                                                 // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-                                                                                     //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                           // Mikel
-                                                                                     //"Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 "Summer22-22Sep2023_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+    jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
+                                                                                   //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
+                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
+                                                                                   // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
+                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
-  if (dataset == "2023BCv123" || dataset == "2023BCv123_ZB")
-  {
-    jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-                                                                                   //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
-                                                                                   // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
-  }
-  if (dataset == "2023Cv123" || dataset == "2023Cv123_ZB")
-  {
-    jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
-                                                                                   //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
-                                                                                   // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
-  }
   if (dataset == "2023Cv4" || dataset == "2023Cv4_ZB")
   {
     jec = getFJC("",                                                             // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
@@ -924,7 +910,8 @@ void DijetHistosFill::Loop()
   TLorentzVector p4m0, p4m2, p4mn, p4mu; //, p4mo;
   TLorentzVector p4m3, p4mn3, p4mu3;
   TLorentzVector p4corrjets, p4rcjets, p4rawjets;
-  TFile *fout = new TFile(Form("rootfiles/jmenano_%s_out_%s_%s.root",
+  TFile *fout = new TFile(Form("rootfiles/%s/jmenano_%s_out_%s_%s.root",
+                               version.c_str(),
                                isMC ? "mc" : "data",
                                dataset.c_str(), version.c_str()),
                           "RECREATE");
@@ -935,6 +922,14 @@ void DijetHistosFill::Loop()
   for (int i = 1; i != htrg->GetNbinsX() + 1; ++i)
   {
     htrg->GetXaxis()->SetBinLabel(i, vtrg[i - 1].c_str());
+  }
+
+  // Pileup vs trigger
+  TH2D *h_lumivstrpu = new TH2D("h_lumivstrpu", "Triggers;Trigger;Lumi",
+                        vtrg.size(), 0, vtrg.size(), 100, 0, 100);
+  for (int i = 1; i != h_lumivstrpu->GetNbinsX() + 1; ++i)
+  {
+    h_lumivstrpu->GetXaxis()->SetBinLabel(i, vtrg[i - 1].c_str());
   }
 
   if (debug)
@@ -1850,12 +1845,12 @@ void DijetHistosFill::Loop()
       h->trg = t;
       h->trgpt = trgpt;
 
-      h->lum = new TH1D("lum", "", 100, 0, 99);
-      h->lum2 = new TH1D("lum2", "", 100, 0, 99);
+      h->lum = 0.0;
+      h->lum2 = 0.0;
 
-      h->lumsum = new TH1D("lumsum", "", 1, 0, 1);
-      h->lumsum2 = new TH1D("lumsum2", "", 1, 0, 1);
-      h->hlumi_vstrpu = new TH2D("hlumi_vstrpu", "", 100, 0, 100, 100, 0, 100);
+      h->lumsum = 0.0;
+      h->lumsum2 = 0.0;
+      h->htrglumi = new TH1D("htrglumi", "", 100, 0, 1);
     }
 
   } // for itrg
@@ -2064,7 +2059,7 @@ void DijetHistosFill::Loop()
       }
 
       // Separate 2023Cv123 and 2023Cv4
-      if ((dataset == "2023Cv123") && (run >= 367765)) {
+      if (((dataset == "2023Cv123") && (run >= 367765) ) || ((dataset == "2023Cv123") && (run >= 367765))) {
         continue;
       }
       if ((dataset == "2023Cv4") && (run < 367765)) {
@@ -3140,7 +3135,6 @@ void DijetHistosFill::Loop()
     {
       // DOES THIS WORK FOR ALL THE TRIGGERS?
       // WHAT IS THE INFORMATION WE'RE INTERESTED IN?
-      // INFORMATION ACROSS TRIGGERS COLLECTED WHEN HADDING?
       for (int itrg = 0; itrg != ntrg; ++itrg)
       {
 
@@ -3156,10 +3150,10 @@ void DijetHistosFill::Loop()
           cout << "Analyze lumi" << endl
                << flush;
         }
-        double lum = _lums[run][luminosityBlock];
-        double lum2 = _lums2[run][luminosityBlock];
-        h->lum->Fill(lum, w);
-        h->lum2->Fill(lum2, w);
+        float lum = _lums[run][luminosityBlock];
+        float lum2 = _lums2[run][luminosityBlock];
+        h->lum += lum; // /prescale
+        h->lum2 += lum2; // /prescale
         // TODO:
         // PRESCALE INFORMATION
         /*
@@ -3177,14 +3171,13 @@ void DijetHistosFill::Loop()
           }
         }
         */
-        // h->lumsum += lum;                    // / prescale;
-        // h->lumsum2 += lum2; // / prescale;
-        // h->lums[run][luminosityBlock] = 1;
 
-        h->hlumi_vstrpu->Fill(trpu, lum, w); //  / prescale
+        h->htrglumi->Fill(lum, w); //  / prescale
+        h_lumivstrpu->Fill(trpu, lum, w);
       }
       mrunls[run][luminosityBlock] = 1;
     } // doLumi
+
     h2mhtvsmet->Fill(p4t1met.Pt(), p4mht.Pt(), w);
   } // for jentry
   cout << endl
@@ -3210,7 +3203,8 @@ void DijetHistosFill::Loop()
        << nls << " luminosity blocks and " << nevt << " events" << endl;
   cout << "Saving these to file rootfiles/jmenano.json for brilcalc" << endl;
 
-  ofstream fjson(Form("rootfiles/jmenano_%s_%s.json",
+  ofstream fjson(Form("rootfiles/%s/jmenano_%s_%s.json",
+                      version.c_str(),
                       dataset.c_str(), version.c_str()));
   fjson << "{" << endl;
   for (map<int, map<int, int>>::iterator it = mrunls.begin();
@@ -3486,25 +3480,25 @@ bool DijetHistosFill::LoadJSON(string json)
 /*
 bool DijetHistosFill::LoadJSON()
 {
-  // Get the JSON files from here:
-  // - /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/
+    // Get the JSON files from here:
+    // - /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/
 
-  // Golden 1.44/fb
-  // string json = "rootfiles/Cert_Collisions2022_355100_356615_Golden.json";
-  // Golden JSON, 4.86/fb
-  //string json = "rootfiles/Cert_Collisions2022_355100_357550_Golden..json";
-  // Golden JSON, 7.67/fb
-  //string json = "rootfiles/Cert_Collisions2022_355100_357900_Golden.json";
-  // Golden JSON BCDEF, 9.71/fb
-  //string json = "rootfiles/Cert_Collisions2022_355100_359812_Golden.json";
-  // Golden JSON BCDEF, 14.6/fb
+    // Golden 1.44/fb
+    // string json = "rootfiles/Cert_Collisions2022_355100_356615_Golden.json";
+    // Golden JSON, 4.86/fb
+    //string json = "rootfiles/Cert_Collisions2022_355100_357550_Golden..json";
+    // Golden JSON, 7.67/fb
+    //string json = "rootfiles/Cert_Collisions2022_355100_357900_Golden.json";
+    // Golden JSON BCDEF, 9.71/fb
+    //string json = "rootfiles/Cert_Collisions2022_355100_359812_Golden.json";
+    // Golden JSON BCDEF, 14.6/fb
     string json = "rootfiles/Cert_Collisions2022_355100_360491_Golden.json";
-// Golden JSON RunB, 0.0846/fb
-//string json = "rootfiles/Cert_Collisions2022_eraB_355100_355769_Golden.json";
-// Golden JSON RunC, 4.84/fb
-//string json = "rootfiles/Cert_Collisions2022_eraC_355862_357482_Golden.json"
-// Golden JSON RunD, 2.74/fb
-//string json = "rootfiles/Cert_Collisions2022_eraD_357538_357900_Golden.json";
+    // Golden JSON RunB, 0.0846/fb
+    //string json = "rootfiles/Cert_Collisions2022_eraB_355100_355769_Golden.json";
+    // Golden JSON RunC, 4.84/fb
+    //string json = "rootfiles/Cert_Collisions2022_eraC_355862_357482_Golden.json"
+    // Golden JSON RunD, 2.74/fb
+    //string json = "rootfiles/Cert_Collisions2022_eraD_357538_357900_Golden.json";
     if (isRun2==1 || isRun2==2)
       json="rootfiles/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt";
     if (isRun2==3)
@@ -3559,4 +3553,72 @@ bool DijetHistosFill::LoadJSON()
   cout << Form("Loaded %d good runs and %d good lumi sections",nrun,nls) << endl;
   return true;
 } // LoadJSON
+*/
+/*
+bool HistosFill::LoadPUProfiles()
+{
+  string datafile = ""// jp::pudtpath + (do80 ? "80mb/" : "/") + jp::run + "/pileup_DT.root";
+  // string mcfile   = jp::pumcpath + "/pileup_";
+  // mcfile += ".root";
+
+  PrintInfo(Form("Processing LoadPUProfiles() using %s and %s ...",datafile.c_str(),mcfile.c_str()),true);
+
+  TDirectory *curdir = gDirectory;
+  // Load pile-up files and hists from them
+  TFile *f_pudist = new TFile(datafile.c_str(), "READ");
+  if (!f_pudist or f_pudist->IsZombie()) { PrintInfo(string("Unable to read PU data file")+datafile,true); return false; }
+  // TFile *fpumc = new TFile(mcfile.c_str(),"READ");
+  // if (!fpumc or fpumc->IsZombie()) { PrintInfo(string("Unable to read PU MC file")+mcfile,true); return false; }
+
+
+  // For MC, load the pileup distribution
+  _pumc = dynamic_cast<TH1D*>(fpumc->Get("pileupmc")->Clone("pumchelp"));
+  if (!_pumc) return false;
+  double maxmcpu = _pumc->GetMaximum();
+  _pumc->Scale(1.0/maxmcpu);
+  int lomclim = _pumc->FindFirstBinAbove(0.01);
+  int upmclim = _pumc->FindLastBinAbove (0.01);
+  int maxmcbin = _pumc->FindFirstBinAbove(0.999);
+  PrintInfo(Form("Maximum bin: %d for MC",maxmcbin),true);
+  PrintInfo(Form("Hazardous pu below & above: %f, %f",_pumc->GetBinLowEdge(lomclim),_pumc->GetBinLowEdge(upmclim+1)),true);
+  int nbinsmc = _pumc->GetNbinsX();
+  int kmc = _pumc->FindBin(33); // Check that pu=33 occurs at the same place as for data
+
+
+  // For data, load each trigger separately
+
+  for (auto &t : vtrg) {
+    TH1D *tmpPU0 = dynamic_cast<TH1D*>(f_pudist->Get(t));
+    if (!tmpPU0) {
+      PrintInfo(Form("The trigger %s was not found in the DT pileup file!",t),true);
+      return false;
+    }
+    TH1D *tmpPU = dynamic_cast<TH1D*>(tmpPU0->Clone(Form("pu%s",t)));
+    int nbinsdt = tmpPU->GetNbinsX();
+    int kdt = tmpPU->FindBin(33); // Why bin 33?
+    if (kdt!=kmc or nbinsdt!=nbinsmc) {
+      PrintInfo("The pileup histogram dt vs mc binning or range do not match (dt left mc right):",true);
+      PrintInfo(Form(" Bins: dt:%d mc:%d",nbinsdt,nbinsmc),true);
+      PrintInfo(Form(" Pu=33 bin: dt:%d mc:%d",kdt,kmc),true);
+      return false;
+    }
+    double maxdtpu = tmpPU->GetMaximum();
+    int lodtlim    = tmpPU->FindFirstBinAbove(maxdtpu/100.0);
+    int updtlim    = tmpPU->FindLastBinAbove (maxdtpu/100.0);
+    int maxdtbin   = tmpPU->FindFirstBinAbove(0.999*maxdtpu);
+
+    for (int bin = 0; bin < lomclim; ++bin) tmpPU->SetBinContent(bin,0.0); // Set fore-tail to zero
+    for (int bin = upmclim+1; bin <= nbinsdt; ++bin) tmpPU->SetBinContent(bin,0.0); // Set aft-tail to zero
+
+    PrintInfo(Form("Maximum bin: %d for DT trg %s",maxdtbin,t),true);
+    PrintInfo(Form("Hazardous pu below & above: %f, %f",tmpPU->GetBinLowEdge(lodtlim),tmpPU->GetBinLowEdge(updtlim+1)),true);
+    tmpPU->Divide(_pumc);
+    // if (do80) _pudist80[t] = tmpPU;
+    _pudist[t] = tmpPU;
+  }
+  PrintInfo("Finished processing pileup histos!",true);
+
+  curdir->cd();
+  return true;
+} // LoadPUProfiles
 */
