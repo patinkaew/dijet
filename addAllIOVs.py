@@ -39,7 +39,7 @@ if not includeZB:
                 IOV_list.remove(IOV_list[i])
                 break
             
-os.system("ls rootfiles/"+version+"/jmenano_data_out_*_"+version+".root")
+# os.system("ls rootfiles/"+version+"/jmenano_data_out_*_"+version+".root")
 for IOV_list in IOV_list_of_lists:
     command = "hadd -f "
     for iov in IOV_list:

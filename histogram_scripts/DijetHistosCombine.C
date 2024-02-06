@@ -9,56 +9,56 @@
 #include <iostream>
 
 int debug = 1; // 1=trg, 2=dir, 3=all
-string version = "v35b_19Dec2023";
+string version = "v35b_22Sep2023";
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
 bool copyBin(string trg, string folder, string histo, double pt, double eta);
 
-void DijetHistosCombines(string file = "rootfiles/"+version+"jmenano_data_out.root");
+void DijetHistosCombines(string file = "rootfiles/"+version+"/jmenano_data_out.root");
 
 void DijetHistosCombine() {
 
-/*
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022C_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022D_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022CD_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022E_JME_"+version+".root");
 
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022F_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022G_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2022FG_JME_"+version+".root");
-*/
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2023BCv123_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2023Cv4_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_2023D_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022C_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022D_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022CD_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022E_JME_"+version+".root");
 
-  DijetHistosCombines("../rootfiles/"+version+"jmenano_data_out_Run3_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022F_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022G_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022FG_JME_"+version+".root");
+
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023BCv123_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023Cv4_JME_"+version+".root");
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023D_JME_"+version+".root");
+
+  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_Run3_JME_"+version+".root");
   
   // Really slow on this after all the others, rerun separately (then sec)
-//  DijetHistosCombines("../rootfiles/"+version+"jmenano_mc_out_Summer22EEMG_"+version+".root");
-// DijetHistosCombines("../rootfiles/"+version+"jmenano_mc_out_Summer22MG_"+version+".root");
+//  DijetHistosCombines("../rootfiles/"+version+"/jmenano_mc_out_Summer22EEMG_"+version+".root");
+// DijetHistosCombines("../rootfiles/"+version+"/jmenano_mc_out_Summer22MG_"+version+".root");
 
   
 
   /*
-  DijetHistosCombines("rootfiles/"+version+"jmenano_data_out_v22ul16.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_v22ul16flatmc.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_v22ul16mg.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_data_out_v22ul16.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_v22ul16flatmc.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_v22ul16mg.root");
   */
-  //DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_v23ul16flat.root");
-  //DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_v23ul16mg.root");
+  //DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_v23ul16flat.root");
+  //DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_v23ul16mg.root");
 
   // Before JER SF for MC
   /*
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2016APV_v26c.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2016APVMG_v26.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2016APVMG_v26.root");
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2016GH_v26c.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2016MG_v26.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2016MG_v26.root");
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2017_v26.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2017MG_v26.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2017MG_v26.root");
   DijetHistosCombines("haddfiles/jmenano_data_out_UL2018_v26c.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2018MG_v26.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2018MG_v26.root");
   */
   
 
@@ -67,10 +67,10 @@ void DijetHistosCombine() {
   //DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v26.root");
   /*
   // After JER SF for MC
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2016APVMG_v27.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2016MG_v27.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2017MG_v27.root");
-  DijetHistosCombines("rootfiles/"+version+"jmenano_mc_out_UL2018MG_v27.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2016APVMG_v27.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2016MG_v27.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2017MG_v27.root");
+  DijetHistosCombines("rootfiles/"+version+"/jmenano_mc_out_UL2018MG_v27.root");
   DijetHistosCombines("haddfiles/jmenano_mc_out_Run2_v27.root");
   */
 
