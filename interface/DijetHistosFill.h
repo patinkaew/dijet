@@ -100,7 +100,7 @@ public :
    Float_t         DeepMETResolutionTune_pt;
    Float_t         DeepMETResponseTune_phi;
    Float_t         DeepMETResponseTune_pt;
-   UInt_t          nElectron;
+   Int_t           nElectron;
    Float_t         Electron_deltaEtaSC[7];   //[nElectron]
    Float_t         Electron_dr03EcalRecHitSumEt[7];   //[nElectron]
    Float_t         Electron_dr03HcalDepth1TowerSumEt[7];   //[nElectron]
@@ -154,7 +154,7 @@ public :
   //Bool_t          Electron_mvaNoIso_WPL[7];   //[nElectron]
    UChar_t         Electron_seedGain[7];   //[nElectron]
 
-   UInt_t          nFsrPhoton;
+   Int_t          nFsrPhoton;
    Float_t         FsrPhoton_dROverEt2[5];   //[nFsrPhoton]
    Float_t         FsrPhoton_eta[5];   //[nFsrPhoton]
    Float_t         FsrPhoton_phi[5];   //[nFsrPhoton]
@@ -162,20 +162,20 @@ public :
    Float_t         FsrPhoton_relIso03[5];   //[nFsrPhoton]
   //Int_t           FsrPhoton_electronIdx[5];   //[nFsrPhoton]
    Int_t           FsrPhoton_muonIdx[5];   //[nFsrPhoton]
-   UInt_t          nGenJetAK8;
+   Int_t           nGenJetAK8;
    Float_t         GenJetAK8_eta[9];   //[nGenJetAK8]
    Float_t         GenJetAK8_mass[9];   //[nGenJetAK8]
    Float_t         GenJetAK8_phi[9];   //[nGenJetAK8]
    Float_t         GenJetAK8_pt[9];   //[nGenJetAK8]
   //UChar_t         GenJetAK8_nConstituents[9];   //[nGenJetAK8]
   static const int nGenJetMax = 100; // was 76
-   UInt_t          nGenJet;
+   Int_t           nGenJet;
    Float_t         GenJet_eta[nGenJetMax];   //[nGenJet]
    Float_t         GenJet_mass[nGenJetMax];   //[nGenJet]
    Float_t         GenJet_phi[nGenJetMax];   //[nGenJet]
    Float_t         GenJet_pt[nGenJetMax];   //[nGenJet]
   //UChar_t         GenJet_nConstituents[nGenJetMax];   //[nGenJet]
-   UInt_t          nGenPart;
+   Int_t          nGenPart;
    Float_t         GenPart_eta[245];   //[nGenPart]
    Float_t         GenPart_mass[245];   //[nGenPart]
    Float_t         GenPart_phi[245];   //[nGenPart]
@@ -190,7 +190,7 @@ public :
   //Float_t         GenProton_pz[13];   //[nGenProton]
   //Float_t         GenProton_vz[13];   //[nGenProton]
   //Bool_t          GenProton_isPU[13];   //[nGenProton]
-   UInt_t          nSubGenJetAK8;
+   Int_t          nSubGenJetAK8;
    Float_t         SubGenJetAK8_eta[16];   //[nSubGenJetAK8]
    Float_t         SubGenJetAK8_mass[16];   //[nSubGenJetAK8]
    Float_t         SubGenJetAK8_phi[16];   //[nSubGenJetAK8]
@@ -208,7 +208,7 @@ public :
    Float_t         GenVtx_x;
    Float_t         GenVtx_y;
    Float_t         GenVtx_z;
-   UInt_t          nGenVisTau;
+   Int_t           nGenVisTau;
    Float_t         GenVisTau_eta[2];   //[nGenVisTau]
    Float_t         GenVisTau_mass[2];   //[nGenVisTau]
    Float_t         GenVisTau_phi[2];   //[nGenVisTau]
@@ -217,9 +217,9 @@ public :
    Int_t           GenVisTau_genPartIdxMother[2];   //[nGenVisTau]
    Int_t           GenVisTau_status[2];   //[nGenVisTau]
    Float_t         genWeight;
-   UInt_t          nPSWeight;
-   Float_t         PSWeight[44];   //[nPSWeight]
-   UInt_t          nIsoTrack;
+   Int_t           nPSWeight;
+   Float_t          PSWeight[44];   //[nPSWeight]
+   Int_t          nIsoTrack;
    Float_t         IsoTrack_dxy[38];   //[nIsoTrack]
    Float_t         IsoTrack_dz[38];   //[nIsoTrack]
    Float_t         IsoTrack_eta[38];   //[nIsoTrack]
@@ -393,7 +393,7 @@ public :
    //   Float_t         L1PreFiringWeight_Muon_SystUp;
    //   Float_t         L1PreFiringWeight_Nom;
    //   Float_t         L1PreFiringWeight_Up;
-   UInt_t          nLowPtElectron;
+   Int_t           nLowPtElectron;
    Float_t         LowPtElectron_ID[11];   //[nLowPtElectron]
    Float_t         LowPtElectron_convVtxRadius[11];   //[nLowPtElectron]
    Float_t         LowPtElectron_deltaEtaSC[11];   //[nLowPtElectron]
@@ -433,7 +433,7 @@ public :
    Float_t         MET_significance;
    Float_t         MET_sumEt;
    Float_t         MET_sumPtUnclustered;
-   UInt_t          nMuon;
+   Int_t           nMuon;
    Float_t         Muon_dxy[58];   //[nMuon]
    Float_t         Muon_dxyErr[58];   //[nMuon]
    Float_t         Muon_dxybs[58];   //[nMuon]
@@ -488,7 +488,7 @@ public :
    Bool_t          Muon_tightId[58];   //[nMuon]
    UChar_t         Muon_tkIsoId[58];   //[nMuon]
    Bool_t          Muon_triggerIdLoose[58];   //[nMuon]
-   UInt_t          nPhoton;
+   Int_t           nPhoton;
    //   Float_t         Photon_dEscaleDown[8];   //[nPhoton]
    //   Float_t         Photon_dEscaleUp[8];   //[nPhoton]
    //   Float_t         Photon_dEsigmaDown[8];   //[nPhoton]
@@ -565,19 +565,19 @@ public :
    Float_t         Rho_fixedGridRhoFastjetCentralCalo;
    Float_t         Rho_fixedGridRhoFastjetCentralChargedPileUp;
    Float_t         Rho_fixedGridRhoFastjetCentralNeutral;
-   UInt_t          nGenDressedLepton;
+   Int_t           nGenDressedLepton;
    Float_t         GenDressedLepton_eta[2];   //[nGenDressedLepton]
    Float_t         GenDressedLepton_mass[2];   //[nGenDressedLepton]
    Float_t         GenDressedLepton_phi[2];   //[nGenDressedLepton]
    Float_t         GenDressedLepton_pt[2];   //[nGenDressedLepton]
    Int_t           GenDressedLepton_pdgId[2];   //[nGenDressedLepton]
    Bool_t          GenDressedLepton_hasTauAnc[2];   //[nGenDressedLepton]
-   UInt_t          nGenIsolatedPhoton;
+   Int_t           nGenIsolatedPhoton;
    Float_t         GenIsolatedPhoton_eta[2];   //[nGenIsolatedPhoton]
    Float_t         GenIsolatedPhoton_mass[2];   //[nGenIsolatedPhoton]
    Float_t         GenIsolatedPhoton_phi[2];   //[nGenIsolatedPhoton]
    Float_t         GenIsolatedPhoton_pt[2];   //[nGenIsolatedPhoton]
-   UInt_t          nSoftActivityJet;
+   Int_t           nSoftActivityJet;
    Float_t         SoftActivityJet_eta[6];   //[nSoftActivityJet]
    Float_t         SoftActivityJet_phi[6];   //[nSoftActivityJet]
    Float_t         SoftActivityJet_pt[6];   //[nSoftActivityJet]
@@ -588,7 +588,7 @@ public :
    Int_t           SoftActivityJetNjets10;
    Int_t           SoftActivityJetNjets2;
    Int_t           SoftActivityJetNjets5;
-   UInt_t          nSubJet;
+   Int_t           nSubJet;
    //   Float_t         SubJet_btagCSVV2[16];   //[nSubJet]
    Float_t         SubJet_btagDeepB[16];   //[nSubJet]
    Float_t         SubJet_eta[16];   //[nSubJet]
@@ -602,7 +602,7 @@ public :
    Float_t         SubJet_tau2[16];   //[nSubJet]
    Float_t         SubJet_tau3[16];   //[nSubJet]
    Float_t         SubJet_tau4[16];   //[nSubJet]
-   UInt_t          nTau;
+   Int_t           nTau;
    Float_t         Tau_chargedIso[5];   //[nTau]
    Float_t         Tau_dxy[5];   //[nTau]
    Float_t         Tau_dz[5];   //[nTau]
@@ -661,7 +661,7 @@ public :
    Int_t           TrigObjJMEAK8_l1iso[nJetMax];   //[nTrigObjJMEAK8]
    Int_t           TrigObjJMEAK8_l1charge[nJetMax];   //[nTrigObjJMEAK8]
    Int_t           TrigObjJMEAK8_filterBits[nJetMax];   //[nTrigObjJMEAK8]
-   UInt_t          nTrigObj;
+   Int_t           nTrigObj;
    Float_t         TrigObj_pt[68];   //[nTrigObj]
    Float_t         TrigObj_eta[68];   //[nTrigObj]
    Float_t         TrigObj_phi[68];   //[nTrigObj]
@@ -673,7 +673,7 @@ public :
    Int_t           TrigObj_l1charge[68];   //[nTrigObj]
    Int_t           TrigObj_filterBits[68];   //[nTrigObj]
    Int_t           genTtbarId;
-   UInt_t          nOtherPV;
+   Int_t           nOtherPV;
    Float_t         OtherPV_z[3];   //[nOtherPV]
   //Float_t         OtherPV_score[3];   //[nOtherPV]
    Float_t         PV_ndof;
@@ -682,9 +682,9 @@ public :
    Float_t         PV_z;
    Float_t         PV_chi2;
    Float_t         PV_score;
-   Int_t           PV_npvs;
-   Int_t           PV_npvsGood;
-   UInt_t          nSV;
+   UChar_t         PV_npvs;
+   UChar_t         PV_npvsGood;
+   Int_t          nSV;
    Float_t         SV_dlen[65];   //[nSV]
    Float_t         SV_dlenSig[65];   //[nSV]
    Float_t         SV_dxy[65];   //[nSV]
