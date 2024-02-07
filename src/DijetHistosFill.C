@@ -25,7 +25,8 @@
 bool doMCtrigOnly = true;
 
 // JER smearing (JER SF)
-bool smearJets = false;
+bool smearJets = true;
+bool redoJER = false;
 bool useJERSFvsPt = true; // new file format
 int smearNMax = 3;
 std::uint32_t _seed;
@@ -257,8 +258,9 @@ public:
   string trg;
   int trgpt;
   float lumsum, lumsum2, lum, lum2; // lum is recorded, lum2 delivered
-  TH1D *htrglumi;
+  TH1D *htrglumi, *htrgpu, *hnpv, *hnpvgood;
 };
+
 
 // Helper function to retrieve FactorizedJetCorrector
 FactorizedJetCorrector *getFJC(string l1 = "", string l2 = "", string res = "",
@@ -924,14 +926,22 @@ void DijetHistosFill::Loop()
     htrg->GetXaxis()->SetBinLabel(i, vtrg[i - 1].c_str());
   }
 
-  // Pileup vs trigger
-  TH2D *h_lumivstrpu = new TH2D("h_lumivstrpu", "Triggers;Trigger;Lumi",
-                        vtrg.size(), 0, vtrg.size(), 100, 0, 100);
-  for (int i = 1; i != h_lumivstrpu->GetNbinsX() + 1; ++i)
+  // trigger vs lumi
+  TH2D *h_trgvslumi = new TH2D("h_trgvslumi", "Triggers;Trigger;Lumi",
+                        vtrg.size(), 0, vtrg.size(), 100, 0, 1);
+  for (int i = 1; i != h_trgvslumi->GetNbinsX() + 1; ++i)
   {
-    h_lumivstrpu->GetXaxis()->SetBinLabel(i, vtrg[i - 1].c_str());
+    h_trgvslumi->GetXaxis()->SetBinLabel(i, vtrg[i - 1].c_str());
   }
 
+  // trigger vs pu
+  TH2D *h_trgvspu = new TH2D("h_trgvspu", "Triggers;Trigger;PU",
+                        vtrg.size(), 0, vtrg.size(), 100, 0, 100);
+  for (int i = 1; i != h_trgvspu->GetNbinsX() + 1; ++i)
+  {
+    h_trgvspu->GetXaxis()->SetBinLabel(i, vtrg[i - 1].c_str());
+  }
+              
   if (debug)
     cout << "Setting up histograms" << endl
          << flush;
@@ -1851,6 +1861,9 @@ void DijetHistosFill::Loop()
       h->lumsum = 0.0;
       h->lumsum2 = 0.0;
       h->htrglumi = new TH1D("htrglumi", "", 100, 0, 1);
+      h->htrgpu = new TH1D("htrgpu", "", 100, 0, 100);
+      h->hnpv = new TH1D("hnpv", "", 100, 0, 100);
+      h->hnpvgood = new TH1D("hnpvgood", "", 100, 0, 100);
     }
 
   } // for itrg
@@ -2159,31 +2172,34 @@ void DijetHistosFill::Loop()
     int njet = nJet;
     for (int i = 0; i != njet; ++i)
     {
-      double rawJetPt = Jet_pt[i] * (1.0 - Jet_rawFactor[i]);
-      double rawJetMass = Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
-      jec->setJetPt(rawJetPt);
-      jec->setJetEta(Jet_eta[i]);
-      if (isRun2)
+      if (redoJER)
       {
-        jec->setJetA(Jet_area[i]);
-        jec->setRho(Rho_fixedGridRhoFastjetAll);
-        jecl1rc->setJetPt(rawJetPt);
-        jecl1rc->setJetEta(Jet_eta[i]);
-        jecl1rc->setJetA(Jet_area[i]);
-        jecl1rc->setRho(Rho_fixedGridRhoFastjetAll);
+        double rawJetPt = Jet_pt[i] * (1.0 - Jet_rawFactor[i]);
+        double rawJetMass = Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
+        jec->setJetPt(rawJetPt);
+        jec->setJetEta(Jet_eta[i]);
+        if (isRun2)
+        {
+          jec->setJetA(Jet_area[i]);
+          jec->setRho(Rho_fixedGridRhoFastjetAll);
+          jecl1rc->setJetPt(rawJetPt);
+          jecl1rc->setJetEta(Jet_eta[i]);
+          jecl1rc->setJetA(Jet_area[i]);
+          jecl1rc->setRho(Rho_fixedGridRhoFastjetAll);
+        }
+        // double corr = jec->getCorrection();
+        vector<float> v = jec->getSubCorrections();
+        double corr = v.back();
+        double res = (v.size() > 1 ? v[v.size() - 1] / v[v.size() - 2] : 1.);
+        Jet_RES[i] = 1. / res;
+        Jet_deltaJES[i] = (1. / corr) / (1.0 - Jet_rawFactor[i]);
+        Jet_pt[i] = corr * rawJetPt;
+        Jet_mass[i] = corr * rawJetMass;
+        Jet_rawFactor[i] = (1.0 - 1.0 / corr);
+        // pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
+        Jet_l1rcFactor[i] = (isRun2 ? (1.0 - jecl1rc->getCorrection() / corr) : Jet_rawFactor[i]);
       }
-      // double corr = jec->getCorrection();
-      vector<float> v = jec->getSubCorrections();
-      double corr = v.back();
-      double res = (v.size() > 1 ? v[v.size() - 1] / v[v.size() - 2] : 1.);
-      Jet_RES[i] = 1. / res;
-      Jet_deltaJES[i] = (1. / corr) / (1.0 - Jet_rawFactor[i]);
-      Jet_pt[i] = corr * rawJetPt;
-      Jet_mass[i] = corr * rawJetMass;
-      Jet_rawFactor[i] = (1.0 - 1.0 / corr);
-      // pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
-      Jet_l1rcFactor[i] = (isRun2 ? (1.0 - jecl1rc->getCorrection() / corr) : Jet_rawFactor[i]);
-
+      
       if (true)
       { // check jet veto
         int i1 = h2jv->GetXaxis()->FindBin(Jet_eta[i]);
@@ -2222,7 +2238,8 @@ void DijetHistosFill::Loop()
           // Retrieve genJet and calculate dR
           double dR(999);
           p4.SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i], Jet_mass[i]);
-          if (Jet_genJetIdx[i] >= 0)
+
+          if (Jet_genJetIdx[i] >= 0 )// && Jet_genJetIdx[i] < nGenJet)
           {
             int j = Jet_genJetIdx[i];
             p4g.SetPtEtaPhiM(GenJet_pt[j], GenJet_eta[j], GenJet_phi[j],
@@ -2249,6 +2266,7 @@ void DijetHistosFill::Loop()
 
           // The method presented here can be found in https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution
           // and the corresponding code in https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_25/PhysicsTools/PatUtils/interface/SmearedJetProducerT.h
+          assert(jer);
           double Reso = jer->getResolution({{JME::Binning::JetPt, jPt}, {JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}});
           double SF(1);
           if (useJERSFvsPt && jersfvspt)
@@ -2261,6 +2279,11 @@ void DijetHistosFill::Loop()
           else if (!useJERSFvsPt && jersf)
           {
             SF = jersf->getScaleFactor({{JME::Binning::JetEta, jEta}, {JME::Binning::Rho, rho}}, Variation::NOMINAL);
+          }
+          else
+          {
+            cout << "No JER SF available" << endl << flush;
+            assert(false);
           }
 
           // Case 0: by default the JER correction factor is equal to 1
@@ -3173,7 +3196,12 @@ void DijetHistosFill::Loop()
         */
 
         h->htrglumi->Fill(lum, w); //  / prescale
-        h_lumivstrpu->Fill(trpu, lum, w);
+        h->htrgpu->Fill(trpu, w);
+        h->hnpv->Fill(PV_npvs, w);
+        h->hnpvgood->Fill(PV_npvsGood, w);
+
+        h_trgvslumi->Fill(itrg, lum, w);
+        h_trgvspu->Fill(itrg, trpu, w);
       }
       mrunls[run][luminosityBlock] = 1;
     } // doLumi
@@ -3349,7 +3377,7 @@ bool DijetHistosFill::LoadLumi()
     if (lum == 0 and goodruns.find(rn) != goodruns.end() and (_json[rn][ls] == 1)) // The second condition had !jp::dojson or
       nolums.insert(pair<int, int>(rn, ls));
 
-    _avgpu[rn][ls] = avgpu; // * 69000. / 78400.; // brilcalc --minBiasXsec patch
+    _avgpu[rn][ls] = avgpu * 69000. / 78400.; // brilcalc --minBiasXsec patch
     _lums[rn][ls] = lum;
     _lums2[rn][ls] = lum2;
     lumsum += lum;

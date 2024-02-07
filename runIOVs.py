@@ -25,7 +25,7 @@ run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22'
 run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
 
-version = 'v35b_22Sep2023'
+version = 'v36'
 
 IOV_input = []
 

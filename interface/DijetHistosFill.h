@@ -708,7 +708,7 @@ public :
    Int_t           JetCHS_hadronFlavour[88];   //[nJetCHS]
    Int_t           JetCHS_partonFlavour[88];   //[nJetCHS]
 
-   Int_t           Jet_genJetIdx[nJetMax];   //[nJet]
+   Short_t           Jet_genJetIdx[nJetMax];   //[nJet]
   //Int_t           Jet_hadronFlavour[nJetMax];   //[nJet] // NanoV10,11
    UChar_t           Jet_hadronFlavour[nJetMax];   //[nJet] // NanoV12
   //Int_t           Jet_partonFlavour[nJetMax];   //[nJet] // NanoV10,11
