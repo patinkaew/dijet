@@ -21,12 +21,14 @@
 #include <unordered_map>
 #include <array>
 
+// Recalculate JECs
+bool redoJEC = true;
+
 // MC triggers (slow) or not (faster)
 bool doMCtrigOnly = true;
 
 // JER smearing (JER SF)
 bool smearJets = true;
-bool redoJER = false;
 bool useJERSFvsPt = true; // new file format
 int smearNMax = 3;
 std::uint32_t _seed;
@@ -43,6 +45,7 @@ bool doMultijet = true; // multijet selection
 // Core additions
 bool doPFComposition = true; // jetveto / incjet / dijet / multijet
 bool doDijetJER = true;
+
 
 // Additional variants and controls
 bool doJetvetoVariants = false;
@@ -966,7 +969,7 @@ void DijetHistosFill::Loop()
     hLHE_HTw = new TH1D("hLHE_HTw", ";H_{T} (GeV);N_{evt} (weighted)", nht, vht);
     hHT = new TH1D("hHT", ";H_{T} (GeV);N_{evt} (weighted)", 2490, 10, 2500);
 
-    // Reference number of events, retrieved manuallay with
+    // Reference number of events, retrieved manually with
     // TChain c("Events"); c.AddFile("<path to files>/*.root"); c.GetEntries();
     // Also re-calculated this code before event loop when needed
     int vnevt2[nht2] = {0, 0, 11197186, 23002929, 17512439, 16405924, 14359110,
@@ -2172,7 +2175,9 @@ void DijetHistosFill::Loop()
     int njet = nJet;
     for (int i = 0; i != njet; ++i)
     {
-      if (redoJER)
+
+
+      if (redoJEC)
       {
         double rawJetPt = Jet_pt[i] * (1.0 - Jet_rawFactor[i]);
         double rawJetMass = Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
@@ -2198,6 +2203,12 @@ void DijetHistosFill::Loop()
         Jet_rawFactor[i] = (1.0 - 1.0 / corr);
         // pt*(1-l1rcFactor)=ptl1rc => l1rcFactor = 1 - ptl1rc/pt
         Jet_l1rcFactor[i] = (isRun2 ? (1.0 - jecl1rc->getCorrection() / corr) : Jet_rawFactor[i]);
+      }
+      else
+      {
+        Jet_RES[i] = 1.;
+        Jet_deltaJES[i] = 1.;
+        Jet_l1rcFactor[i] = Jet_rawFactor[i];
       }
       
       if (true)
@@ -2343,7 +2354,7 @@ void DijetHistosFill::Loop()
       } // for i
 
       // Then loop over genjets and also update dr
-      for (UInt_t j = 0; j != nGenJet; ++j)
+      for (Int_t j = 0; j != nGenJet; ++j)
       {
 
         p4g.SetPtEtaPhiM(GenJet_pt[j], GenJet_eta[j], GenJet_phi[j],
