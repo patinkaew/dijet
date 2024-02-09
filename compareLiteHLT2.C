@@ -205,8 +205,8 @@ FactorizedJetCorrector *selectJECEra(string dataset) {
 
   if (dataset == "2023D") {
     jec = getFJC("",
-                 "Summer22Run3_V1_MC_L2Relative",
-                 "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual");
+                 "Summer22Run3_V1_MC_L2Relative_AK4PFPuppi",
+                 "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI");
   }
 
   assert(jec);
@@ -261,7 +261,7 @@ void compareLiteHLT2(string run="2023D") {
 
     //string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.%sv12", crun, OneRun==true ? "OneRun." : "");
     //string filename = Form("input_files/dataFiles_%s.txt.22Sep2023.%sv12", crun, OneRun==true ? "OneRun." : "");
-    string filename = Form("input_files/dataFiles_%s_ZB%s.text", crun, OneRun==true ? ".OneRun" : "");
+    string filename = Form("input_files/dataFiles_%s_ZB%s.txt", crun, OneRun==true ? ".OneRun" : "");
     ifstream fin(filename.c_str(), ios::in);
 
     //string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.v12",crun);
