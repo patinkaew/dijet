@@ -295,7 +295,7 @@ void compareLiteHLT2(string run="2023D") {
   c_tA->SetBranchAddress("event",&evt_tA,&b_evt_tA);
 
   // Book TB tree (22Sep2023)
-  TChain *c_tB = new TChain("hlt");
+  TChain *c_tB = new TChain("Events");
   //cout << "B is 22Sep2023" << endl;
   cout << "B is HLT slimmedTupleV2*.root" << endl;
   {
@@ -315,9 +315,9 @@ void compareLiteHLT2(string run="2023D") {
   TBranch *b_run_tB, *b_lbn_tB, *b_evt_tB;
   UInt_t run_tB, lbn_tB;
   ULong64_t evt_tB;
-  c_tB->SetBranchAddress("rn",&run_tB,&b_run_tB);
-  c_tB->SetBranchAddress("ls",&lbn_tB,&b_lbn_tB);
-  c_tB->SetBranchAddress("ev",&evt_tB,&b_evt_tB);
+  c_tB->SetBranchAddress("run",&run_tB,&b_run_tB);
+  c_tB->SetBranchAddress("luminosityBlock",&lbn_tB,&b_lbn_tB);
+  c_tB->SetBranchAddress("event",&evt_tB,&b_evt_tB);
 
   cout << "Sort TB entries" << endl << flush;
   //map<evtid, pair<Long64_t, Long64_t>, evtid> mtB;
