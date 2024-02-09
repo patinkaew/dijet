@@ -481,7 +481,7 @@ void compareLiteHLT2(string run="2023D") {
   
   // Book tree B unique branches
   string BJet= "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
-  c_tB->SetBranchAddress("Rho_fixedGridRhoFastjetAll",&rho_tB,&b_rho_tB);
+  c_tB->SetBranchAddress("HLTRho_fixedGridRhoFastjetAll",&rho_tB,&b_rho_tB);
   c_tB->SetBranchAddress(("n"+BJet).c_str(),&njt_tB,&b_njt_tB);
   c_tB->SetBranchAddress((BJet+"_pt").c_str(),jtpt_tB,&b_jtpt_tB);
   c_tB->SetBranchAddress((BJet+"_eta").c_str(),jteta_tB,&b_jteta_tB);
@@ -492,7 +492,7 @@ void compareLiteHLT2(string run="2023D") {
 
   c_tB->SetBranchAddress((BJet+"_chHEF").c_str(), jtchHEF_tB,  &b_jtchHEF_tB );  // h+
   c_tB->SetBranchAddress((BJet+"_neHEF").c_str(), jtneHEF_tB,  &b_jtneHEF_tB );  // h0
-  c_tB->SetBranchAddress((BJet+"_neEnEF").c_str(), jtneEmEF_tB, &b_jtneEmEF_tB); // gamma
+  c_tB->SetBranchAddress((BJet+"_neEmEF").c_str(), jtneEmEF_tB, &b_jtneEmEF_tB); // gamma
   c_tB->SetBranchAddress((BJet+"_chEmEF").c_str(), jtchEmEF_tB, &b_jtchEmEF_tB); // e
   c_tB->SetBranchAddress((BJet+"_muEF").c_str(), jtmuEF_tB,   &b_jtmuEF_tB  );   // mu
 
