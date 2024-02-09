@@ -239,7 +239,7 @@ TH2D *getJVM(string dataset) {
 }
 
 
-void compareLiteHLT(string run="2023D") {
+void compareLiteHLT2(string run="2023D") {
 
   TDirectory *curdir = gDirectory;
   setTDRStyle();
@@ -619,7 +619,7 @@ void compareLiteHLT(string run="2023D") {
   const int ny = sizeof(vy) / sizeof(vy[0]) - 1;
   
   // Open file for outputting results
-  TFile *f = new TFile(Form("rootfiles/compareLiteHLT_%s.root",run.c_str()),
+  TFile *f = new TFile(Form("rootfiles/compareLiteHLT2_%s.root",run.c_str()),
 		       "RECREATE");
   f->mkdir("2D");
   f->mkdir("PF");
