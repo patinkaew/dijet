@@ -480,7 +480,7 @@ void compareLiteHLT(string run="2023D") {
   c_tA->SetBranchAddress("Flag_ecalBadCalibFilter", &Flag_ecalBadCalibFilter, &b_Flag_ecalBadCalibFilter);
   
   // Book tree B unique branches
-  string BJet= "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC"
+  string BJet= "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
   c_tB->SetBranchAddress("Rho_fixedGridRhoFastjetAll",&rho_tB,&b_rho_tB);
   c_tB->SetBranchAddress(("n"+BJet).c_str(),&njt_tB,&b_njt_tB);
   c_tB->SetBranchAddress((BJet+"_pt").c_str(),jtpt_tB,&b_jtpt_tB);
