@@ -29,7 +29,7 @@
 #include "tdrstyle_mod22.C"
 
 #include <iostream>
-#include <unordered_map>
+#include <map>
 
 using namespace std;
 using namespace tools;
@@ -62,7 +62,7 @@ public :
   ULong64_t evt() const { return evt_; }
 };
 
-std::unordered_map<int, std::unordered_map<int, int> > _json;
+std::map<int, std::map<int, int> > _json;
 bool LoadJSON(string json) {
   cout << "Processing LoadJSON() with " + json << endl << flush;
   ifstream file(json, ios::in);
