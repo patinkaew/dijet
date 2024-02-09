@@ -261,7 +261,7 @@ void compareLiteHLT2(string run="2023D") {
 
     //string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.%sv12", crun, OneRun==true ? "OneRun." : "");
     //string filename = Form("input_files/dataFiles_%s.txt.22Sep2023.%sv12", crun, OneRun==true ? "OneRun." : "");
-    string filename = Form("input_files/dataFiles_%s_ZB.txt.22Sep2023.%sv12", crun, OneRun==true ? "OneRun." : "");
+    string filename = Form("input_files/dataFiles_%s_ZB%s.text", crun, OneRun==true ? ".OneRun" : "");
     ifstream fin(filename.c_str(), ios::in);
 
     //string filename = Form("input_files/dataFiles_%s.txt.19Dec2023.v12",crun);
