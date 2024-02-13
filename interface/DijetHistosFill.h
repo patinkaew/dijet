@@ -53,7 +53,8 @@ public :
    Bool_t HLT_MC = kTRUE;
    Bool_t Jet_jetveto[100];
 
-   
+   // run on HLT
+   bool isHLT;
   
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -3542,6 +3543,8 @@ public :
 #ifdef DijetHistosFill_cxx
 DijetHistosFill::DijetHistosFill(TTree *tree, int itype, string datasetname, string versionname) : fChain(0), isMC(itype), dataset(datasetname), version(versionname)
 {
+   // run on HLT Jet from AlCALowPtJet
+   isHLT = TString(dataset.c_str()).Contains("_HLT");
 
   // Use data set to decide on active branches
   //string& ds = datasetname;

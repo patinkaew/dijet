@@ -61,9 +61,6 @@ bool debugevent = false; // per-event debug
 // Permit ~0.7 extra scaling to allow for HF L3Res
 const double maxa = 10; // no cut with 10
 
-// run on HLT Jet from AlCALowPtJet
-bool isHLT = true;
-
 // List of MC IOVs
 std::set<std::string> mcIOV = {"Summer22",
                                "Summer22Flat", "Summer22EE", "Summer22EEFlat",
