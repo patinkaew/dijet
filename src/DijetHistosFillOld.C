@@ -61,9 +61,6 @@ bool debugevent = false; // per-event debug
 // Permit ~0.7 extra scaling to allow for HF L3Res
 const double maxa = 10; // no cut with 10
 
-// run on HLT Jet from AlCALowPtJet
-bool isHLT = true;
-
 // List of MC IOVs
 std::set<std::string> mcIOV = {"Summer22",
                                "Summer22Flat", "Summer22EE", "Summer22EEFlat",
@@ -407,8 +404,7 @@ void DijetHistosFill::Loop()
     fChain->SetBranchStatus("fixedGridRhoFastjetAll", 1);
   if (isRun3)
     fChain->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
-  if (!isHLT)
-    fChain->SetBranchStatus("L1_UnprefireableEvent", 1);
+  fChain->SetBranchStatus("L1_UnprefireableEvent", 1);
 
   // Listing of available triggers
   vector<string> vtrg = {
@@ -486,35 +482,30 @@ void DijetHistosFill::Loop()
     assert(mtrg[vtrg[i]] != 0);
   }
 
-  std::string jetName = "Jet";
-  if(isHLT):
-    jetName = "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
+  fChain->SetBranchStatus("nJet", 1);
+  fChain->SetBranchStatus("Jet_pt", 1);
+  fChain->SetBranchStatus("Jet_eta", 1);
+  fChain->SetBranchStatus("Jet_phi", 1);
+  fChain->SetBranchStatus("Jet_mass", 1);
+  fChain->SetBranchStatus("Jet_jetId", 1);
 
-  fChain->SetBranchStatus(("n"+jetName).c_str(), 1);
-  fChain->SetBranchStatus((jetName+"_pt").c_str(), 1);
-  fChain->SetBranchStatus((jetName+"_eta").c_str(), 1);
-  fChain->SetBranchStatus((jetName+"_phi").c_str(), 1);
-  fChain->SetBranchStatus((jetName+"_mass").c_str(), 1);
-  fChain->SetBranchStatus((jetName+"_jetId").c_str(), 1);
-
-  fChain->SetBranchStatus((jetName+"_rawFactor").c_str(), 1);
+  fChain->SetBranchStatus("Jet_rawFactor", 1);
   if (isRun2)
-    fChain->SetBranchStatus((jetName+"_area").c_str(), 1);
+    fChain->SetBranchStatus("Jet_area", 1);
 
   // bool doPFComposition = true;
   if (doPFComposition)
   {
-    fChain->SetBranchStatus((jetName+"_chHEF").c_str(), 1);  // h+
-    fChain->SetBranchStatus((jetName+"_neHEF").c_str(), 1);  // h0
-    fChain->SetBranchStatus((jetName+"_neEmEF").c_str(), 1); // gamma
-    fChain->SetBranchStatus((jetName+"_chEmEF").c_str(), 1); // e
-    fChain->SetBranchStatus((jetName+"_muEF").c_str(), 1);   // mu
+    fChain->SetBranchStatus("Jet_chHEF", 1);  // h+
+    fChain->SetBranchStatus("Jet_neHEF", 1);  // h0
+    fChain->SetBranchStatus("Jet_neEmEF", 1); // gamma
+    fChain->SetBranchStatus("Jet_chEmEF", 1); // e
+    fChain->SetBranchStatus("Jet_muEF", 1);   // mu
     // fChain->SetBranchStatus("Jet_hfEmEF",1); // HFe
     // fChain->SetBranchStatus("Jet_hfHEF",1);  // HFh
   }
 
   double Jet_l1rcFactor[nJetMax]; // For L1L2L3-RC type-I MET
-  if (!isHLT){
   if (isRun2)
   {
     // raw chs PF MET
@@ -542,7 +533,7 @@ void DijetHistosFill::Loop()
     fChain->SetBranchStatus("Flag_eeBadScFilter", 1);
     fChain->SetBranchStatus("Flag_ecalBadCalibFilter", 1);
   }
-  }
+
   // Trigger studies => TrigObjAK4 later (fixed now)
   bool doTriggerMatch = false;
   nTrigObjJMEAK4 = 0; // turn off
@@ -876,11 +867,6 @@ void DijetHistosFill::Loop()
                  "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                     // Mikel
                                                                                //"Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi"
                  "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
-  }
-
-  if (TString(dataset.c_str()).Contains("HLT"))
-  {
-    jec = getFJC("")
   }
 
   if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
