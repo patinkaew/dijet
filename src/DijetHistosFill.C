@@ -484,8 +484,9 @@ void DijetHistosFill::Loop()
   }
 
   std::string jetName = "Jet";
-  if(isHLT):
+  if(isHLT)
     jetName = "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
+    
 
   fChain->SetBranchStatus(("n"+jetName).c_str(), 1);
   fChain->SetBranchStatus((jetName+"_pt").c_str(), 1);
