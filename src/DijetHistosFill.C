@@ -1458,7 +1458,7 @@ void DijetHistosFill::Loop()
       h->trg = t;
       h->trgpt = trgpt;
 
-      struct range &r = mt[t];
+    struct range &r = mt[t];
       h->ptmin = r.ptmin;
       h->ptmax = r.ptmax;
       h->absetamin = r.absetamin;
@@ -1917,7 +1917,7 @@ void DijetHistosFill::Loop()
       dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
       dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB")
     fjv = new TFile("rootfiles/jetveto2023BC.root", "READ");
-  if (dataset == "2023D" || dataset == "2023D_ZB")
+  if (dataset == "2023D" || dataset == "2023D_ZB" || dataset == "2023D_HLT")
     fjv = new TFile("rootfiles/jetveto2023D.root", "READ");
   assert(fjv);
 
