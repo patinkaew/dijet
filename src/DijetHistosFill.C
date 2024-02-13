@@ -877,7 +877,7 @@ void DijetHistosFill::Loop()
 
   if (TString(dataset.c_str()).Contains("HLT"))
   {
-    jec = getFJC("")
+    jec = getFJC("");
   }
 
   if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
