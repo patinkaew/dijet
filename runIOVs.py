@@ -18,8 +18,8 @@ IOV_list= ['UL2016BCD','UL2016EF','UL2016GH',
 #     '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG1','Summer22MG2',
     'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4',
-    'Summer23_1', 'Summer23_2', 'Summer23_3', 'Summer23_4'.
-    'Summer23BPix_1', 'Summer23BPix_2', 'Summer23BPix_3', 'Summer23BPix_4'
+    'Summer23MG_1', 'Summer23MG_2', 'Summer23MG_3', 'Summer23MG_4'.
+    'Summer23MGBPix_1', 'Summer23MGBPix_2', 'Summer23MGBPix_3', 'Summer23MGBPix_4'
 ]
 
 # Run 3 is all samples with year 2023 and 2022 from the full IOV_list
