@@ -77,7 +77,9 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX", int nFilesM
      "Summer22MG1", "Summer22MG2",
      "Summer22EEFlat", "Summer22EEMG",
      "Summer22EEMG1", "Summer22EEMG2",
-     "Summer22EEMG3", "Summer22EEMG4"
+     "Summer22EEMG3", "Summer22EEMG4",
+     "Summer23_1", "Summer23_2", "Summer23_3", "Summer23_4",
+     "Summer23BPix_1", "Summer23BPix_2", "Summer23BPix_3", "Summer23BPix_4"
      };
 
   std::unordered_set<std::string> DT_datasets = {"UL2016BCD", 

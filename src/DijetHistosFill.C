@@ -20,6 +20,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <array>
+#include <string_view>
 
 // Recalculate JECs
 bool redoJEC = true;
@@ -81,39 +82,53 @@ double DELTAR(double phi1, double phi2, double eta1, double eta2)
   return sqrt(pow(DELTAPHI(phi1, phi2), 2) + pow(eta1 - eta2, 2));
 }
 
-const constexpr std::array<std::pair<std::string_view, const char *>, 19> lumifiles = {{
-    {"2022C", "luminosityscripts/csvfiles/lumibyls2022C.csv"},
-    {"2022C_ZB", "luminosityscripts/csvfiles/lumibyls2022C.csv"},
-    {"2022D", "luminosityscripts/csvfiles/lumibyls2022D.csv"},
-    {"2022D_ZB", "luminosityscripts/csvfiles/lumibyls2022D.csv"},
-    {"2022E", "luminosityscripts/csvfiles/lumibyls2022E.csv"},
-    {"2022E_ZB", "luminosityscripts/csvfiles/lumibyls2022E.csv"},
-    {"2022F", "luminosityscripts/csvfiles/lumibyls2022F.csv"},
-    {"2022F_ZB", "luminosityscripts/csvfiles/lumibyls2022F.csv"},
-    {"2022G", "luminosityscripts/csvfiles/lumibyls2022G.csv"},
-    {"2022G_ZB", "luminosityscripts/csvfiles/lumibyls2022G.csv"},
-    {"2023B", "luminosityscripts/csvfiles/lumibyls2023AB.csv"},
-    {"2023B_ZB", "luminosityscripts/csvfiles/lumibyls2023AB.csv"},
-    {"2023Cv4", "luminosityscripts/csvfiles/lumibyls2023C4.csv"},
-    {"2023Cv4_ZB", "luminosityscripts/csvfiles/lumibyls2023C4.csv"},
-    {"2023Cv123", "luminosityscripts/csvfiles/lumibyls2023C123.csv"},
-    {"2023BCv123", "luminosityscripts/csvfiles/lumibyls2023ABC.csv"},
-    {"20223Cv123_ZB", "luminosityscripts/csvfiles/lumibyls2023C123.csv"},
-    {"2023D", "luminosityscripts/csvfiles/lumibyls2023D.csv"},
-    {"2023D_ZB", "luminosityscripts/csvfiles/lumibyls2023D.csv"},
-}};  // NOT CORRECT FOR 2023BCv123!!!! TEMP. FIX WHILE LUMI IS STILL NOT IN USE
 
-constexpr const char *getLumifile(const std::string_view dataset)
+
+constexpr const char lumibyls2022C[] = "luminosityscripts/csvfiles/lumibyls2022C.csv";
+constexpr const char lumibyls2022D[] = "luminosityscripts/csvfiles/lumibyls2022D.csv";
+constexpr const char lumibyls2022E[] = "luminosityscripts/csvfiles/lumibyls2022E.csv";
+constexpr const char lumibyls2022F[] = "luminosityscripts/csvfiles/lumibyls2022F.csv";
+constexpr const char lumibyls2022G[] = "luminosityscripts/csvfiles/lumibyls2022G.csv";
+constexpr const char lumibyls2023B[] = "luminosityscripts/csvfiles/lumibyls2023AB.csv";
+constexpr const char lumibyls2023C4[] = "luminosityscripts/csvfiles/lumibyls2023C4.csv";
+constexpr const char lumibyls2023C123[] = "luminosityscripts/csvfiles/lumibyls2023C123.csv";
+constexpr const char lumibyls2023ABC[] = "luminosityscripts/csvfiles/lumibyls2023ABC.csv";
+constexpr const char lumibyls2023D[] = "luminosityscripts/csvfiles/lumibyls2023D.csv";
+
+constexpr std::array<std::pair<const char*, const char*>, 19> lumifiles = {{
+    {"2022C", lumibyls2022C},
+    {"2022C_ZB", lumibyls2022C},
+    {"2022D", lumibyls2022D},
+    {"2022D_ZB", lumibyls2022D},
+    {"2022E", lumibyls2022E},
+    {"2022E_ZB", lumibyls2022E},
+    {"2022F", lumibyls2022F},
+    {"2022F_ZB", lumibyls2022F},
+    {"2022G", lumibyls2022G},
+    {"2022G_ZB", lumibyls2022G},
+    {"2023B", lumibyls2023B},
+    {"2023B_ZB", lumibyls2023B},
+    {"2023Cv4", lumibyls2023C4},
+    {"2023Cv4_ZB", lumibyls2023C4},
+    {"2023Cv123", lumibyls2023C123},
+    {"2023BCv123", lumibyls2023ABC},
+    {"20223Cv123_ZB", lumibyls2023C123},
+    {"2023D", lumibyls2023D},
+    {"2023D_ZB", lumibyls2023D},
+}}; // NOT CORRECT FOR 2023BCv123!!!! TEMP. FIX WHILE LUMI IS STILL NOT IN USE
+
+constexpr const char *getLumifile(const char* dataset, std::size_t index = 0)
 {
-  for (const auto &entry : lumifiles)
-  {
-    if (entry.first == dataset)
-    {
-      return entry.second;
-    }
-  }
-  return nullptr; // Or handle the case when dataset is not found
+    if (index >= lumifiles.size())
+        return nullptr; // Dataset not found
+
+    if (std::strcmp(lumifiles[index].first, dataset) == 0)
+        return lumifiles[index].second;
+    
+    return getLumifile(dataset, index + 1);
 }
+
+
 
 // Hardcoded pT, eta thresholds for each trigger
 // used in e.g. jetvetoHistos
@@ -824,7 +839,7 @@ void DijetHistosFill::Loop()
   }
   if (dataset == "Summer23" ||
       dataset == "Summer23Flat" || dataset == "Summer23MG" ||
-      dataset == "Summer23BPIXFlat" || dataset == "Summer23BPIXMG")
+      dataset == "Summer23BPIXFlat" || dataset == "Summer23BPIXMG" || TString(dataset.c_str()).Contains("Summer23"))
   {
     jec = getFJC("", // Winter23Prompt23_V2_MC_L1FastJet_AK4PFPuppi",
                  "Winter23Prompt23_V2_MC_L2Relative_AK4PFPuppi",
@@ -3310,7 +3325,7 @@ bool DijetHistosFill::LoadLumi()
 {
   // For calculating luminosity on the fly based on .csv file and take only events with non-zero luminosity
 
-  const char *lumifile = getLumifile(dataset);
+  const char *lumifile = getLumifile(dataset.c_str());
 
   PrintInfo(string("Processing LoadLumi() with ") + lumifile + "...", true);
 
@@ -3343,7 +3358,6 @@ bool DijetHistosFill::LoadLumi()
   PrintInfo(string("\nstring: ") + s + " !", true);
 
   // HOX: the lumi file format has been changing. Change the conditions when needed.
-  // TODO: Check validity for Run 3
   if (s != "#Data tag : 23v1 , Norm tag: None")
     return false;
 
@@ -3388,7 +3402,7 @@ bool DijetHistosFill::LoadLumi()
     if (lum == 0 and goodruns.find(rn) != goodruns.end() and (_json[rn][ls] == 1)) // The second condition had !jp::dojson or
       nolums.insert(pair<int, int>(rn, ls));
 
-    _avgpu[rn][ls] = avgpu * 69000. / 78400.; // brilcalc --minBiasXsec patch
+    _avgpu[rn][ls] = avgpu * 69000. / 80000.; // brilcalc --minBiasXsec patch
     _lums[rn][ls] = lum;
     _lums2[rn][ls] = lum2;
     lumsum += lum;

@@ -17,15 +17,18 @@ IOV_list= ['UL2016BCD','UL2016EF','UL2016GH',
     '2023Cv4', '2023D', '2023BCv123', # '2023Cv123', 
 #     '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG1','Summer22MG2',
-    'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4'
+    'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4',
+    'Summer23_1', 'Summer23_2', 'Summer23_3', 'Summer23_4'.
+    'Summer23BPix_1', 'Summer23BPix_2', 'Summer23BPix_3', 'Summer23BPix_4'
 ]
 
 # Run 3 is all samples with year 2023 and 2022 from the full IOV_list
 run3_IOV_list = [x for x in IOV_list if '2023' in x or '2022' in x or 'Summer22' in x]
 run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
+summer23_MC = [x for x in IOV_list if 'Summer23' in x]
 
-version = 'v36'
+version = 'v36_Summer23MC'
 
 IOV_input = []
 
@@ -46,6 +49,8 @@ if args.IOV_list:
         IOV_input = run3_DT
     elif 'run3MC' in args.IOV_list:
         IOV_input = run3_MC
+    elif 'summer23MC' in args.IOV_list:
+        IOV_input = summer23_MC
     elif 'test' in args.IOV_list:
         IOV_input = run3_IOV_list[1:5]
         max_files = 4
