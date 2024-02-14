@@ -1928,10 +1928,10 @@ void DijetHistosFill::Loop()
       dataset == "2023Cv123" || dataset == "2023Cv4" ||
       dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
       dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
-      TString(dataset.c_str()).Contains("Summer23MG") || TString(dataset.c_str()).Contains("Summer23MGBPix"))
+      (TString(dataset.c_str()).Contains("Summer23MG") && ! TString(dataset.c_str()).Contains("MGBPix")))
     fjv = new TFile("rootfiles/jetveto2023BC.root", "READ");
   if (dataset == "2023D" || dataset == "2023D_ZB" ||
-      TString(dataset.c_str()).Contains("Summer23MG") || TString(dataset.c_str()).Contains("Summer23MGBPix"))
+      TString(dataset.c_str()).Contains("Summer23MGBPix"))
     fjv = new TFile("rootfiles/jetveto2023D.root", "READ");
   assert(fjv);
 
@@ -1968,10 +1968,10 @@ void DijetHistosFill::Loop()
       dataset == "2023Cv123" || dataset == "2023Cv4" ||
       dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
       dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
-      TString(dataset.c_str()).Contains("Summer23MG") || TString(dataset.c_str()).Contains("Summer23MGBPix"))
+      (TString(dataset.c_str()).Contains("Summer23MG") && ! TString(dataset.c_str()).Contains("MGBPix")))
     h2jv = (TH2D *)fjv->Get("jetvetomap");
   if (dataset == "2023D" || dataset == "2023D_ZB" ||
-      TString(dataset.c_str()).Contains("Summer23MG") || TString(dataset.c_str()).Contains("Summer23MGBPix"))
+      TString(dataset.c_str()).Contains("Summer23MGBPix"))
     h2jv = (TH2D *)fjv->Get("jetvetomap");
   assert(h2jv);
 
