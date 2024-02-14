@@ -2198,6 +2198,7 @@ void DijetHistosFill::Loop()
         double rawJetMass = Jet_mass[i] * (1.0 - Jet_rawFactor[i]);
         jec->setJetPt(rawJetPt);
         jec->setJetEta(Jet_eta[i]);
+        jec->setJetPhi(Jet_phi[i]);
         if (isRun2)
         {
           jec->setJetA(Jet_area[i]);
