@@ -1,0 +1,6 @@
+/media/DATA2/NANO_MC/2023/QCD-4Jets_HT-40to70_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer23NanoAODv12-130X_mcRun3_2023_realistic_v14-v2_NANOAODSIM/29d8937d-aa0e-4057-ac55-1d05fa1b73d0.root
+/media/DATA2/NANO_MC/2023/QCD-4Jets_HT-100to200_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer23NanoAODv12-130X_mcRun3_2023_realistic_v14-v2_NANOAODSIM/05beb6a1-53ed-4bd5-8fc7-78f90fb24d8e.root
+/media/DATA2/NANO_MC/2023/QCD-4Jets_HT-1000to1200_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer23NanoAODv12-130X_mcRun3_2023_realistic_v14-v2_NANOAODSIM/001bf378-0660-4721-9fd2-3e349493eae9.root
+/media/DATA2/NANO_MC/2023/QCD-4Jets_HT-1200to1500_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer23NanoAODv12-130X_mcRun3_2023_realistic_v14-v2_NANOAODSIM/0080a8f1-751f-432c-977c-db38370bcf9a.root
+/media/DATA2/NANO_MC/2023/QCD-4Jets_HT-1500to2000_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer23NanoAODv12-130X_mcRun3_2023_realistic_v14-v3_NANOAODSIM/07fdf2bf-3b14-470c-bde7-39d88e6459a3.root
+/media/DATA2/NANO_MC/2023/QCD-4Jets_HT-2000_TuneCP5_13p6TeV_madgraphMLM-pythia8_Run3Summer23NanoAODv12-130X_mcRun3_2023_realistic_v14-v2_NANOAODSIM/00029da4-4238-4c22-8e5a-9bd1fb44d501.root
