@@ -9,7 +9,7 @@
 #include <iostream>
 
 int debug = 1; // 1=trg, 2=dir, 3=all
-string version = "v35b_22Sep2023";
+string version = "v36_Summer23MG_test";
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
@@ -20,21 +20,22 @@ void DijetHistosCombines(string file = "rootfiles/"+version+"/jmenano_data_out.r
 void DijetHistosCombine() {
 
 
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022C_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022D_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022CD_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022E_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022C_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022D_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022CD_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022E_JME_"+version+".root");
 
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022F_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022G_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022FG_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022F_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022G_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2022FG_JME_"+version+".root");
 
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023BCv123_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023Cv4_JME_"+version+".root");
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023D_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023BCv123_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023Cv4_JME_"+version+".root");
+  //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023D_JME_"+version+".root");
 
-  DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_Run3_JME_"+version+".root");
-  
+  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_test/jmenano_mc_out_Summer23MGBPix_test_"+version+".root");
+  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_test/jmenano_mc_out_Summer23MG_test_"+version+".root");
+
   // Really slow on this after all the others, rerun separately (then sec)
 //  DijetHistosCombines("../rootfiles/"+version+"/jmenano_mc_out_Summer22EEMG_"+version+".root");
 // DijetHistosCombines("../rootfiles/"+version+"/jmenano_mc_out_Summer22MG_"+version+".root");
@@ -464,7 +465,7 @@ bool copyBin(string trg, string folder, string hist, double pt, double eta) {
     mj["HLT_PFJetFwd500"] = range{600,3000, fwdeta0, 5.2};
 
     mi["HLT_ZeroBias"] = range{10,  49,  0, 5.2};
-
+    mi["HLT_MC"]       = range{15,6500,  0, 5.2};
     /*
     mi["HLT_PFJet40"]  = range{49,  84,  0, 5.2};
     mi["HLT_PFJet60"]  = range{84,  114, 0, 5.2};
