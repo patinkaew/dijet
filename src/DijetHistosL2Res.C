@@ -53,15 +53,18 @@ void DijetHistosL2Res() {
     const char *c = (i==0 ? "" : (i==1 ? "pf" : "tc"));
 
     // Run3 (v29->v30)
-    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022E_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022CD_JME_v30.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022E_JME_v30.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2022FG_JME_v30.root","Dijet2",c);
     // 2023
-    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2",c);
-    DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023D_JME_v30.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023BCv123_JME_v30.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023Cv4_JME_v30.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_data_cmb_2023D_JME_v30.root","Dijet2",c);
+    // Nestor
+    DijetHistosL2Ress("/media/storage/nestorma/dijet/rootfiles/jmenano_data_cmb_2022E_v35_22Sep2023.root","Dijet2",c);
     // MC
-    DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2",c);
+    DijetHistosL2Ress("/media/storage/nestorma/dijet/rootfiles/jmenano_mc_cmb_Summer22MG_v35_22Sep2023.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_Summer22MG_v30.root","Dijet2",c);
 
     /*
     // New Run3 files from Iita and Mikael
@@ -81,7 +84,7 @@ void DijetHistosL2Res() {
     //DijetHistosL2Ress("../jecsys3/rootfiles/Iita_20230814/nano_data_cmb_2022BCv123_v1.root","Dijet2",c);
     */
     // UL2018 reference
-    DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2",c);
+    //DijetHistosL2Ress("../rootfiles/jmenano_mc_cmb_UL2018MG_v26.root","Dijet2",c);
   }
   
 }

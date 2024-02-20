@@ -29,8 +29,8 @@ bool redoJEC = true;
 bool doMCtrigOnly = true;
 
 // JER smearing (JER SF)
-bool smearJets = true;
-bool useJERSFvsPt = true; // new file format
+bool smearJets = false;
+bool useJERSFvsPt = false; // new file format
 int smearNMax = 3;
 std::uint32_t _seed;
 std::mt19937 _mersennetwister;
@@ -365,6 +365,8 @@ void DijetHistosFill::Loop()
   TStopwatch fulltime, laptime;
   fulltime.Start();
   TDatime bgn;
+  TDatime start_time;
+  start_time.Set();
   int nlap(0);
 
   fChain->SetBranchStatus("*", 0);
@@ -841,9 +843,18 @@ void DijetHistosFill::Loop()
       dataset == "Summer23Flat" || dataset == "Summer23MG" ||
       dataset == "Summer23BPIXFlat" || dataset == "Summer23BPIXMG" || TString(dataset.c_str()).Contains("Summer23"))
   {
-    jec = getFJC("", // Winter23Prompt23_V2_MC_L1FastJet_AK4PFPuppi",
-                 "Winter23Prompt23_V2_MC_L2Relative_AK4PFPuppi",
-                 "");                                                                                   // Winter23Prompt23_V2_MC_L2L3Residual_AK4PFPuppi");
+    if (TString(dataset.c_str()).Contains("Summer23MGBPix")) {
+      jec = getFJC("",
+                  "Summer23BPixRun3_V3_MC_L2Relative_AK4PUPPI",
+                  "");                                             
+    } else {
+      jec = getFJC("", 
+                  "Summer23Run3_V1_MC_L2Relative_AK4PUPPI",
+                  ""); 
+    }
+    //jec = getFJC("", // Winter23Prompt23_V2_MC_L1FastJet_AK4PFPuppi",
+    //             "Winter23Prompt23_V2_MC_L2Relative_AK4PFPuppi",
+    //             "");                                                                                   // Winter23Prompt23_V2_MC_L2L3Residual_AK4PFPuppi");
     jerpath = "CondFormats/JetMETObjects/data/Summer22EEVetoRun3_V1_NSCP_MC_PtResolution_ak4puppi.txt"; // Same as Summer22EE, until updated
     jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt";                // Same as Summer22EE, until updated
     useJERSFvsPt = false;
@@ -861,27 +872,27 @@ void DijetHistosFill::Loop()
   {
     jec = getFJC("",                                                               // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
                                                                                    //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
+                 "Summer23Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
                                                                                    // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 "Summer22Prompt23_Run2023Cv123_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+                 "Summer23Prompt23_Run2023Cv123_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
   if (dataset == "2023Cv4" || dataset == "2023Cv4_ZB")
   {
     jec = getFJC("",                                                             // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
                                                                                  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                       // Mikel
+                 "Summer23Run3_V1_MC_L2Relative_AK4PUPPI",                       // Mikel
                                                                                  //"Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 "Summer22Prompt23_Run2023Cv4_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+                 "Summer23Prompt23_Run2023Cv4_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
   if (dataset == "2023D" || dataset == "2023D_ZB")
   {
     jec = getFJC("",                                                           // Winter23Prompt23_RunC_V2_DATA_L1FastJet_AK4PFPuppi",
                                                                                //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
-                 "Summer22Run3_V1_MC_L2Relative_AK4PUPPI",                     // Mikel
+                 "Summer23BPixRun3_V3_MC_L2Relative_AK4PUPPI",                     // Mikel
                                                                                //"Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 "Summer22Prompt23_Run2023D_V3_DATA_L2L3Residual_AK4PFPUPPI"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+                 "Summer23Prompt23_Run2023D_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
   if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
@@ -1173,7 +1184,7 @@ void DijetHistosFill::Loop()
   map<string, multijetHistos *> mhmj;
   map<string, lumiHistos *> mhlumi;
 
-  bool dolumi = !isMC;
+  bool dolumi = false;
   if (dolumi)
     LoadLumi();
 
@@ -1916,9 +1927,11 @@ void DijetHistosFill::Loop()
   if (dataset == "2023B" || dataset == "2023C" || dataset == "2023BCv123" ||
       dataset == "2023Cv123" || dataset == "2023Cv4" ||
       dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
-      dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB")
+      dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
+      (TString(dataset.c_str()).Contains("Summer23MG") && ! TString(dataset.c_str()).Contains("MGBPix")))
     fjv = new TFile("rootfiles/jetveto2023BC.root", "READ");
-  if (dataset == "2023D" || dataset == "2023D_ZB")
+  if (dataset == "2023D" || dataset == "2023D_ZB" ||
+      TString(dataset.c_str()).Contains("Summer23MGBPix"))
     fjv = new TFile("rootfiles/jetveto2023D.root", "READ");
   assert(fjv);
 
@@ -1954,9 +1967,11 @@ void DijetHistosFill::Loop()
   if (dataset == "2023B" || dataset == "2023C" || dataset == "2023BCv123" ||
       dataset == "2023Cv123" || dataset == "2023Cv4" ||
       dataset == "2023B_ZB" || dataset == "2023C_ZB" || dataset == "2023BCv123_ZB" ||
-      dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB")
+      dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
+      (TString(dataset.c_str()).Contains("Summer23MG") && ! TString(dataset.c_str()).Contains("MGBPix")))
     h2jv = (TH2D *)fjv->Get("jetvetomap");
-  if (dataset == "2023D" || dataset == "2023D_ZB")
+  if (dataset == "2023D" || dataset == "2023D_ZB" ||
+      TString(dataset.c_str()).Contains("Summer23MGBPix"))
     h2jv = (TH2D *)fjv->Get("jetvetomap");
   assert(h2jv);
 
@@ -2044,10 +2059,12 @@ void DijetHistosFill::Loop()
       }
       if (nentries != 0)
       {
+        double events_per_second = (double)jentry / fulltime.RealTime(); // Calculate events per second
         cout << Form("\nProcessed %lld events (%1.1f%%) in %1.0f sec. "
                      "(%1.0f sec. for last %d)",
                      jentry, 100. * jentry / nentries, fulltime.RealTime(),
                      laptime.RealTime(), nlap);
+	cout << Form("\nEvents per second: %1.2f", events_per_second); // Print events per second
       }
       if (jentry != 0 && nlap != 0)
       {
@@ -2056,6 +2073,13 @@ void DijetHistosFill::Loop()
                      1. * nentries / jentry * fulltime.RealTime(),
                      1. * nentries / nlap * laptime.RealTime(), nlap)
              << flush;
+        // Nestor
+        //
+        TDatime estimated_completion_time;
+        estimated_completion_time.Set(start_time.Convert() + (1. * nentries / jentry * fulltime.RealTime()));
+        // Format and print the estimated completion time
+        cout << "Estimated full runtime: " << estimated_completion_time.AsSQLString() << endl;
+        //
         laptime.Reset();
         nlap = 0;
       }

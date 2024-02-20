@@ -8,9 +8,9 @@
 
 #include "../tdrstyle_mod22.C"
 
-string version = "v35a";
+string version = "v36_Summer23MG_L2L3Res_v1";
 
-void drawMultijets(string epoch="2022CD", string version="v31");
+void drawMultijets(string epoch="2022E", string version="v35a");
 
 void drawMultijet() {
 
@@ -31,14 +31,16 @@ void drawMultijet() {
   drawMultijets("2023Cv4","v31");
   drawMultijets("2023D","v31");
 */
-  drawMultijets("2022CD",version);
-  drawMultijets("2022E",version);
-  drawMultijets("2022FG",version);
-  drawMultijets("2023BCv123",version);
-  drawMultijets("2023Cv4",version);
+  //drawMultijets("2022CD",version);
+  //drawMultijets("2022E",version);
+  //drawMultijets("2022CD",version);
+  //drawMultijets("2022FG",version);
+  //drawMultijets("2023Cv123",version);
+  //drawMultijets("2023BCv123",version);
+  //drawMultijets("2023Cv4",version);
   drawMultijets("2023D",version);
 
-  drawMultijets("Run3",version);
+  //drawMultijets("Run3",version);
 }
 
 
@@ -50,25 +52,38 @@ void drawMultijets(string epoch, string version) {
   // Load requested data file
   const char *ce = epoch.c_str();
   const char *cv = version.c_str();
-  TFile *fd = new TFile(Form("../rootfiles/jmenano_data_cmb_%s_JME_%s.root",ce,cv));
+  //TFile *fd = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/jmenano_data_cmb_%s_%s_22Sep2023.root",ce,cv));
+  //TFile *fd = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v35a/jmenano_data_cmb_%s_JME_%s.root",ce,cv));
+  TFile *fd = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23MG_L2L3Res_v1/jmenano_data_cmb_%s_JME_%s.root",ce,cv));
+  //TFile *fd = new TFile("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23DT_NoL2L3Res_Winter/jmenano_data_cmb_2023D_JME_v36_Summer23DT_NoL2L3Res.root");
+
   assert(fd && !fd->IsZombie());
 
   // Find matching MC
   map<string,const char*> mc;
   mc["2022C"] = "Summer22MG1";
-  mc["2022CD"] = "Summer22MG1";
-  mc["2022E"] = (version=="v30" ? "Summer22MG1" : "Summer22EEMG1");
+  //mc["2022CD"] = "Summer22MG1";
+  mc["2022CD"] = "Summer22MG";
+  mc["2022E"] = "Summer22MG";
+  //mc["2022E"] = (version=="v35" ? "Summer22MG1" : "Summer22EEMG1");
   mc["2022FG"] = (version=="v30" ? "Summer22MG1" : "Summer22EEMG1");
-  mc["2023BCv123"] = "Summer22MG1";
-  mc["2023Cv4"] = "Summer22MG1";
-  mc["2023D"] = "Summer22MG1";
+  //mc["2023BCv123"] = "Summer22MG1";
+  mc["2023Cv123"] = "Summer23MG";
+  mc["2023Cv4"] = "Summer23MG";
+  mc["2023D"] = "Summer23MGBPix";
   mc["Run3"] = "Summer22MG1";
   const char *cm = mc[ce];
-  TFile *fm = new TFile(Form("../rootfiles/jmenano_mc_out_%s_%s.root",cm,cv));
+  //TFile *fm = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/jmenano_mc_cmb_%s_%s_22Sep2023.root",cm,cv));
+  //TFile *fm = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v35a/2022E/jmenano_mc_cmb_%s_%s.root",cm,cv));
+  //TFile *fm = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/jmenano_mc_out_%s_%s_22Sep2023.root",cm,cv));
+  TFile *fm = new TFile("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23MG_L2L3Res_v1/jmenano_mc_cmb_Summer23MGBPix_v36_Summer23MG_L2L3Res_v1.root");
+  //TFile *fm = new TFile("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23MG_L2L3Res_v1/jmenano_mc_cmb_Summer23MG_new_v36_Summer23MG_L2L3Res_v1.root");
+  //  TFile *fm = new TFile("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23DT_NoL2L3Res_Winter/");
+
   assert(fm && !fm->IsZombie());
   // Print the file name
   cout << "Data: " << fd->GetName() << endl;
-
+  cout << "MC: " << fm->GetName() << endl;
 
   // List results to be plotted
   string vd[] = {"pm0l","pm0a","pm0r", "pm2l","pm2a","pm2r"};
@@ -110,7 +125,7 @@ void drawMultijets(string epoch, string version) {
   title["2022CD"] = "2022CD";
   title["2022E"] = "2022E";
   title["2022FG"] = "2022FG";
-  title["2023BCv123"] = "2023BCv123";
+  title["2023Cv123"] = "2023Cv123";
   title["2023Cv4"] = "2023Cv4";
   title["2023D"] = "2023D";
 
@@ -145,7 +160,8 @@ void drawMultijets(string epoch, string version) {
     cout << "Drawing " << ch << endl;
 
     c1->cd(1);
-    TProfile *pm = (TProfile*)fm->Get(Form("HLT_MC/Multijet/%s",ch)); assert(pm);
+    //TProfile *pm = (TProfile*)fm->Get(Form("HLT_MC/Multijet/%s",ch)); assert(pm);
+    TProfile *pm = (TProfile*)fm->Get(Form("Multijet/%s",ch)); assert(pm);
     pm->GetXaxis()->SetRangeUser(ptmin,ptmax);
     cout << "Drawing first profile" << endl;
     tdrDraw(pm,"HIST",marker[ch],color[ch],style[ch],-1,kNone);
@@ -166,5 +182,5 @@ void drawMultijets(string epoch, string version) {
     tdrDraw(hr,"Pz",marker[ch],color[ch],kSolid);
   }
 
-  c1->SaveAs(Form("../pdf/drawMultijet/drawMultijet_%s_%s.pdf",ce,cv));
+  c1->SaveAs(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/pdf/v36_Summer23MG_L2L3Res_v1/drawMultijet/drawMultijet_%s_%s.pdf",ce,cv));
 } // drawMultijet
