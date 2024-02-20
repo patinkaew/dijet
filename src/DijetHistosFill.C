@@ -35,6 +35,9 @@ int smearNMax = 3;
 std::uint32_t _seed;
 std::mt19937 _mersennetwister;
 
+// Do PU reweighting
+bool reweightPU = true;
+
 // Activate modules
 bool doJetveto = true; // eta-phi maps
 bool doMCtruth = true;
@@ -386,6 +389,12 @@ void DijetHistosFill::Loop()
   if (isMC && !(isMG && isRun3))
     fChain->SetBranchStatus("Pileup_pthatmax", 1);
 
+  if (isMC && reweightPU)
+  {
+    fChain->SetBranchStatus("Pileup_nTrueInt", 1);
+    fChain->SetBranchStatus("Pileup_nPU", 1);
+  }
+
   if (isMC && (smearJets || doMCtruth))
   {
     cout << "Adding branches for GenJets ("
@@ -625,6 +634,9 @@ void DijetHistosFill::Loop()
   // }
   //  2016APV (BCD, EF)
 
+  TH1D *pileupRatio = new TH1D("puRatio", "PURatio;;Ratio",
+                        99, 0, 100);
+
   if (dataset == "UL2016APVMG")
   {
     jec = getFJC("Summer19UL16APV_V7_MC_L1FastJet_AK4PFchs",
@@ -858,6 +870,19 @@ void DijetHistosFill::Loop()
     jerpath = "CondFormats/JetMETObjects/data/Summer22EEVetoRun3_V1_NSCP_MC_PtResolution_ak4puppi.txt"; // Same as Summer22EE, until updated
     jerpathsf = "CondFormats/JetMETObjects/data/Summer22EERun3_V1_MC_SF_AK4PFPuppi.txt";                // Same as Summer22EE, until updated
     useJERSFvsPt = false;
+
+    if (reweightPU)
+    {
+      if (TString(dataset.c_str()).Contains("Summer23MGBPix")) {
+        TFile f("/luminosityscripts/PUWeights/Summer23BPix_PUWeight.root");
+        TH1D *pileupRatio = (TH1D *)f.Get("pileup");
+        f.Close();
+      } else {
+        TFile f("/luminosityscripts/PUWeights/Summer23_PUWeight.root");
+        TH1D *pileupRatio = (TH1D *)f.Get("pileup");
+        f.Close();
+      }
+    }
   }
 
   // 2023
@@ -2275,6 +2300,12 @@ void DijetHistosFill::Loop()
     {
       Jet_CF[i] = 1.;
     } // reset Jet_CF
+
+    if (isMC && reweightPU)
+    {
+      assert(pileupRatio);
+      w *= pileupRatio->GetBinContent(Pileup_nTrueInt);
+    }
 
     if (isMC && smearJets)
     {
