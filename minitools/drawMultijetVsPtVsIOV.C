@@ -5,13 +5,15 @@
 #include "TH1D.h"
 #include "TProfile.h"
 #include "TLine.h"
+#include <iostream>
+
 
 #include "../tdrstyle_mod22.C"
 
 bool addMPFu2n = true;
 bool addG1toMPF = false;
 bool addG12toMPF = false;
-string id = "v35a";
+string id = "v36_Summer23DT_NoL2L3Res";
 bool drawFullIOVList = false;//true;
 
 // Forward declaration of call
@@ -46,28 +48,29 @@ void drawMultijetVsPtVsIOVs(string so, string var, string name,
   //string iovs[] = {"2016BCDEF","2016FGH","2017BCDEF","2018ABCD"};
   //string mcs[] = {"2016APVP8","2016P8","2017P8","2018P8"};
   string iovs_long[] = {
-    "2022C","2022D","2022E","2022F","2022G",
-    "2023BCv123","2023Cv4","2023D"
+    //"2022C","2022D","2022E","2022F","2022G",
+    "2023Cv123","2023Cv4","2023D"
   };
   string iovs_short[] = {
     //"2018ABCD",
-    "Run3",
+    //"Run3",
     //"2022CD","2022E","2022FG",
-    "2022CD","2022E","2022FG",
-    "2023BCv123","2023Cv4","2023D"
+    //"2022CD","2022E","2022FG",
+    "2023Cv123","2023Cv4","2023D"
     //"2023BCv123","2023Cv4D"
   };
 
   string mcs_long[] = {
-    "Summer22MG","Summer22MG","Summer22MG","Summer22MG","Summer22MG",
-    "Summer22MG","Summer22MG","Summer22MG"
+    //"Summer22MG","Summer22MG","Summer22MG","Summer22MG","Summer22MG",
+    //"Summer22MG","Summer22MG","Summer22MG",
+    "Summer23MG_new", "Summer23MGBPix"
   };
   string mcs_short[] = {
     //"2018P8",
-    "Summer22MG",
-    "Summer22MG","Summer22EEMG","Summer22EEMG",//"Summer22MG",
-    "Summer22MG","Summer22MG","Summer22MG"
-    //"Summer22MG","Summer22MG",
+    //"Summer22MG",
+    //"Summer22MG","Summer22EEMG","Summer22EEMG",//"Summer22MG",
+    //"Summer22MG","Summer22MG","Summer22MG",
+    "Summer23MG_new","Summer23MGBPix"
   };
   const int niov_long = sizeof(iovs_long)/sizeof(iovs_long[0]);
   const int nmc_long = sizeof(mcs_long)/sizeof(mcs_long[0]);
@@ -82,45 +85,46 @@ void drawMultijetVsPtVsIOVs(string so, string var, string name,
   assert(niov==nmc);
   
   map<string,int> mcolor;
-  mcolor["2016BCDEF"] = kBlue;
-  mcolor["2016FGH"] = kCyan+2;
-  mcolor["2017BCDEF"] = kGreen+2;
-  mcolor["2018ABCD"] = kGray+2;//kRed;
-  mcolor["Run2"] = kBlack;
+  //mcolor["2016BCDEF"] = kBlue;
+  //mcolor["2016FGH"] = kCyan+2;
+  //mcolor["2017BCDEF"] = kGreen+2;
+  //mcolor["2018ABCD"] = kGray+2;//kRed;
+  //mcolor["Run2"] = kBlack;
   //
-  mcolor["2022C"] = kBlue;
-  mcolor["2022D"] = kCyan+1;
-  mcolor["2022E"] = kCyan+2;
-  mcolor["2022CD"] = kBlue;
-  mcolor["2022CDE"] = kBlue;
-  mcolor["2022F"] = kRed;
-  mcolor["2022G"] = kOrange+2;
-  mcolor["2022FG"] = kRed;
+  //mcolor["2022C"] = kBlue;
+  //mcolor["2022D"] = kCyan+1;
+  //mcolor["2022E"] = kCyan+2;
+  //mcolor["2022CD"] = kBlue;
+  //mcolor["2022CDE"] = kBlue;
+  //mcolor["2022F"] = kRed;
+  //mcolor["2022G"] = kOrange+2;
+  //mcolor["2022FG"] = kRed;
+  //mcolor["2023BCv123"] = kYellow+2;
   mcolor["2023Cv123"] = kYellow+2;
-  mcolor["2023BCv123"] = kYellow+2;
   mcolor["2023Cv4"] = kGreen+2;
   mcolor["2023D"] = kMagenta+2;
-  mcolor["2023Cv4D"] = kGreen+2;
-  mcolor["Run3"] = kBlack;
+  //mcolor["2023Cv4D"] = kGreen+2;
+  //mcolor["Run3"] = kBlack;
 
   map<string,int> mmarker;
-  mmarker["2022C"] = kFullSquare;
-  mmarker["2022D"] = kOpenSquare;
-  mmarker["2022E"] = kOpenSquare;
-  mmarker["2022CD"] = kFullSquare;
-  mmarker["2022CDE"] = kFullSquare;
-  mmarker["2022F"] = kFullTriangleUp;
-  mmarker["2022G"] = kOpenTriangleUp;
-  mmarker["2022FG"] = kFullTriangleUp;
-  mmarker["2023Cv123"] = kFullCircle;
-  mmarker["2023BCv123"] = kFullCircle;
+  //mmarker["2022C"] = kFullSquare;
+  //mmarker["2022D"] = kOpenSquare;
+  //mmarker["2022E"] = kOpenSquare;
+  //mmarker["2022CD"] = kFullSquare;
+  //mmarker["2022CDE"] = kFullSquare;
+  //mmarker["2022F"] = kFullTriangleUp;
+  //mmarker["2022G"] = kOpenTriangleUp;
+  //mmarker["2022FG"] = kFullTriangleUp;
+  //mmarker["2023BCv123"] = kFullCircle;
+  //mmarker["2023Cv123"] = kFullCircle;
   mmarker["2023Cv4"] = kFullTriangleDown;//kFullDiamond;
   mmarker["2023D"] = kOpenTriangleDown;//kOpenDiamond;
-  mmarker["2023Cv4D"] = kFullTriangleDown;//kFullDiamond;
-  mmarker["Run3"] = kFullSquare;
+  //mmarker["2023Cv4D"] = kFullTriangleDown;//kFullDiamond;
+  //mmarker["Run3"] = kFullSquare;
 
   const char *cvar = var.c_str();
   const char *cname = name.c_str();
+
 
   TH1D *h = tdrHist("h",cvar,y1,y2,"p_{T} (GeV)",97,3450);//3103);
   TH1D *h2 = tdrHist("h2","Data/MC",z1,z2,"p_{T} (GeV)",97,3450);//3103);
@@ -158,7 +162,9 @@ void drawMultijetVsPtVsIOVs(string so, string var, string name,
       assert(false);
     }
     else {
-      fd = new TFile(Form("../rootfiles/jmenano_data_cmb_%s_JME_%s.root",ciov,cid));
+      fd = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23DT_NoL2L3Res/jmenano_data_cmb_%s_JME_%s.root",ciov,cid));
+      //std::string fileName = Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23MG_L2L3Res_v1/jmenano_data_cmb_%s_JME_%s.root", ciov, cid);
+      //cout << "fd name: " << fileName << endl;
     }
     assert(fd && !fd->IsZombie());
     if (iovs[i]=="2018ABCD") {
@@ -166,22 +172,31 @@ void drawMultijetVsPtVsIOVs(string so, string var, string name,
       assert(false);
     }
     else {
-      fm = new TFile(Form("../rootfiles/jmenano_mc_out_%s_%s.root",cmc,cid));
+      fm = new TFile(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/v36_Summer23DT_NoL2L3Res/jmenano_mc_out_%s_%s.root",cmc,cid));
     }
     assert(fm && !fm->IsZombie());
 
     curdir->cd();
     
+
     //TObject *od = fd->Get(Form(so.c_str(),"DATA")); assert(od);
     //TObject *om = fm->Get(Form(so.c_str(),"MC")); assert(om);
     cout << so << endl << flush;
     TObject *od = fd->Get(so.c_str()); assert(od);
     TObject *om = fm->Get(Form("HLT_MC/%s",so.c_str())); assert(om);
-    
+
+    //cout << "so string name: " << so.c_str() << endl; 
+ 
     TH1D *hd(0), *hm(0);
     if (od->InheritsFrom("TProfile")) {
+    
+      
+      TProfile* profilePtr = dynamic_cast<TProfile*>(od);
+      //std::cout << typeid(*od).name() << std::endl;
+
       hd = ((TProfile*)od)->ProjectionX(Form("hd_%s_%s",cvar,ciov));
       hm = ((TProfile*)om)->ProjectionX(Form("hm_%s_%s",cvar,ciov));
+
 
       if (name=="MPFn" && addMPFu2n) {
 	const char *co = "resp_MpfRuchs_%s_a100_eta00_13";
@@ -237,8 +252,8 @@ void drawMultijetVsPtVsIOVs(string so, string var, string name,
   } // for iov
 
   if (id!="")
-      c1->SaveAs(Form("../pdf/drawMultijetVsPtVsIOVs_%s_%s.pdf",
+      c1->SaveAs(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/pdf/v36_Summer23DT_NoL2L3Res/drawMultijetVsPtVsIOV/drawMultijetVsPtVsIOVs_%s_%s.pdf",
 		      name.c_str(),id.c_str()));
   else
-    c1->SaveAs(Form("../pdf/drawMultijetVsPtVsIOVs_%s.pdf",name.c_str()));
+    c1->SaveAs(Form("/Users/nestorma/Documents/Helsinki/dijet/rootfiles/pdf/v36_Summer23DT_NoL2L3Res/drawMultijetVsPtVsIOV/drawMultijetVsPtVsIOVs_%s.pdf",name.c_str()));
 } // void drawPhotonJetVsPtVsIOVs

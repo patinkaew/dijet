@@ -9,7 +9,7 @@
 #include <iostream>
 
 int debug = 1; // 1=trg, 2=dir, 3=all
-string version = "v36_Summer23MG_test";
+string version = "v36_Summer23MG_L2L3Res_v1";
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
@@ -33,14 +33,30 @@ void DijetHistosCombine() {
   //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023Cv4_JME_"+version+".root");
   //DijetHistosCombines("../rootfiles/"+version+"/jmenano_data_out_2023D_JME_"+version+".root");
 
-  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_test/jmenano_mc_out_Summer23MGBPix_test_"+version+".root");
-  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_test/jmenano_mc_out_Summer23MG_test_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_test/jmenano_mc_out_Summer23MGBPix_test_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23DT_NoL2L3Res/jmenano_data_out_2023Cv123_JME_v36_Summer23DT_NoL2L3Res.root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23DT_NoL2L3Res_Winter/jmenano_data_out_2023Cv4_JME_v36_Summer23DT_NoL2L3Res.root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23DT_NoL2L3Res_Winter/jmenano_data_out_2023D_JME_v36_Summer23DT_NoL2L3Res.root");
+  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_data_out_2023Cv123_JME_"+version+".root");
+  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_data_out_2023Cv4_JME_"+version+".root");
+  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_data_out_2023D_JME_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/");
+  
 
+
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_L2Res_v1/jmenano_data_out_2023Cv123_JME_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_L2Res_v1/jmenano_data_out_2023Cv4_JME_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23MG_L2Res_v1/jmenano_data_out_2023D_JME_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/v36_Summer23DT_NoL2L3Res_Winter/jmenano_mc_out_Summer23MGBPix_v36_Summer23DT_NoL2L3Res.root");
   // Really slow on this after all the others, rerun separately (then sec)
 //  DijetHistosCombines("../rootfiles/"+version+"/jmenano_mc_out_Summer22EEMG_"+version+".root");
 // DijetHistosCombines("../rootfiles/"+version+"/jmenano_mc_out_Summer22MG_"+version+".root");
-
-  
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MG_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MGBPix_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MGBPix_test_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MG_test_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MG_new_"+version+".root");
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MG_"+version+".root"); 
 
   /*
   DijetHistosCombines("rootfiles/"+version+"/jmenano_data_out_v22ul16.root");

@@ -4,7 +4,7 @@ import os
 # Purpose: hadd files together automatically, either JetMET+ZB and/or
 #           IOVs-in-parts. Update the list_of_lists below and set version.
 
-version = 'v36_Summer23DT_NoL2L3Res'
+version = 'v36_Summer23MG_L2L3Res_v1'
 includeZB = True
 doMC = False
 
@@ -55,7 +55,7 @@ if doMC:
     for MC_list in MC_list_of_lists:
         command = "hadd "
         for mc in MC_list:
-            command = command + "rootfiles/"+version+"/jmenano_mc_out_"+mc+"_"+version+".root "
+            command = command + "rootfiles/"+version+"/jmenano_mc_out_"+mc+"_v36_Summer23DT_NoL2L3Res.root "
         print("\""+command+"\"...")
         os.system(command)
 

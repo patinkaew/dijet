@@ -874,7 +874,7 @@ void DijetHistosFill::Loop()
                                                                                    //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
                  "Summer23Run3_V1_MC_L2Relative_AK4PUPPI",                         // Mikel
                                                                                    // "Run23C123-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 ""); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+                 "Summer23Prompt23_Run2023Cv123_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
   if (dataset == "2023Cv4" || dataset == "2023Cv4_ZB")
@@ -883,7 +883,7 @@ void DijetHistosFill::Loop()
                                                                                  //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
                  "Summer23Run3_V1_MC_L2Relative_AK4PUPPI",                       // Mikel
                                                                                  //"Run23C4-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 ""); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+                 "Summer23Prompt23_Run2023Cv4_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
   if (dataset == "2023D" || dataset == "2023D_ZB")
@@ -892,7 +892,7 @@ void DijetHistosFill::Loop()
                                                                                //"Winter23Prompt23_RunC_V2_DATA_L2Relative_AK4PFPuppi",
                  "Summer23BPixRun3_V3_MC_L2Relative_AK4PUPPI",                     // Mikel
                                                                                //"Run23D-Prompt_DATA_L2L3Residual_AK4PFPuppi"
-                 ""); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
+                 "Summer23Prompt23_Run2023D_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
   if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
