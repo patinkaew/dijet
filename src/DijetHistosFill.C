@@ -874,11 +874,11 @@ void DijetHistosFill::Loop()
     if (reweightPU)
     {
       if (TString(dataset.c_str()).Contains("Summer23MGBPix")) {
-        TFile f("/luminosityscripts/PUWeights/Summer23BPix_PUWeight.root");
+        TFile f("luminosityscripts/PUWeights/Summer23BPix_PUWeight.root");
         TH1D *pileupRatio = (TH1D *)f.Get("pileup");
         f.Close();
       } else {
-        TFile f("/luminosityscripts/PUWeights/Summer23_PUWeight.root");
+        TFile f("luminosityscripts/PUWeights/Summer23_PUWeight.root");
         TH1D *pileupRatio = (TH1D *)f.Get("pileup");
         f.Close();
       }
