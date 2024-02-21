@@ -634,8 +634,7 @@ void DijetHistosFill::Loop()
   // }
   //  2016APV (BCD, EF)
 
-  TH1D *pileupRatio = new TH1D("puRatio", "PURatio;;Ratio",
-                        99, 0, 100);
+  TH1D *pileupRatio = new TH1D("puRatio", "PURatio;;Ratio", 99, 0, 100);
 
   if (dataset == "UL2016APVMG")
   {
@@ -875,12 +874,22 @@ void DijetHistosFill::Loop()
     {
       if (TString(dataset.c_str()).Contains("Summer23MGBPix")) {
         TFile f("luminosityscripts/PUWeights/Summer23BPix_PUWeight.root");
-        TH1D *pileupRatio = (TH1D *)f.Get("pileup");
-        f.Close();
+        pileupRatio = (TH1D *)f.Get("pileup");
+        pileupRatio->SetDirectory(0);
+        // Print mean, min weight, max weight
+        cout << "Pileup ratio mean = " << pileupRatio->GetMean() << endl;
+        cout << "Pileup ratio min = " << pileupRatio->GetMinimum() << endl;
+        cout << "Pileup ratio max = " << pileupRatio->GetMaximum() << endl;
+  
       } else {
         TFile f("luminosityscripts/PUWeights/Summer23_PUWeight.root");
-        TH1D *pileupRatio = (TH1D *)f.Get("pileup");
-        f.Close();
+        pileupRatio = (TH1D *)f.Get("pileup");
+        pileupRatio->SetDirectory(0);
+        // Print mean, min weight, max weight
+        cout << "Pileup ratio mean = " << pileupRatio->GetMean() << endl;
+        cout << "Pileup ratio min = " << pileupRatio->GetMinimum() << endl;
+        cout << "Pileup ratio max = " << pileupRatio->GetMaximum() << endl;
+  
       }
     }
   }
@@ -2304,7 +2313,10 @@ void DijetHistosFill::Loop()
     if (isMC && reweightPU)
     {
       assert(pileupRatio);
-      w *= pileupRatio->GetBinContent(Pileup_nTrueInt);
+      // Get the bin
+      int ibin = pileupRatio->FindBin(Pileup_nTrueInt);
+      double pileup_weight = pileupRatio->GetBinContent(ibin);
+      w *= pileup_weight;
     }
 
     if (isMC && smearJets)
@@ -3361,6 +3373,8 @@ void DijetHistosFill::Loop()
 
   cout << Form("Analyzed %d events", _ngoodevts) << endl;
   cout << "Saving these to " << fout->GetName() << " for drawJMENANO.C" << endl;
+
+
 
   // h2mhtvsmet->Draw("COLZ");
 } // Loop()
