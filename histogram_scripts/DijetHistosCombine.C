@@ -9,7 +9,7 @@
 #include <iostream>
 
 int debug = 1; // 1=trg, 2=dir, 3=all
-string version = "v38_Summer23MG_NoL2L3Res_OffReWPU_OffJet";
+string version = "v38_Summer23MG_NoL2L3Res_OnReWPU_OffJet";
 void loopOverDirectories(TDirectory *dir, TDirectory *outdir,
 			 string trg, string folder);
 //void mergeDijet(TDirectory *dir, TDirectory *dout);
@@ -56,7 +56,7 @@ void DijetHistosCombine() {
   //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MGBPix_test_"+version+".root");
   //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MG_test_"+version+".root");
   DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MG_"+version+".root");
-  DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MGBPix_"+version+".root"); 
+  //DijetHistosCombines("/media/storage/nestorma/dijet/rootfiles/"+version+"/jmenano_mc_out_Summer23MGBPix_"+version+".root"); 
 
   /*
   DijetHistosCombines("rootfiles/"+version+"/jmenano_data_out_v22ul16.root");
