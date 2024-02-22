@@ -1013,10 +1013,10 @@ void DijetHistosFill::Loop()
 
   // Setup HT bin weighting and monitoring
   TH1D *hxsec(0), *hnevt(0), *hnwgt(0), *hLHE_HT(0), *hLHE_HTw(0), *hHT(0);
-  double vht2[] = {0, 25, 50, 100, 200, 300, 500, 700, 1000, 1500, 2000, 9000};
+  double vht2[] = {0, 25, 50, 100, 200, 300, 500, 700, 1000, 1500, 2000, 13800};
   const int nht2 = sizeof(vht2) / sizeof(vht2[0]) - 1;
   double vht3[] = {0, 40, 70, 100, 200, 400, 600, 800, 1000, 1200, 1500, 2000,
-                   9000};
+                   13800};
   const int nht3 = sizeof(vht3) / sizeof(vht3[0]) - 1;
   const double *vht = (isRun3 ? &vht3[0] : &vht2[0]);
   const int nht = (isRun3 ? nht3 : nht2);
