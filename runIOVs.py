@@ -30,7 +30,7 @@ run3_DT = [x for x in IOV_list if '2023' in x or '2022' in x]
 run3_MC = [x for x in IOV_list if 'Summer22' in x]
 summer23_MC = [x for x in IOV_list if 'Summer23' in x]
 
-version = 'v36_Summer23MG_L2L3Res_v1'
+version = 'v38_Summer23MG_NoL2L3Res_Off_reweight_jets_test'
 
 IOV_input = []
 
