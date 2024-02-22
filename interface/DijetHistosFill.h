@@ -41,7 +41,8 @@ public :
    string          version;
    static const bool _dh_debug = false;
    static const bool debugFiles = true;
-   string          _filename; // file name for debugging purposes
+   TString          _filename; // file name for debugging purposes
+   int             HT_bin_idx;
 
    map<string, map<int, int> > _prescales;
    map<int, map<int, int> > _json;
@@ -49,6 +50,7 @@ public :
    map<int, map<int, float> > _lums2;
    map<int, map<int, float> > _avgpu;
 //    map<string, TH1D*> _pudist;
+  std::map<TString, pair<int, pair<int, int>>> HT_bins;
 
    Bool_t HLT_MC = kTRUE;
    Bool_t Jet_jetveto[100];
@@ -3535,6 +3537,8 @@ public :
    void PrintInfo(string info, bool printcout);
    bool LoadJSON(string json);
    bool LoadLumi();
+
+   
 };
 
 #endif
@@ -3542,6 +3546,7 @@ public :
 #ifdef DijetHistosFill_cxx
 DijetHistosFill::DijetHistosFill(TTree *tree, int itype, string datasetname, string versionname) : fChain(0), isMC(itype), dataset(datasetname), version(versionname)
 {
+
 
   // Use data set to decide on active branches
   //string& ds = datasetname;
@@ -4069,6 +4074,19 @@ void DijetHistosFill::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
+     // Find the HT from file name
+
+   HT_bins["40to70"] = std::make_pair(2, std::make_pair(40, 70));
+   HT_bins["70to100"] = std::make_pair(3, std::make_pair(70, 100)); 
+   HT_bins["100to200"] = std::make_pair(4, std::make_pair(100, 200));
+   HT_bins["200to400"] = std::make_pair(5, std::make_pair(200, 400));
+   HT_bins["400to600"] = std::make_pair(6, std::make_pair(400, 600));
+   HT_bins["600to800"] = std::make_pair(7, std::make_pair(600, 800));
+   HT_bins["800to1000"] = std::make_pair(8, std::make_pair(800, 1000));
+   HT_bins["1000to1200"] = std::make_pair(9, std::make_pair(1000, 1200));
+   HT_bins["1200to1500"] = std::make_pair(10, std::make_pair(1200, 1500));
+   HT_bins["1500to2000"] = std::make_pair(11, std::make_pair(1500, 2000));
+   HT_bins["HT-2000"] = std::make_pair(12, std::make_pair(2000, 9999));
 
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -5879,13 +5897,23 @@ Bool_t DijetHistosFill::Notify()
    // to the generated code, but the routine can be extended by the
    // user if needed. The return value is currently not used.
 
-  if (debugFiles && fChain) {
-    if (fChain->GetCurrentFile()) {
-      _filename = fChain->GetCurrentFile()->GetName();
-      cout << endl << "Opened file: " << _filename << endl << flush;
-    }
-  }
-  
+   if (debugFiles && fChain) {
+      if (fChain->GetCurrentFile()) {
+         _filename = fChain->GetCurrentFile()->GetName();
+         cout << endl << "Opened file: " << _filename << endl << flush;
+
+      }
+   }
+   if (isMG){
+      for (auto const& [key, val] : HT_bins) {
+         if (_filename.Contains(key)) {
+            cout << "Found HT bin: " << key << " with index " << val.first << endl << flush;
+            HT_bin_idx = val.first;
+            break;
+            }
+      }
+   }
+
    return kTRUE;
 }
 
