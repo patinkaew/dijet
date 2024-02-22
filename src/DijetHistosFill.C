@@ -619,6 +619,8 @@ void DijetHistosFill::Loop()
   mt["HLT_PFJetFwd450"] = range{500, 600, fwdeta0, 5.2}; // x
   mt["HLT_PFJetFwd500"] = range{600, 6500, fwdeta0, 5.2};
 
+
+
   if (debug)
     cout << "Setting up JEC corrector" << endl
          << flush;
@@ -1011,10 +1013,10 @@ void DijetHistosFill::Loop()
 
   // Setup HT bin weighting and monitoring
   TH1D *hxsec(0), *hnevt(0), *hnwgt(0), *hLHE_HT(0), *hLHE_HTw(0), *hHT(0);
-  double vht2[] = {0, 25, 50, 100, 200, 300, 500, 700, 1000, 1500, 2000, 6500};
+  double vht2[] = {0, 25, 50, 100, 200, 300, 500, 700, 1000, 1500, 2000, 13800};
   const int nht2 = sizeof(vht2) / sizeof(vht2[0]) - 1;
   double vht3[] = {0, 40, 70, 100, 200, 400, 600, 800, 1000, 1200, 1500, 2000,
-                   6800};
+                   13800};
   const int nht3 = sizeof(vht3) / sizeof(vht3[0]) - 1;
   const double *vht = (isRun3 ? &vht3[0] : &vht2[0]);
   const int nht = (isRun3 ? nht3 : nht2);
@@ -1061,7 +1063,7 @@ void DijetHistosFill::Loop()
     //     2.520e+07, 1.936e+06, 9.728e+04,
     //     1.323e+04, // 3.044e+04, //HT 60to800
     //     3.027e+03, 8.883e+02, 3.834e+02, 1.253e+02, 2.629e+01};
-    
+
     // SUMMER23, Fikri MatterMost 22.2.2024
     double vxsec3[nht3] =
         {0, 3.131e+08,
@@ -2179,7 +2181,16 @@ void DijetHistosFill::Loop()
     double w = (isMC ? genWeight : 1.);
     if (isMG)
     {
+
       int iht = hxsec->FindBin(LHE_HT);
+      // Check that iht is equal to HT_bin_idx
+      if (iht != HT_bin_idx)
+      {
+        cout << "LHE_HT = " << LHE_HT << " is not in the bin " << HT_bin_idx << " for " << _filename << endl << flush;
+        cout << "Using bin based on filename instead." << endl << flush;
+        iht = HT_bin_idx;
+      }
+
       double xsec = hxsec->GetBinContent(iht);
       double nevt = (isRun3 ? hnwgt->GetBinContent(iht) : hnevt->GetBinContent(iht));
       double wht = (nevt ? xsec / nevt : 1);
