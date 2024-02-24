@@ -18,8 +18,8 @@ IOV_list= ['UL2016BCD','UL2016EF','UL2016GH',
     '2023BCv123_ZB','2023Cv4_ZB','2023D_ZB',
     'Summer22MG1','Summer22MG2',
     'Summer22EEMG1','Summer22EEMG2','Summer22EEMG3','Summer22EEMG4',
-    'Summer23MG_1', 'Summer23MG_2', 'Summer23MG_3', 'Summer23MG_4',
-    'Summer23MGBPix_1', 'Summer23MGBPix_2', 'Summer23MGBPix_3', 'Summer23MGBPix_4',
+    'Summer23MG_1', 'Summer23MG_2', 'Summer23MG_3', 'Summer23MG_4', 'Summer23MG',
+    'Summer23MGBPix_1', 'Summer23MGBPix_2', 'Summer23MGBPix_3', 'Summer23MGBPix_4', 'Summer23MGBPix',
     'Summer23MG_test', 'Summer23MGBPix_test',
     'Summer23MG_new_1', 'Summer23MG_new_2', 'Summer23MG_new_3', 'Summer23MG_new_4'
 ]

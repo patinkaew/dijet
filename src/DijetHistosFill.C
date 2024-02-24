@@ -2198,6 +2198,9 @@ void DijetHistosFill::Loop()
       double nevt = (isRun3 ? hnwgt->GetBinContent(iht) : hnevt->GetBinContent(iht));
       double wht = (nevt ? xsec / nevt : 1);
       w *= wht;
+      if (w > 10000){
+        cout << "WARNING: w = " << w << " for " << _filename << endl << flush;
+      }
       hLHE_HT->Fill(LHE_HT);     // cross-check hnevt afterwards
       hLHE_HTw->Fill(LHE_HT, w); // cross-check hnwgt afterwards
       hHT->Fill(LHE_HT, w);      // cross-check HT spectrum smoothness afterwards
