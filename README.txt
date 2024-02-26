@@ -72,6 +72,9 @@ Bugs:
 (To-do: Downdload Summer23 and ReReco samples. Not yet done for ZeroBias at least)
 (To-do: QG SFs and response)
 
+// v39. Fixed an issue with Summer23 MC input files which caused gaps in the HT histogram
+// v38. Added option for PU reweighting
+// v37. Added Summer23 MC samples
 // v36. Changed output file structure. Luminosity per trigger histogram (h_lumivstrpu) added
 // v35b. Turned off jet smearing. For 19Dec reco added a separation in JEC for 2023C.
 // v35. Added new L2L3Residuals along with L2Residuals. Fixed Flag_ filter introduced in v33
