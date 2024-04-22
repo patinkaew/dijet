@@ -22,7 +22,7 @@
 #include <array>
 
 // Recalculate JECs
-bool redoJEC = true;
+bool redoJEC = false;
 
 // MC triggers (slow) or not (faster)
 bool doMCtrigOnly = true;
@@ -402,8 +402,10 @@ void DijetHistosFill::Loop()
   // fChain->SetBranchStatus("Rho_fixedGridRhoAll",1);
   if (isRun2)
     fChain->SetBranchStatus("fixedGridRhoFastjetAll", 1);
-  if (isRun3)
+  if (isRun3 && !isHLT)
     fChain->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
+  if (isHLT)
+    fChain->SetBranchStatus("HLTRho_fixedGridRhoFastjetAll", 1);
   if (!isHLT)
     fChain->SetBranchStatus("L1_UnprefireableEvent", 1);
 
@@ -469,6 +471,10 @@ void DijetHistosFill::Loop()
     vtrg.push_back("HLT_ZeroBias");
   }
 
+  if (isHLT){
+    vtrg.push_back("AlCa_PFJet40");
+  }
+
   int ntrg = vtrg.size();
 
   for (int i = 0; i != ntrg; ++i)
@@ -493,7 +499,8 @@ void DijetHistosFill::Loop()
   fChain->SetBranchStatus((jetName+"_eta").c_str(), 1);
   fChain->SetBranchStatus((jetName+"_phi").c_str(), 1);
   fChain->SetBranchStatus((jetName+"_mass").c_str(), 1);
-  fChain->SetBranchStatus((jetName+"_jetId").c_str(), 1);
+  if (!isHLT)
+    fChain->SetBranchStatus((jetName+"_jetId").c_str(), 1);
 
   fChain->SetBranchStatus((jetName+"_rawFactor").c_str(), 1);
   if (isRun2)
@@ -556,6 +563,7 @@ void DijetHistosFill::Loop()
   // List reference pT and abseta thresholds for triggers
   mt["HLT_MC"] = range{10, 3000, 0, 5.2};
   mt["HLT_ZeroBias"] = range{10, 3000, 0, 5.2};
+  mt["AlCa_PFJet40"] = range{0, 3000, 0, 5.2};
 
   mt["HLT_DiPFJetAve40"] = range{40, 85, 0, 5.2};
   mt["HLT_DiPFJetAve60"] = range{85, 100, 0, 5.2};
@@ -566,7 +574,7 @@ void DijetHistosFill::Loop()
   mt["HLT_DiPFJetAve320"] = range{400, 500, 0, 5.2};
   mt["HLT_DiPFJetAve400"] = range{500, 600, 0, 5.2};
   mt["HLT_DiPFJetAve500"] = range{600, 6500, 0, 5.2};
-
+  
   // 2.65, 2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191,
   double fwdeta = 3.139;  // was 2.853. 80% (100%) on negative (positive) side
   double fwdeta0 = 2.964; // 2.853; // 40 and 260 up
@@ -1192,6 +1200,8 @@ void DijetHistosFill::Loop()
       nfound = (vtrg[itrg] == "HLT_ZeroBias" || vtrg[itrg] == "HLT_MC" ? 1 : 0);
       trgpt = 0;
     }
+    if (nfound != 1)
+      nfound = sscanf(vtrg[itrg].c_str(), "AlCa_PFJet%d", &trgpt);
     if (nfound != 1)
       nfound = sscanf(vtrg[itrg].c_str(), "HLT_PFJet%d", &trgpt);
     if (nfound != 1)
@@ -2154,6 +2164,10 @@ void DijetHistosFill::Loop()
                            Flag_eeBadScFilter &&
                            Flag_ecalBadCalibFilter);
 
+    if (isHLT){ //fake the value for HLT jets
+      pass_METfilter = true;
+    }
+
     // Check if any triggers fired and make histogram of them
     if (doTrigger)
     {
@@ -2233,6 +2247,7 @@ void DijetHistosFill::Loop()
         Jet_jetveto[i] = false;
 
       // Fail allJetsGood flag if any jet of pT>15 is not good
+      if (isHLT) Jet_jetId[i] = 6;
       if (!(Jet_jetId[i] >= 4 && !Jet_jetveto[i]) && Jet_pt[i] > 15.)
         allJetsGood = false;
       // NB: should move this after smearing. Separate loop for type-I MET?
@@ -2485,6 +2500,7 @@ void DijetHistosFill::Loop()
 
           h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
           // Debug
+          if (isHLT) Jet_jetId[i] = 6;
           if (Jet_jetId[i] >= 4 && pass_METfilter > 0 &&
               pt >= h->ptmin && pt < h->ptmax &&
               abseta >= h->absetamin && abseta < h->absetamax)
@@ -2515,6 +2531,7 @@ void DijetHistosFill::Loop()
           incjetHistos *h = mhij[trg];
 
           h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
+          if (isHLT) Jet_jetId[i] = 6;
           if (Jet_jetId[i] >= 4 && !Jet_jetveto[i] && pass_METfilter > 0)
           {
 
@@ -2624,6 +2641,11 @@ void DijetHistosFill::Loop()
     double ptrecoil = p4recoil.Pt();
     double dphirecoil = DELTAPHI(p4lead.Phi(), p4recoil.Phi());
     // Use tightLepVeto for JetID
+    if (isHLT){
+      Jet_jetId[0] = 6;
+      Jet_jetId[1] = 6;
+      Jet_jetId[2] = 6;
+    }
     bool ismultijet =
         (nlead == 1 && nrecoil >= 2 && !multijet_vetonear && !multijet_vetofwd &&
          fabs(dphirecoil - TMath::Pi()) < 0.3 && pass_METfilter > 0 &&
@@ -2827,7 +2849,10 @@ void DijetHistosFill::Loop()
         p4dj += p4p;
         double mjj = p4dj.M();
         double deta = fabs(p4p.Eta() - p4t.Eta());
-
+        if (isHLT){
+          Jet_jetId[itag] = 6;
+          Jet_jetId[iprobe] = 6;
+        } 
         bool isdijet = (fabs(p4t.Eta()) < 1.3 && dphi > 2.7 &&
                         fabs(asymm) < maxa && //!
                         p4t.Pt() > 15. && Jet_jetId[itag] >= 4 &&

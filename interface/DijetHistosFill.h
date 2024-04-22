@@ -1801,6 +1801,7 @@ public :
    Bool_t          HLT_PPSMaxTracksPerArm1;
    Bool_t          HLT_PPSMaxTracksPerRP4;
    Bool_t          HLTriggerFinalPath;
+   Bool_t          AlCa_PFJet40;
 
    // Pointers to branches
    map<string, const Bool_t *> mtrg;
@@ -3519,6 +3520,7 @@ public :
    TBranch        *b_HLT_PPSMaxTracksPerArm1;   //!
    TBranch        *b_HLT_PPSMaxTracksPerRP4;   //!
    TBranch        *b_HLTriggerFinalPath;   //!
+   TBranch        *b_AlCa_PFJet40;
 
    DijetHistosFill(TTree *tree=0, int itype=1, string datasetname="X",
 		   string versionname="vX");
@@ -4082,6 +4084,81 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("luminosityBlock", &luminosityBlock, &b_luminosityBlock);
    fChain->SetBranchAddress("event", &event, &b_event);
    //fChain->SetBranchAddress("bunchCrossing", &bunchCrossing, &b_bunchCrossing);
+<<<<<<< Updated upstream
+=======
+   std::string jetName = "Jet";
+   if(isHLT)
+      jetName = "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
+   if (isHLT) {
+      fChain->SetBranchAddress(("n"+jetName).c_str(), &nJet, &b_nJet);
+      fChain->SetBranchAddress((jetName+"_area").c_str(), Jet_area, &b_Jet_area);
+      //   fChain->SetBranchAddress("Jet_btagCSVV2", Jet_btagCSVV2, &b_Jet_btagCSVV2);
+      //   fChain->SetBranchAddress("Jet_btagDeepB", Jet_btagDeepB, &b_Jet_btagDeepB);
+      //   fChain->SetBranchAddress("Jet_btagDeepCvB", Jet_btagDeepCvB, &b_Jet_btagDeepCvB);
+      //   fChain->SetBranchAddress("Jet_btagDeepCvL", Jet_btagDeepCvL, &b_Jet_btagDeepCvL);
+      //   fChain->SetBranchAddress("Jet_btagDeepFlavB", Jet_btagDeepFlavB, &b_Jet_btagDeepFlavB);
+      // fChain->SetBranchAddress("Jet_btagDeepFlavCvB", Jet_btagDeepFlavCvB, &b_Jet_btagDeepFlavCvB);
+      // fChain->SetBranchAddress("Jet_btagDeepFlavCvL", Jet_btagDeepFlavCvL, &b_Jet_btagDeepFlavCvL);
+      // //   fChain->SetBranchAddress("Jet_btagDeepFlavG", Jet_btagDeepFlavG, &b_Jet_btagDeepFlavG);
+      // fChain->SetBranchAddress("Jet_btagDeepFlavQG", Jet_btagDeepFlavQG, &b_Jet_btagDeepFlavQG);
+      //   fChain->SetBranchAddress("Jet_btagDeepFlavUDS", Jet_btagDeepFlavUDS, &b_Jet_btagDeepFlavUDS);
+      fChain->SetBranchAddress((jetName+"_chEmEF").c_str(), Jet_chEmEF, &b_Jet_chEmEF);
+      fChain->SetBranchAddress((jetName+"_chHEF").c_str(), Jet_chHEF, &b_Jet_chHEF);
+      fChain->SetBranchAddress((jetName+"_eta").c_str(), Jet_eta, &b_Jet_eta);
+      //   fChain->SetBranchAddress("Jet_hfEmEF", Jet_hfEmEF, &b_Jet_hfEmEF);
+      //   fChain->SetBranchAddress("Jet_hfHEF", Jet_hfHEF, &b_Jet_hfHEF);
+      // fChain->SetBranchAddress("Jet_hfsigmaEtaEta", Jet_hfsigmaEtaEta, &b_Jet_hfsigmaEtaEta);
+      // fChain->SetBranchAddress("Jet_hfsigmaPhiPhi", Jet_hfsigmaPhiPhi, &b_Jet_hfsigmaPhiPhi);
+      fChain->SetBranchAddress((jetName+"_mass").c_str(), Jet_mass, &b_Jet_mass);
+      fChain->SetBranchAddress((jetName+"_muEF").c_str(), Jet_muEF, &b_Jet_muEF);
+      //fChain->SetBranchAddress("Jet_muonSubtrFactor", Jet_muonSubtrFactor, &b_Jet_muonSubtrFactor);
+      fChain->SetBranchAddress((jetName+"_neEmEF").c_str(), Jet_neEmEF, &b_Jet_neEmEF);
+      fChain->SetBranchAddress((jetName+"_neHEF").c_str(), Jet_neHEF, &b_Jet_neHEF);
+      //   fChain->SetBranchAddress("Jet_particleNetAK4_B", Jet_particleNetAK4_B, &b_Jet_particleNetAK4_B);
+      //   fChain->SetBranchAddress("Jet_particleNetAK4_CvsB", Jet_particleNetAK4_CvsB, &b_Jet_particleNetAK4_CvsB);
+      //   fChain->SetBranchAddress("Jet_particleNetAK4_CvsL", Jet_particleNetAK4_CvsL, &b_Jet_particleNetAK4_CvsL);
+      //   fChain->SetBranchAddress("Jet_particleNetAK4_QvsG", Jet_particleNetAK4_QvsG, &b_Jet_particleNetAK4_QvsG);
+      //   fChain->SetBranchAddress("Jet_particleNetAK4_puIdDisc", Jet_particleNetAK4_puIdDisc, &b_Jet_particleNetAK4_puIdDisc);
+      fChain->SetBranchAddress((jetName+"_phi").c_str(), Jet_phi, &b_Jet_phi);
+      fChain->SetBranchAddress((jetName+"_pt").c_str(), Jet_pt, &b_Jet_pt);
+      //   fChain->SetBranchAddress("Jet_puId_beta", Jet_puId_beta, &b_Jet_puId_beta);
+      //   fChain->SetBranchAddress("Jet_puId_dR2Mean", Jet_puId_dR2Mean, &b_Jet_puId_dR2Mean);
+      //   fChain->SetBranchAddress("Jet_puId_frac01", Jet_puId_frac01, &b_Jet_puId_frac01);
+      //   fChain->SetBranchAddress("Jet_puId_frac02", Jet_puId_frac02, &b_Jet_puId_frac02);
+      //   fChain->SetBranchAddress("Jet_puId_frac03", Jet_puId_frac03, &b_Jet_puId_frac03);
+      //   fChain->SetBranchAddress("Jet_puId_frac04", Jet_puId_frac04, &b_Jet_puId_frac04);
+      //   fChain->SetBranchAddress("Jet_puId_jetR", Jet_puId_jetR, &b_Jet_puId_jetR);
+      //   fChain->SetBranchAddress("Jet_puId_jetRchg", Jet_puId_jetRchg, &b_Jet_puId_jetRchg);
+      //   fChain->SetBranchAddress("Jet_puId_majW", Jet_puId_majW, &b_Jet_puId_majW);
+      //   fChain->SetBranchAddress("Jet_puId_minW", Jet_puId_minW, &b_Jet_puId_minW);
+      //   fChain->SetBranchAddress("Jet_puId_ptD", Jet_puId_ptD, &b_Jet_puId_ptD);
+      //   fChain->SetBranchAddress("Jet_puId_pull", Jet_puId_pull, &b_Jet_puId_pull);
+      //   fChain->SetBranchAddress("Jet_qgl_axis2", Jet_qgl_axis2, &b_Jet_qgl_axis2);
+      //   fChain->SetBranchAddress("Jet_qgl_ptD", Jet_qgl_ptD, &b_Jet_qgl_ptD);
+      fChain->SetBranchAddress((jetName+"_rawFactor").c_str(), Jet_rawFactor, &b_Jet_rawFactor);
+      // fChain->SetBranchAddress("Jet_electronIdx1", Jet_electronIdx1, &b_Jet_electronIdx1);
+      // fChain->SetBranchAddress("Jet_electronIdx2", Jet_electronIdx2, &b_Jet_electronIdx2);
+      // fChain->SetBranchAddress("Jet_hfadjacentEtaStripsSize", Jet_hfadjacentEtaStripsSize, &b_Jet_hfadjacentEtaStripsSize);
+      // fChain->SetBranchAddress("Jet_hfcentralEtaStripSize", Jet_hfcentralEtaStripSize, &b_Jet_hfcentralEtaStripSize);
+      // fChain->SetBranchAddress("Jet_jetId", Jet_jetId, &b_Jet_jetId);
+      // fChain->SetBranchAddress("Jet_muonIdx1", Jet_muonIdx1, &b_Jet_muonIdx1);
+      // fChain->SetBranchAddress("Jet_muonIdx2", Jet_muonIdx2, &b_Jet_muonIdx2);
+      //   fChain->SetBranchAddress("Jet_nConstChHads", Jet_nConstChHads, &b_Jet_nConstChHads);
+      //   fChain->SetBranchAddress("Jet_nConstElecs", Jet_nConstElecs, &b_Jet_nConstElecs);
+      //   fChain->SetBranchAddress("Jet_nConstHFEMs", Jet_nConstHFEMs, &b_Jet_nConstHFEMs);
+      //   fChain->SetBranchAddress("Jet_nConstHFHads", Jet_nConstHFHads, &b_Jet_nConstHFHads);
+      //   fChain->SetBranchAddress("Jet_nConstMuons", Jet_nConstMuons, &b_Jet_nConstMuons);
+      //   fChain->SetBranchAddress("Jet_nConstNeuHads", Jet_nConstNeuHads, &b_Jet_nConstNeuHads);
+      //   fChain->SetBranchAddress("Jet_nConstPhotons", Jet_nConstPhotons, &b_Jet_nConstPhotons);
+      // fChain->SetBranchAddress("Jet_nElectrons", Jet_nElectrons, &b_Jet_nElectrons);
+      // fChain->SetBranchAddress("Jet_nMuons", Jet_nMuons, &b_Jet_nMuons);
+      //   fChain->SetBranchAddress("Jet_puId_nCharged", Jet_puId_nCharged, &b_Jet_puId_nCharged);
+      //   fChain->SetBranchAddress("Jet_qgl_mult", Jet_qgl_mult, &b_Jet_qgl_mult);
+      fChain->SetBranchAddress((jetName+"_nConstituents").c_str(), Jet_nConstituents, &b_Jet_nConstituents);
+      fChain->SetBranchAddress("AlCa_PFJet40", &AlCa_PFJet40, &b_AlCa_PFJet40);
+   }else{
+
+>>>>>>> Stashed changes
    if (isMC) fChain->SetBranchAddress("HTXS_Higgs_pt", &HTXS_Higgs_pt, &b_HTXS_Higgs_pt);
    if (isMC) fChain->SetBranchAddress("HTXS_Higgs_y", &HTXS_Higgs_y, &b_HTXS_Higgs_y);
    if (isMC) fChain->SetBranchAddress("HTXS_stage1_1_cat_pTjet25GeV", &HTXS_stage1_1_cat_pTjet25GeV, &b_HTXS_stage1_1_cat_pTjet25GeV);
@@ -5824,6 +5901,9 @@ void DijetHistosFill::Init(TTree *tree)
    //Bool_t HLT_MC(true);
    mtrg["HLT_MC"] = &HLT_MC;
    mtrg["HLT_ZeroBias"] = &HLT_ZeroBias;
+   if (isHLT){
+       mtrg["AlCa_PFJet40"] = &AlCa_PFJet40;
+   }
 
    if (!isZB) {
      mtrg["HLT_DiPFJetAve40"] = &HLT_DiPFJetAve40;
