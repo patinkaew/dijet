@@ -1197,11 +1197,14 @@ void DijetHistosFill::Loop()
     int trgpt(-1), nfound(0);
     if (nfound != 1)
     {
-      nfound = (vtrg[itrg] == "HLT_ZeroBias" || vtrg[itrg] == "HLT_MC" ? 1 : 0);
+      nfound = (vtrg[itrg] == "AlCa_PFJet40");
       trgpt = 0;
     }
     if (nfound != 1)
-      nfound = sscanf(vtrg[itrg].c_str(), "AlCa_PFJet%d", &trgpt);
+    {
+      nfound = (vtrg[itrg] == "HLT_ZeroBias" || vtrg[itrg] == "HLT_MC" ? 1 : 0);
+      trgpt = 0;
+    }
     if (nfound != 1)
       nfound = sscanf(vtrg[itrg].c_str(), "HLT_PFJet%d", &trgpt);
     if (nfound != 1)
@@ -2248,7 +2251,7 @@ void DijetHistosFill::Loop()
 
       // Fail allJetsGood flag if any jet of pT>15 is not good
       if (isHLT) Jet_jetId[i] = 6;
-      if (!(Jet_jetId[i] >= 4 && !Jet_jetveto[i]) && Jet_pt[i] > 15.)
+      else if (!(Jet_jetId[i] >= 4 && !Jet_jetveto[i]) && Jet_pt[i] > 15.)
         allJetsGood = false;
       // NB: should move this after smearing. Separate loop for type-I MET?
     } // for njet

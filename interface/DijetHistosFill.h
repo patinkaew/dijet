@@ -4084,8 +4084,6 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("luminosityBlock", &luminosityBlock, &b_luminosityBlock);
    fChain->SetBranchAddress("event", &event, &b_event);
    //fChain->SetBranchAddress("bunchCrossing", &bunchCrossing, &b_bunchCrossing);
-<<<<<<< Updated upstream
-=======
    std::string jetName = "Jet";
    if(isHLT)
       jetName = "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
@@ -4158,7 +4156,6 @@ void DijetHistosFill::Init(TTree *tree)
       fChain->SetBranchAddress("AlCa_PFJet40", &AlCa_PFJet40, &b_AlCa_PFJet40);
    }else{
 
->>>>>>> Stashed changes
    if (isMC) fChain->SetBranchAddress("HTXS_Higgs_pt", &HTXS_Higgs_pt, &b_HTXS_Higgs_pt);
    if (isMC) fChain->SetBranchAddress("HTXS_Higgs_y", &HTXS_Higgs_y, &b_HTXS_Higgs_y);
    if (isMC) fChain->SetBranchAddress("HTXS_stage1_1_cat_pTjet25GeV", &HTXS_stage1_1_cat_pTjet25GeV, &b_HTXS_stage1_1_cat_pTjet25GeV);
@@ -5896,7 +5893,7 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_PPSMaxTracksPerRP4", &HLT_PPSMaxTracksPerRP4, &b_HLT_PPSMaxTracksPerRP4);
    fChain->SetBranchAddress("HLTriggerFinalPath", &HLTriggerFinalPath, &b_HLTriggerFinalPath);
    */
-
+   }
    //map<string, Bool_t *> mtrg;
    //Bool_t HLT_MC(true);
    mtrg["HLT_MC"] = &HLT_MC;
