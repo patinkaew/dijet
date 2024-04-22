@@ -658,6 +658,7 @@ void compareLiteHLT2(string run="2023D") {
   // Tag-and-probe method
   f->cd();
   TProfile *pta_tp = new TProfile("pta_tp",";p_{T,tag};p_{T,A}",nx,vx);
+  TProfile *ptb_tp = new TProfile("ptb_tp", ";p_{T,tag};p_{T,B}",nx,vx);
   TProfile *pa_tp = new TProfile("pa_tp",";p_{T,tag};p_{T,A}/p_{T,tag}",nx,vx);
   TProfile *pb_tp = new TProfile("pb_tp",";p_{T,tag};p_{T,B}/p_{T,tag}",nx,vx);
   TProfile *pd_tp = new TProfile("pd_tp",";p_{T,tag};"
@@ -976,7 +977,8 @@ void compareLiteHLT2(string run="2023D") {
 	    double alphatag = (alphaTA>0 && alphaTB>0 ?
 			       0.5*(alphaTA+alphaTB) : max(alphaTA,alphaTB));
 
-	    bool trigger = (HLT_ZeroBias && pttagB>40.);
+        bool trigger = (HLT_ZeroBias && pttagB>40.);
+        // bool trigger = (HLT_PFJet40 )
 	    /*
 	    bool trigger =
 	      ((HLT_PFJet500 && pttag>638) ||
@@ -1001,7 +1003,8 @@ void compareLiteHLT2(string run="2023D") {
 	    //430, 468, 507, 548, 592,
 	    //638, 790, 967, 1172, 1410, 1684, 2000, 2500, 3000, 3500,
 	    //4000, 4500, 5000, 6000};
-	    istp = (dphitag>2.7 && alphatag<0.3 && fabs(etatag)<1.3 &&
+	    bool is_both_dijet = (dphiTA > 2.7) && (dphiTB > 2.7);
+        istp = (dphitag>2.7 && alphatag<0.3 && fabs(etatag)<1.3 &&
 		    pt/pttag<1.35 && ptB/pttag<1.35 &&
 		    pt/pttag>0.45 && ptB/pttag>0.45 && trigger);
 	    istagtrig = trigger;
@@ -1069,8 +1072,10 @@ void compareLiteHLT2(string run="2023D") {
 	    if (istp) {
 	      
 	      // 1D variants
-	      if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
-		pta_tp->Fill(pttag, pt);
+	    if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
+		//if (fabs(eta)>1.3 && fabs(eta)<2.5 && fabs(etaB)>1.3 && fabs(etaB)<2.5){
+        pta_tp->Fill(pttag, pt);
+        ptb_tp->Fill(pttag, ptB);
 		pa_tp->Fill(pttag, pt / pttag);
 		pb_tp->Fill(pttag, ptB / pttag);
 		pd_tp->Fill(pttag, 0.5*(ptB-pt) / pttag);
@@ -1088,6 +1093,7 @@ void compareLiteHLT2(string run="2023D") {
 
 	      if(doPFComposition){
 		if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
+        //if (fabs(eta)>1.3 && fabs(eta)<2.5 && fabs(etaB)>1.3 && fabs(etaB)<2.5){
 		  pchHEFa_tp->Fill(pttag,chHEF);
 		  pchHEFb_tp->Fill(pttag,chHEFB);
 		  pchHEabAbsDiff_tp->Fill(pttag,chHE-chHEB);
@@ -1122,6 +1128,7 @@ void compareLiteHLT2(string run="2023D") {
 	    // Direct matching method
 	    // 1D variants
 	    if (fabs(eta)<1.3 && fabs(etaB)<1.3) {
+        //if (fabs(eta)>1.3 && fabs(eta)<2.5 && fabs(etaB)>1.3 && fabs(etaB)<2.5){
 	      if (trigA) pjesa_dm->Fill(pt, jes);
 	      if (trigB) pjesb_dm->Fill(ptB, jesB);
 	      
