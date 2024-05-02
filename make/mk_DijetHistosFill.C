@@ -93,7 +93,8 @@ void mk_DijetHistosFill(string dataset = "X", string version = "vX", int nFilesM
   "UL2018C_ZB", "UL2018D_ZB", "2022C", "2022D", "2022E", 
   "2022F", "2022G", "2022F1", "2022F2", "2023BCv123", "2023B", "2023Cv123", "2023Cv123_ZB","2023Cv4", 
   "2023D", "2022C_ZB", "2022D_ZB", "2022E_ZB", "2022F_ZB", "2022G_ZB", 
-  "2023BCv123_ZB", "2023Cv4_ZB", "2023D_ZB"
+  "2023BCv123_ZB", "2023Cv4_ZB", "2023D_ZB",
+  "2024B_AlCa",
   };
 
   // Check if dataset is supported

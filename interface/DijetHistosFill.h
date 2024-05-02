@@ -55,6 +55,7 @@ public :
    Bool_t HLT_MC = kTRUE;
    Bool_t Jet_jetveto[100];
 
+   bool isAlCa; // whether running on AlCaLowPtJet
    
   
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -1802,6 +1803,9 @@ public :
    Bool_t          HLT_PPSMaxTracksPerArm1;
    Bool_t          HLT_PPSMaxTracksPerRP4;
    Bool_t          HLTriggerFinalPath;
+   
+   // additional flags for AlCa
+   Bool_t          AlCa_PFJet40;
 
    // Pointers to branches
    map<string, const Bool_t *> mtrg;
@@ -3521,6 +3525,9 @@ public :
    TBranch        *b_HLT_PPSMaxTracksPerRP4;   //!
    TBranch        *b_HLTriggerFinalPath;   //!
 
+   // additional for AlCa
+   TBranch        *b_AlCa_PFJet40;
+
    DijetHistosFill(TTree *tree=0, int itype=1, string datasetname="X",
 		   string versionname="vX");
    virtual ~DijetHistosFill();
@@ -3547,6 +3554,8 @@ public :
 DijetHistosFill::DijetHistosFill(TTree *tree, int itype, string datasetname, string versionname) : fChain(0), isMC(itype), dataset(datasetname), version(versionname)
 {
 
+  // run on AlCaLowPtJet
+  isAlCa = TString(dataset.c_str()).Contains("_AlCa");
 
   // Use data set to decide on active branches
   //string& ds = datasetname;
@@ -3560,6 +3569,7 @@ DijetHistosFill::DijetHistosFill(TTree *tree, int itype, string datasetname, str
 		 0))))));
   isRun3 = (TString(datasetname.c_str()).Contains("2022") ||
 	    TString(datasetname.c_str()).Contains("2023") ||
+      TString(datasetname.c_str()).Contains("2024") ||
 	    TString(datasetname.c_str()).Contains("Summer22") ||
 	    TString(datasetname.c_str()).Contains("Summer23"));
   assert(isRun2 || isRun3);
@@ -4098,6 +4108,28 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("luminosityBlock", &luminosityBlock, &b_luminosityBlock);
    fChain->SetBranchAddress("event", &event, &b_event);
    //fChain->SetBranchAddress("bunchCrossing", &bunchCrossing, &b_bunchCrossing);
+   
+   std::string jetName = "Jet";
+   if (isAlCa) jetName = "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
+    
+   if (isAlCa){
+
+      fChain->SetBranchAddress(("n"+jetName).c_str(), &nJet, &b_nJet);
+      fChain->SetBranchAddress((jetName+"_area").c_str(), Jet_area, &b_Jet_area);
+      fChain->SetBranchAddress((jetName+"_chEmEF").c_str(), Jet_chEmEF, &b_Jet_chEmEF);
+      fChain->SetBranchAddress((jetName+"_chHEF").c_str(), Jet_chHEF, &b_Jet_chHEF);
+      fChain->SetBranchAddress((jetName+"_eta").c_str(), Jet_eta, &b_Jet_eta);
+      fChain->SetBranchAddress((jetName+"_mass").c_str(), Jet_mass, &b_Jet_mass);
+      fChain->SetBranchAddress((jetName+"_muEF").c_str(), Jet_muEF, &b_Jet_muEF);
+      fChain->SetBranchAddress((jetName+"_neEmEF").c_str(), Jet_neEmEF, &b_Jet_neEmEF);
+      fChain->SetBranchAddress((jetName+"_neHEF").c_str(), Jet_neHEF, &b_Jet_neHEF);
+      fChain->SetBranchAddress((jetName+"_phi").c_str(), Jet_phi, &b_Jet_phi);
+      fChain->SetBranchAddress((jetName+"_pt").c_str(), Jet_pt, &b_Jet_pt);
+      fChain->SetBranchAddress((jetName+"_rawFactor").c_str(), Jet_rawFactor, &b_Jet_rawFactor);
+      fChain->SetBranchAddress((jetName+"_nConstituents").c_str(), Jet_nConstituents, &b_Jet_nConstituents);
+      fChain->SetBranchAddress("AlCa_PFJet40", &AlCa_PFJet40, &b_AlCa_PFJet40);
+
+   } else {
    if (isMC) fChain->SetBranchAddress("HTXS_Higgs_pt", &HTXS_Higgs_pt, &b_HTXS_Higgs_pt);
    if (isMC) fChain->SetBranchAddress("HTXS_Higgs_y", &HTXS_Higgs_y, &b_HTXS_Higgs_y);
    if (isMC) fChain->SetBranchAddress("HTXS_stage1_1_cat_pTjet25GeV", &HTXS_stage1_1_cat_pTjet25GeV, &b_HTXS_stage1_1_cat_pTjet25GeV);
@@ -5835,12 +5867,16 @@ void DijetHistosFill::Init(TTree *tree)
    fChain->SetBranchAddress("HLT_PPSMaxTracksPerRP4", &HLT_PPSMaxTracksPerRP4, &b_HLT_PPSMaxTracksPerRP4);
    fChain->SetBranchAddress("HLTriggerFinalPath", &HLTriggerFinalPath, &b_HLTriggerFinalPath);
    */
+   }
 
    //map<string, Bool_t *> mtrg;
    //Bool_t HLT_MC(true);
+   
+   if (isAlCa){
+     mtrg["AlCa_PFJet40"] = &AlCa_PFJet40;
+   } else {
    mtrg["HLT_MC"] = &HLT_MC;
    mtrg["HLT_ZeroBias"] = &HLT_ZeroBias;
-
    if (!isZB) {
      mtrg["HLT_DiPFJetAve40"] = &HLT_DiPFJetAve40;
      mtrg["HLT_DiPFJetAve60"] = &HLT_DiPFJetAve60;
@@ -5885,7 +5921,8 @@ void DijetHistosFill::Init(TTree *tree)
      mtrg["HLT_PFJetFwd450"] = &HLT_PFJetFwd450;
      mtrg["HLT_PFJetFwd500"] = &HLT_PFJetFwd500;
    }
-   
+
+   }   
    Notify();
 }
 

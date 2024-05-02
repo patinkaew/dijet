@@ -23,7 +23,7 @@
 #include <string_view>
 
 // Recalculate JECs
-bool redoJEC = true;
+bool redoJEC = false; // false for AlCa, true otherwise
 
 // MC triggers (slow) or not (faster)
 bool doMCtrigOnly = true;
@@ -426,11 +426,15 @@ void DijetHistosFill::Loop()
   fChain->SetBranchStatus("luminosityBlock", 1);
   fChain->SetBranchStatus("event", 1);
   // fChain->SetBranchStatus("Rho_fixedGridRhoAll",1);
+  if (isAlCa){
+    fChain->SetBranchStatus("HLTRho_fixedGridRhoFastjetAll", 1);
+  } else {
   if (isRun2)
     fChain->SetBranchStatus("fixedGridRhoFastjetAll", 1);
   if (isRun3)
     fChain->SetBranchStatus("Rho_fixedGridRhoFastjetAll", 1);
   fChain->SetBranchStatus("L1_UnprefireableEvent", 1);
+  }
 
   // Listing of available triggers
   vector<string> vtrg = {
@@ -494,6 +498,12 @@ void DijetHistosFill::Loop()
     vtrg.push_back("HLT_ZeroBias");
   }
 
+  if(isAlCa)
+  {
+    vtrg.clear(); // there is jet triggers but will only use AlCa ones
+    vtrg.push_back("AlCa_PFJet40");
+  }
+
   int ntrg = vtrg.size();
 
   for (int i = 0; i != ntrg; ++i)
@@ -507,7 +517,37 @@ void DijetHistosFill::Loop()
     }
     assert(mtrg[vtrg[i]] != 0);
   }
+  
+  std::string jetName = "Jet";
+  if(isAlCa) jetName = "HLTAK4PFJetCorrectedMatchedToCaloJets10ForJEC";
+    
 
+  fChain->SetBranchStatus(("n"+jetName).c_str(), 1);
+  fChain->SetBranchStatus((jetName+"_pt").c_str(), 1);
+  fChain->SetBranchStatus((jetName+"_eta").c_str(), 1);
+  fChain->SetBranchStatus((jetName+"_phi").c_str(), 1);
+  fChain->SetBranchStatus((jetName+"_mass").c_str(), 1);
+  if (!isAlCa)
+    fChain->SetBranchStatus((jetName+"_jetId").c_str(), 1);
+
+  fChain->SetBranchStatus((jetName+"_rawFactor").c_str(), 1);
+  if (isRun2)
+    fChain->SetBranchStatus((jetName+"_area").c_str(), 1);
+
+  // bool doPFComposition = true;
+  if (doPFComposition)
+  {
+    fChain->SetBranchStatus((jetName+"_chHEF").c_str(), 1);  // h+
+    fChain->SetBranchStatus((jetName+"_neHEF").c_str(), 1);  // h0
+    fChain->SetBranchStatus((jetName+"_neEmEF").c_str(), 1); // gamma
+    fChain->SetBranchStatus((jetName+"_chEmEF").c_str(), 1); // e
+    fChain->SetBranchStatus((jetName+"_muEF").c_str(), 1);   // mu
+    // fChain->SetBranchStatus("Jet_hfEmEF",1); // HFe
+    // fChain->SetBranchStatus("Jet_hfHEF",1);  // HFh
+  }
+  
+  
+/*
   fChain->SetBranchStatus("nJet", 1);
   fChain->SetBranchStatus("Jet_pt", 1);
   fChain->SetBranchStatus("Jet_eta", 1);
@@ -530,8 +570,11 @@ void DijetHistosFill::Loop()
     // fChain->SetBranchStatus("Jet_hfEmEF",1); // HFe
     // fChain->SetBranchStatus("Jet_hfHEF",1);  // HFh
   }
+*/
 
   double Jet_l1rcFactor[nJetMax]; // For L1L2L3-RC type-I MET
+
+  if (!isAlCa){
   if (isRun2)
   {
     // raw chs PF MET
@@ -571,10 +614,12 @@ void DijetHistosFill::Loop()
     fChain->SetBranchStatus("TrigObjJMEAK4_eta", 1);
     fChain->SetBranchStatus("TrigObjJMEAK4_phi", 1);
   }
+  }
 
   // List reference pT and abseta thresholds for triggers
   mt["HLT_MC"] = range{10, 3000, 0, 5.2};
   mt["HLT_ZeroBias"] = range{10, 3000, 0, 5.2};
+  mt["AlCa_PFJet40"] = range{0, 3000, 0, 5.2};
 
   mt["HLT_DiPFJetAve40"] = range{40, 85, 0, 5.2};
   mt["HLT_DiPFJetAve60"] = range{85, 100, 0, 5.2};
@@ -931,6 +976,11 @@ void DijetHistosFill::Loop()
                  "Summer23Prompt23_Run2023D_V1_DATA_L2L3Residual_AK4PFPuppi"); //"Winter23Prompt23_RunC_V2_DATA_L2L3Residual_AK4PFPuppi");
   }
 
+  if (TString(dataset.c_str()).Contains("AlCa"))
+  {
+    jec = getFJC("");
+  }
+
   if ((isRun2 && (!jec || !jecl1rc)) || (isRun3 && !jec))
     cout << "Missing files for " << dataset << endl
          << flush;
@@ -1193,7 +1243,7 @@ void DijetHistosFill::Loop()
     cout << "Load JSON (or not)" << endl
          << flush;
 
-  bool doJSON = (true && !isMC);
+  bool doJSON = (true && !isMC && !TString(dataset.c_str()).Contains("2024")); // for 2024, there is no JSON yet
   if (doJSON)
   {
     // if (!LoadJSON()) {
@@ -1249,6 +1299,11 @@ void DijetHistosFill::Loop()
 
     // Figure out trigger pT threshold from the name
     int trgpt(-1), nfound(0);
+    if (nfound != 1)
+    {
+      nfound = (vtrg[itrg] == "AlCa_PFJet40");
+      trgpt = 40;
+    }
     if (nfound != 1)
     {
       nfound = (vtrg[itrg] == "HLT_ZeroBias" || vtrg[itrg] == "HLT_MC" ? 1 : 0);
@@ -1978,7 +2033,7 @@ void DijetHistosFill::Loop()
       dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
       (TString(dataset.c_str()).Contains("Summer23MG") && ! TString(dataset.c_str()).Contains("MGBPix")))
     fjv = new TFile("rootfiles/jetveto2023BC.root", "READ");
-  if (dataset == "2023D" || dataset == "2023D_ZB" ||
+  if (dataset == "2023D" || dataset == "2023D_ZB" || TString(dataset.c_str()).Contains("2024") ||
       TString(dataset.c_str()).Contains("Summer23MGBPix"))
     fjv = new TFile("rootfiles/jetveto2023D.root", "READ");
   assert(fjv);
@@ -2018,8 +2073,9 @@ void DijetHistosFill::Loop()
       dataset == "2023Cv123_ZB" || dataset == "2023Cv4_ZB" ||
       (TString(dataset.c_str()).Contains("Summer23MG") && ! TString(dataset.c_str()).Contains("MGBPix")))
     h2jv = (TH2D *)fjv->Get("jetvetomap");
-  if (dataset == "2023D" || dataset == "2023D_ZB" ||
-      TString(dataset.c_str()).Contains("Summer23MGBPix"))
+  if (dataset == "2023D" || dataset == "2023D_ZB" || dataset == "2023D_HLT" || 
+      TString(dataset.c_str()).Contains("Summer23MGBPix") ||
+      TString(dataset.c_str()).Contains("2024"))
     h2jv = (TH2D *)fjv->Get("jetvetomap");
   assert(h2jv);
 
@@ -2244,6 +2300,8 @@ void DijetHistosFill::Loop()
                            Flag_eeBadScFilter &&
                            Flag_ecalBadCalibFilter);
 
+    if (isAlCa) pass_METfilter = true; //fake the value for AlCa jets 
+
     // Check if any triggers fired and make histogram of them
     if (doTrigger)
     {
@@ -2324,8 +2382,10 @@ void DijetHistosFill::Loop()
         Jet_jetveto[i] = false;
 
       // Fail allJetsGood flag if any jet of pT>15 is not good
+      if (isAlCa) Jet_jetId[i] = 6;
       if (!(Jet_jetId[i] >= 4 && !Jet_jetveto[i]) && Jet_pt[i] > 15.)
         allJetsGood = false;
+      // if (isAlCa) allJetsGood = true;
       // NB: should move this after smearing. Separate loop for type-I MET?
     } // for njet
 
@@ -2585,6 +2645,7 @@ void DijetHistosFill::Loop()
 
           h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
           // Debug
+          if (isAlCa) Jet_jetId[i] = 6;
           if (Jet_jetId[i] >= 4 && pass_METfilter > 0 &&
               pt >= h->ptmin && pt < h->ptmax &&
               abseta >= h->absetamin && abseta < h->absetamax)
@@ -2615,6 +2676,7 @@ void DijetHistosFill::Loop()
           incjetHistos *h = mhij[trg];
 
           h->h2pteta_all->Fill(p4.Eta(), p4.Pt(), w);
+          if (isAlCa) Jet_jetId[i] = 6;
           if (Jet_jetId[i] >= 4 && !Jet_jetveto[i] && pass_METfilter > 0)
           {
 
@@ -2724,6 +2786,12 @@ void DijetHistosFill::Loop()
     double ptrecoil = p4recoil.Pt();
     double dphirecoil = DELTAPHI(p4lead.Phi(), p4recoil.Phi());
     // Use tightLepVeto for JetID
+    if (isAlCa){
+      Jet_jetId[0] = 6;
+      Jet_jetId[1] = 6;
+      Jet_jetId[2] = 6;
+    }
+
     bool ismultijet =
         (nlead == 1 && nrecoil >= 2 && !multijet_vetonear && !multijet_vetofwd &&
          fabs(dphirecoil - TMath::Pi()) < 0.3 && pass_METfilter > 0 &&
@@ -2927,7 +2995,10 @@ void DijetHistosFill::Loop()
         p4dj += p4p;
         double mjj = p4dj.M();
         double deta = fabs(p4p.Eta() - p4t.Eta());
-
+        if (isAlCa){
+          Jet_jetId[itag] = 6;
+          Jet_jetId[iprobe] = 6;
+        } 
         bool isdijet = (fabs(p4t.Eta()) < 1.3 && dphi > 2.7 &&
                         fabs(asymm) < maxa && //!
                         p4t.Pt() > 15. && Jet_jetId[itag] >= 4 &&
